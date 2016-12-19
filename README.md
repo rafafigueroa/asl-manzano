@@ -1,9 +1,22 @@
-Manzano 
+Manzano
 =======================
 
-This software communicates with the Quanterra Q330 family of digitizers. It performs functionaly similar to the open source Lib330 library.
+Manzano is a library to communicate with the Quanterra Q330 family of digitizers, and E300 electronics for STS1 sensors.
 
-Basic instructions (linux):
+green\_manzano is the command line interactive application.
+
+* This README file includes instructions for green\_manzano compilation and instalation.
+
+* The MAN page (green\_manzano.1) includes basic usage.
+
+* The doxyfile (Doxyfile) can be used to generate automatic documentation.
+
+---------------------------------------------------------
+Basic instructions to install green\_manzano (linux):
+
+The only external depencies are CMake, clang++-3.5.
+
+Google test is needed to run the tests, but is not needed to install green\_manzano.
 
 * Install CMake
 
@@ -18,10 +31,6 @@ $ sudo apt-get install clang-3.5 (or newer)
 $ export CXX=/usr/bin/clang++-3.5
 
 * Clone repository (for example at home directory), then:
-
-~/manzano$ git submodule init
-
-~/manzano$ git submodule update
 
 * Move to green\_manzano directory:
 
