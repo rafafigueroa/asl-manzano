@@ -1,0 +1,141 @@
+.\" Manpage for green_manzano.
+
+.TH green_manzano 1 "10 Nov 2016"
+
+.SH NAME
+green_manzano \- command line tool to communicate with seismic devices
+
+.SH SYNOPSIS
+.B green_manzano
+[script_file_name]
+
+.PP
+You will get a prompt, write user instructions with format:
+.PP
+.I action kind[:option] [target|target_address]
+.PP
+ - When a target or target address is not given, uses the current target address
+.br
+ - The current target address can be seen in the prompt message
+.br
+ - A single target or a full target address can be provided. The single target will be used in combination with the current target address
+
+.PP
+Examples:
+
+.br
+.I show command
+(show available commands for current target address)
+.PP
+.I edit target st1q1
+(change current target address to the one specified)
+.PP
+.I get ping st0q0
+(gets a ping from the indicated digitizer)
+.PP
+.I get ping q0
+(single target, results in stxq0 for current target address stx)
+.PP
+.I get ping
+(use the current target address)
+.PP
+.I get stat:boom st0q0
+(gets a special stat message from the digitizer)
+.PP
+.I start cal:sine st1q0s1
+(starts single sine calibration on a sensor)
+
+.\----------------------------------------------------------------------------
+.SH DESCRIPTION
+.PP
+.B *** Files ***
+
+.br
+.B Basic configuration:
+.br
+config.json: describes the different targets with their configuration values, this file must be properly formatted to run the program, see example_config.json
+
+.PP
+.B Calibration sequences:
+.br
+cal_sequences.json: describes all available calibration sequences, named after the sensors that use this sequence. The sensor model in the config.json file should match one sequence on this file in order to perform
+.I plan cal
+.PP
+.B  *** Program terminology ***
+
+.PP
+.B SeismicNetwork:
+.br
+Corresponds to the stations/digitizers/etc added in the configuration file
+.br
+Every device or target in the network is added to a hierarchical tree:
+.PP
+sn: seismic_network
+.br
+└── st: station
+.br
+    └── q: digitizer
+.br
+    │   └── s: sensor
+.br
+    └── dp: data_processor
+.PP
+
+The seismic network is the parent of stations, stations are parents of digitizers and data_processors, digitizers are parents of sensor
+
+.\----------------------------
+.PP
+.B Target:
+.br
+A Target with format
+.I scope[index]
+, representing a device.
+.PP
+.I sn
+SeismicNetwork, the parent of the tree
+.PP
+.I st7
+Station, at index 7 in the seismic network
+.PP
+.I dp0
+DataProcessor, at index 0 in the parent station
+
+.\----------------------------
+.PP
+.B TargetAddress:
+.br
+A combination of targets that identifies a unique device in the seismic network.
+.PP
+.I st0q1
+Digitizer, at index 1 child of a station with index 0
+.PP
+.I st5q0s0
+First sensor, on first digitizer, at station with index 5
+
+.\----------------------------
+.PP
+.B UserInstruction:
+.br
+.I action kind[:option] [target_address]
+.PP
+Is the normal way to communicate with the hardware or modify the status of the program. The combination of the two words results on an unique UserInstruction.
+
+.\----------------------------------------------------------------------------
+.SH OPTIONS
+.B For interactive usage:
+no options.
+.br
+.B For use with a script file:
+script file name.
+
+.\----------------------------------------------------------------------------
+.SH SEE ALSO
+project README for installation instructions
+
+.\----------------------------------------------------------------------------
+.SH BUGS
+Errors in sending threads crash program.
+
+.\----------------------------------------------------------------------------
+.SH AUTHOR
+Rafael Figueroa (rfigueroa@usgs.gov)

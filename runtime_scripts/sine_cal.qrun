@@ -1,0 +1,5 @@
+get ping
+set reg
+start cal:sine st0q0s0
+set dereg
+quit

@@ -1,0 +1,1252 @@
+
+{
+
+    "qdp_header":{
+        "cmd_fields":[
+                {"cf_name": "command_number", "cf_size": 1, "cf_type": "CmdFieldHex<uint8_t>"},
+                {"cf_name": "firmware_version", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+                {"cf_name": "length", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+                {"cf_name": "sequence_number", "cf_size": 2, "cf_type":"CmdField<uint16_t>"},
+                {"cf_name": "acknowledge_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"}
+            ]
+        ,
+        "cmd_number": "0x0",
+        "crc_and_header": false,
+        "originator": "both"
+    },
+
+  "c1_ping_2":{
+    "cmd_fields":[
+
+      {"cf_name": "ping_type", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "user_message_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "status_request_bitmap", "cf_size": 4, "cf_type": "BmRqstat"}
+
+    ],
+    "cmd_number": "0x38",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
+  "c1_ping_3":{
+    "cmd_fields":[
+
+      {"cf_name": "ping_type", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "user_message_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "drift_tolerance", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "user_message_count", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "time_of_last_reboot", "cf_size": 4,
+          "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
+      {"cf_name": "spare_0", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "spare_1", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "status_bitmap", "cf_size": 4, "cf_type": "BmRqstat"}
+
+    ],
+    "cmd_number": "0x38",
+    "crc_and_header": true,
+    "originator": "q"
+ },
+
+  "c1_ping_4":{
+    "cmd_fields":[
+
+      {"cf_name": "ping_type", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "ignore_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"}
+
+    ],
+    "cmd_number": "0x38",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+  "c1_ping_5":{
+    "cmd_fields":[
+
+      {"cf_name": "ping_type", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "ignore_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "version", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "fix_flags", "cf_size": 2, "cf_type": "BmFgFix"},
+      {"cf_name": "kmi_property_tag", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "data_port_1_packet_memory_size", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "bytes"},
+      {"cf_name": "data_port_2_packet_memory_size", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "bytes"},
+      {"cf_name": "data_port_3_packet_memory_size", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "bytes"},
+      {"cf_name": "data_port_4_packet_memory_size", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "bytes"},
+
+      {"cf_name": "serial_interface_1_memory_trigger_level", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "bytes"},
+      {"cf_name": "serial_interface_2_memory_trigger_level", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "bytes"},
+
+      {"cf_name": "reserved_0", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "ethernet_interface_memory_trigger_level", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "bytes"},
+
+      {"cf_name": "serial_interface_1_advanced_flags", "cf_size": 2, "cf_type":  "BmFgSphy"},
+      {"cf_name": "serial_interface_2_advanced_flags", "cf_size": 2, "cf_type":  "BmFgSphy"},
+      {"cf_name": "reserved_1", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "ethernet_interface_advanced_flags", "cf_size": 2, "cf_type":  "BmFgSphy"},
+      {"cf_name": "serial_interface_1_data_port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "serial_interface_2_data_port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "reserved_2", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "ethernet_interface_data_port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "calibration_error_bitmap", "cf_size": 2, "cf_type": "BmCalFail"},
+      {"cf_name": "firmware_major", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "firmware_minor", "cf_size": 1, "cf_type": "CmdField<uint8_t>"}            ]
+
+,       "cmd_number": "0x38",
+    "crc_and_header": true,
+    "originator": "q"
+
+},
+
+   "c1_pollsn":{
+    "cmd_fields":[
+
+      {"cf_name": "serial_number_mask", "cf_size": 2, "cf_type": "CmdFieldHex<uint16_t>"},
+      {"cf_name": "serial_number_match", "cf_size": 2, "cf_type": "CmdFieldHex<uint16_t>"}
+    ],
+    "cmd_number": "0x14",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+  "c1_mysn":{
+    "cmd_fields":[
+
+      {"cf_name": "serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "kmi_property_tag", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "user_tag", "cf_size": 4, "cf_type": "CmdField<uint32_t>"}
+
+    ],
+    "cmd_number": "0xA3",
+    "crc_and_header": true,
+    "originator": "q"
+
+  },
+
+  "c1_cack":{
+    "cmd_fields":[ ],
+    "cmd_number": "0xA0",
+    "crc_and_header": true,
+    "originator": "q"
+
+  },
+
+  "c1_rqsrv":{
+    "cmd_fields":[
+
+      {"cf_name": "serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"}
+
+    ],
+    "cmd_number": "0x10",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+  "c1_srvch":{
+    "cmd_fields":[
+
+      {"cf_name": "challenge_value", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "server_ip_address", "cf_size": 4, "cf_type": "CmdFieldIp"},
+      {"cf_name": "server_udp_port", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "registration_number", "cf_size": 2, "cf_type": "CmdFieldHex<uint16_t>"}
+
+    ],
+    "cmd_number": "0xA1",
+    "crc_and_header": true,
+    "originator": "q"
+
+  },
+
+  "c1_srvrsp":{
+    "cmd_fields":[
+
+      {"cf_name": "serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "challenge_value", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "server_ip_address", "cf_size": 4, "cf_type": "CmdFieldIp"},
+      {"cf_name": "server_udp_port", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "registration_number", "cf_size": 2, "cf_type": "CmdFieldHex<uint16_t>"},
+      {"cf_name": "server_random_value", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "md5_result", "cf_size": 16, "cf_type": "CmdFieldArrayUByte<16>"}
+
+    ],
+    "cmd_number": "0x11",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+
+  "c1_cerr":{
+    "cmd_fields":[
+
+      {"cf_name": "error_code", "cf_size": 2, "cf_type": "BmCerr"}
+
+    ],
+    "cmd_number": "0xA2",
+    "crc_and_header": true,
+    "originator": "q"
+
+  },
+
+  "c1_dsrv":{
+    "cmd_fields":[
+
+      {"cf_name": "serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"}
+
+    ],
+    "cmd_number": "0x12",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+
+  "c1_rqdev":{
+    "cmd_fields":[
+    ],
+    "cmd_number": "0x36",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+
+  "cx_dev":{
+    "cmd_fields":[
+
+      {"cf_name": "port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "unit_id", "cf_size": 2, "cf_type": "BmDevUnitid"},
+      {"cf_name": "version", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "options", "cf_size": 2, "cf_type": "BmDevOpt"},
+      {"cf_name": "serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "device_static_storage", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "seconds_since_heard", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"}
+
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+  "c1_dev":{
+    "cmd_fields" : [],
+    "cmd_number": "0xB3",
+    "crc_and_header": true,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cx_dev"}
+    ]
+
+  },
+
+
+  "c1_rqstat":{
+    "cmd_fields":[
+
+      {"cf_name": "request_bitmap", "cf_size": 4, "cf_type": "BmRqstat"}
+    ],
+    "cmd_number": "0x1F",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+  "c1_ctrl":{
+    "cmd_fields":[
+
+      {"cf_name": "ctrl_flags", "cf_size": 2, "cf_type": "BmCtrlFlags"}
+
+    ],
+    "cmd_number": "0x19",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+  "cx_global_status":{
+    "cmd_fields":[
+
+      {"cf_name": "acquisition_control", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "clock_quality", "cf_size": 2, "cf_type": "BmStatClockQuality"},
+      {"cf_name": "minutes_since_loss", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "analog_voltage_control_valve", "cf_size": 2,
+          "cf_type": "CmdField<int16_t>", "cf_units": "counts"},
+      {"cf_name": "seconds_offset", "cf_size": 4, "cf_type": "CmdFieldDuration<int32_t>"},
+      {"cf_name": "usec_offset", "cf_size": 4, "cf_type": "CmdFieldDuration<int32_t, std::micro>"},
+      {"cf_name": "total_time_in_seconds", "cf_size": 4, "cf_type": "CmdFieldDuration<int32_t>"},
+      {"cf_name": "power_on_time_in_seconds", "cf_size": 4, "cf_type": "CmdFieldDuration<int32_t>"},
+      {"cf_name": "time_of_last_re_sync", "cf_size": 4, "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
+      {"cf_name": "total_number_of_re_syncs", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "gps_status", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "calibrator_status", "cf_size": 2,
+          "cf_type": "BmStatCalibratorStatus"},
+      {"cf_name": "sensor_control_bitmap", "cf_size": 2,
+          "cf_type": "BmStatSensorControlBitmap"},
+      {"cf_name": "current_vco", "cf_size": 2,
+          "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "data_sequence_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "pll_running", "cf_size": 2, "cf_type": "BmPllState"},
+      {"cf_name": "status_inputs", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "misc_inputs", "cf_size": 2, "cf_type": "BmMiscInputs"},
+      {"cf_name": "current_data_sequence_number", "cf_size": 4,
+          "cf_type": "CmdField<uint32_t>"}
+
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+  "cx_gps_status":{
+    "cmd_fields":[
+
+      {"cf_name": "gps_power_on_off_time", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "gps_on", "cf_size": 2, "cf_type": "CmdField<bool, 2>"},
+      {"cf_name": "number_of_satellites_used", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "number_of_satellites_in_view", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "gps_time", "cf_size": 10, "cf_type": "CmdFieldPstring<10>"},
+      {"cf_name": "gps_date", "cf_size": 12, "cf_type": "CmdFieldPstring<12>"},
+      {"cf_name": "gps_fix", "cf_size": 6, "cf_type": "CmdFieldPstring<6>"},
+      {"cf_name": "gps_height", "cf_size": 12, "cf_type": "CmdFieldPstring<12>"},
+      {"cf_name": "gps_latitude", "cf_size": 14, "cf_type": "CmdFieldPstring<14>"},
+      {"cf_name": "gps_longitude", "cf_size": 14, "cf_type": "CmdFieldPstring<14>"},
+      {"cf_name": "time_of_last_good_1pps", "cf_size": 4, "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
+      {"cf_name": "total_checksum_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"}
+
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_power_supply_status":{
+    "cmd_fields":[
+
+      {"cf_name": "charging_phase", "cf_size": 2, "cf_type": "BmChargingPhase"},
+      {"cf_name": "battery_temperature", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+      "cf_units": "Celcius"},
+      {"cf_name": "battery_capacity", "cf_size": 2, "cf_type": "CmdField<uint16_t>",
+          "cf_units" : "percent"},
+      {"cf_name": "depth_of_discharge", "cf_size": 2, "cf_type": "CmdField<uint16_t>",
+          "cf_units" : "percent"},
+      {"cf_name": "battery_voltage", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "mV"},
+      {"cf_name": "input_voltage", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "mV"},
+      {"cf_name": "battery_current", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "mA"},
+      {"cf_name": "absorption_set_point", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "mV"},
+      {"cf_name": "float_set_point", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "mV"},
+      {"cf_name": "alerts", "cf_size": 1,
+          "cf_type": "BmAlerts"},
+      {"cf_name": "loads_off", "cf_size": 1,
+          "cf_type": "BmLoadsOff"}
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_boom_positions":{
+    "cmd_fields":[
+
+      {"cf_name": "channel_1_boom", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "channel_2_boom", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "channel_3_boom", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "channel_4_boom", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "channel_5_boom", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "channel_6_boom", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "analog_positive_supply", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "x10 mV"},
+      {"cf_name": "analog_negative_supply", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "x10 mV"},
+      {"cf_name": "input_power", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "x150 mV"},
+      {"cf_name": "system_temperature", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+      "cf_units": "Celcius"},
+      {"cf_name": "main_current", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "mA"},
+      {"cf_name": "gps_antenna_current", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+          "cf_units" : "mA"},
+      {"cf_name": "seismometer_1_temperature", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+      "cf_units": "Celcius"},
+      {"cf_name": "seismometer_2_temperature", "cf_size": 2, "cf_type": "CmdField<int16_t>",
+      "cf_units": "Celcius"},
+      {"cf_name": "slave_processor_timeouts", "cf_size": 4, "cf_type": "CmdField<uint32_t>"}
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+  "cy_thread_status":{
+    "cmd_fields":[
+
+      {"cf_name": "total_running_time", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>", "cf_units": "ms"},
+      {"cf_name": "priority", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "priority_counter", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "time_since_last_run", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>", "cf_units": "ms"},
+      {"cf_name": "thread_flags", "cf_size": 2, "cf_type": "BmFgThread"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+
+   "cx_thread_status":{
+    "cmd_fields":[
+      {"cf_name": "number_of_entries", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "size_of_this_block", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "total_system_time", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>", "cf_units": "ms"},
+      {"cf_name": "spare_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cy_thread_status"}
+    ]
+
+  },
+
+  "cx_pll_status":{
+    "cmd_fields":[
+
+      {"cf_name": "initial_vco", "cf_size": 4, "cf_type": "CmdField<float>"},
+      {"cf_name": "time_error", "cf_size": 4, "cf_type": "CmdField<float>"},
+      {"cf_name": "rms_vco", "cf_size": 4, "cf_type": "CmdField<float>"},
+      {"cf_name": "best_vco", "cf_size": 4, "cf_type": "CmdField<float>"},
+      {"cf_name": "spare_0", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "ticks_since_last_update", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "km", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "pll_state", "cf_size": 2, "cf_type": "BmPllState"}
+          ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cy_gps_satellites":{
+    "cmd_fields":[
+
+      {"cf_name": "satellite_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "elevation", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "azimuth", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+      {"cf_name": "snr", "cf_size": 2, "cf_type": "CmdField<int16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+
+   "cx_gps_satellites":{
+    "cmd_fields":[
+      {"cf_name": "number_of_entries", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "size_of_this_block", "cf_size": 2, "cf_type": "CmdField<uint16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cy_gps_satellites"}
+    ]
+
+  },
+
+
+  "cy_arp_status":{
+    "cmd_fields":[
+
+      {"cf_name": "ip_address", "cf_size": 4, "cf_type": "CmdFieldIp"},
+      {"cf_name": "mac_address", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>"},
+      {"cf_name": "timeout", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+
+   "cx_arp_status":{
+    "cmd_fields":[
+      {"cf_name": "number_of_entries", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "size_of_this_block", "cf_size": 2, "cf_type": "CmdField<uint16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cy_arp_status"}
+    ]
+
+  },
+
+
+  "cx_data_port_1_status":{
+    "cmd_fields":[
+
+      {"cf_name": "total_data_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_packets_resent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_fill_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "receive_sequence_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "bytes_of_packet_currently_used", "cf_size": 4, "cf_type": "CmdField<uint32_t>",
+       "cf_units": "bytes"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "data_port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "retransmission_timout", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::deci>"},
+      {"cf_name": "dataport_flags", "cf_size": 2, "cf_type": "BmFgDataport"}
+
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+  "cx_data_port_2_status":{
+    "cmd_fields":[
+
+      {"cf_name": "total_data_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_packets_resent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_fill_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "receive_sequence_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "bytes_of_packet_currently_used", "cf_size": 4, "cf_type": "CmdField<uint32_t>",
+       "cf_units": "bytes"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "data_port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "retransmission_timout", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::deci>"},
+      {"cf_name": "dataport_flags", "cf_size": 2, "cf_type": "BmFgDataport"}
+
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_data_port_3_status":{
+    "cmd_fields":[
+
+      {"cf_name": "total_data_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_packets_resent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_fill_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "receive_sequence_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "bytes_of_packet_currently_used", "cf_size": 4, "cf_type": "CmdField<uint32_t>",
+       "cf_units": "bytes"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "data_port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "retransmission_timout", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::deci>"},
+      {"cf_name": "dataport_flags", "cf_size": 2, "cf_type": "BmFgDataport"}
+
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_data_port_4_status":{
+    "cmd_fields":[
+
+      {"cf_name": "total_data_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_packets_resent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_fill_packets_sent", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "receive_sequence_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "bytes_of_packet_currently_used", "cf_size": 4, "cf_type": "CmdField<uint32_t>",
+       "cf_units": "bytes"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "data_port_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "retransmission_timout", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::deci>"},
+      {"cf_name": "dataport_flags", "cf_size": 2, "cf_type": "BmFgDataport"}
+
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_serial_interface_1_status":{
+    "cmd_fields":[
+
+      {"cf_name": "receive_checksum_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_io_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "spare_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "destination_unreachable_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "source_quench_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "echo_request_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "redirect_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "character_overruns", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "framing_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"}
+          ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_serial_interface_2_status":{
+    "cmd_fields":[
+
+      {"cf_name": "receive_checksum_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_io_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "spare_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "destination_unreachable_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "source_quench_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "echo_request_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "redirect_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "character_overruns", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "framing_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"}
+          ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+  "cx_serial_interface_3_status":{
+    "cmd_fields":[
+
+      {"cf_name": "receive_checksum_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_io_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "spare_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "destination_unreachable_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "source_quench_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "echo_request_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "redirect_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "character_overruns", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "framing_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"}
+          ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+  "cx_ethernet_status":{
+    "cmd_fields":[
+
+      {"cf_name": "receive_checksum_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_io_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "physical_interface_number", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "spare_1", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "destination_unreachable_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "source_quench_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "echo_request_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "redirect_icmp_packets_received", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "runt_frames", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "crc_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "broadcast_frames", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "unicast_frames", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "total_good_frames", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "jabber_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "out_of_window", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "transmitted_ok", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "received_packets_missed", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "transmit_collisions", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "current_link_status", "cf_size": 2, "cf_type": "BmEthernetLinkstatus"},
+      {"cf_name": "spare_2", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "spare_3", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"}
+
+          ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_baler_status":{
+    "cmd_fields":[
+
+      {"cf_name": "serial_1_last_time", "cf_size": 4, "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
+      {"cf_name": "serial_1_total_number_of_cycles", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "serial_1_baler_status_and_timeouts", "cf_size": 2, "cf_type": "BmBalerstatus"},
+      {"cf_name": "serial_1_baler_on_off_minutes", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "serial_2_last_time", "cf_size": 4, "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
+      {"cf_name": "serial_2_total_number_of_cycles", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "serial_2_baler_status_and_timeouts", "cf_size": 2, "cf_type": "BmBalerstatus"},
+      {"cf_name": "serial_2_baler_on_off_minutes", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "special_last_time", "cf_size": 4, "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
+      {"cf_name": "special_total_number_of_cycles", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "special_baler_status_and_timeouts", "cf_size": 2, "cf_type": "BmBalerstatusSpecial"},
+      {"cf_name": "special_baler_on_off_minutes", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "ethernet_last_time", "cf_size": 4, "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
+      {"cf_name": "ethernet_total_number_of_cycles", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "ethernet_baler_status_and_timeouts", "cf_size": 2, "cf_type": "BmBalerstatus"},
+      {"cf_name": "ethernet_baler_on_off_minutes", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"}
+
+          ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cx_dynamic_ip":{
+    "cmd_fields":[
+
+      {"cf_name": "serial_1_ip_address", "cf_size": 4, "cf_type": "CmdFieldIp"},
+      {"cf_name": "serial_2_ip_address", "cf_size": 4, "cf_type": "CmdFieldIp"},
+      {"cf_name": "reserved", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "ethernet_ip_address", "cf_size": 4, "cf_type": "CmdFieldIp"}
+
+               ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+
+  },
+
+
+  "cy_auxiliary_board_status":{
+    "cmd_fields":[
+
+      {"cf_name": "conversion", "cf_size": 4, "cf_type": "CmdField<int32_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+
+   "cx_auxiliary_board_status":{
+    "cmd_fields":[
+
+      {"cf_name": "size_of_this_block", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "packet_version", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "aux_type", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "aux_version", "cf_size": 2, "cf_type": "CmdField<uint16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cy_auxiliary_board_status"}
+    ]
+
+  },
+
+
+  "cz_internal_temperature_measurement":{
+    "cmd_fields":[
+
+      {"cf_name": "internal_temperature_measurement", "cf_size": 4, "cf_type": "CmdField<int32_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+  "cz_humidity_and_external_temperature":{
+    "cmd_fields":[
+
+      {"cf_name": "humidity_measurement", "cf_size": 4, "cf_type": "CmdField<int32_t>"},
+      {"cf_name": "external_temperature_measurement", "cf_size": 4, "cf_type": "CmdField<int32_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+  "cy_serial_sensor_status":{
+    "cmd_fields":[
+
+      {"cf_name": "size_of_this_sub_block", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "sensor_type", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "serial_interface", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "seconds_per_sample", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+      {"cf_name": "units", "cf_size": 2, "cf_type": "BmSerialsensorUnits"},
+      {"cf_name": "integration_time", "cf_size": 2, "cf_type": "CmdFieldDuration<int16_t, std::milli>"},
+      {"cf_name": "fractional_digits", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "valid_fields", "cf_size": 2, "cf_type": "BmSerialsensorValidfields"},
+      {"cf_name": "pressure_measurements", "cf_size": 2, "cf_type": "CmdField<int16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q",
+    "fixed_map": true,
+    "cmd_map":[
+        {"key_name": "cz_internal_temperature_measurement"},
+        {"key_name": "cz_humidity_and_external_temperature"}
+    ]
+  },
+
+   "cx_serial_sensor_status":{
+    "cmd_fields":[
+      {"cf_name": "total_size_of_this_block", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "number_of_sub_blocks", "cf_size": 2, "cf_type": "CmdField<uint16_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cy_serial_sensor_status"}
+    ]
+
+  },
+
+  "cy_environmental_processor_status":{
+    "cmd_fields":[
+
+      {"cf_name": "initial_vco", "cf_size": 4, "cf_type": "CmdField<float>"},
+      {"cf_name": "time_error", "cf_size": 4, "cf_type": "CmdField<float>"},
+      {"cf_name": "best_vco", "cf_size": 4, "cf_type": "CmdField<float>"},
+      {"cf_name": "ticks_since_last_update", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "km", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "state", "cf_size": 2, "cf_type": "BmPllState"},
+      {"cf_name": "spare_1", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "ep_serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "processor_id", "cf_size": 4, "cf_type": "BmProcessorid"},
+      {"cf_name": "seconds_since_boot", "cf_size": 4, "cf_type": "CmdFieldDuration<uint32_t>"},
+      {"cf_name": "seconds_since_resync", "cf_size": 4, "cf_type": "CmdFieldDuration<uint32_t>"},
+      {"cf_name": "number_of_resyncs", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "q330_communication_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "ep_communication_errors", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "spare_2", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "sdi_devices_active", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "firmware_version", "cf_size": 2, "cf_type": "BmFirmwareversion"},
+      {"cf_name": "environmental_flags", "cf_size": 2, "cf_type": "BmFgEnvironmental"},
+      {"cf_name": "analog_channels", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "ep_model", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "ep_revision", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "gains", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "input_voltage_to_ep", "cf_size": 2, "cf_type": "CmdField<uint16_t>", "cf_units": "x0.1V"},
+      {"cf_name": "internal_humidity", "cf_size": 2, "cf_type": "CmdField<uint16_t>", "cf_units": "%"},
+      {"cf_name": "built_in_pressure", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "micro bar"},
+      {"cf_name": "internal_temperature", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "x0.1C"},
+      {"cf_name": "ad_input_channel_1", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "counts"},
+      {"cf_name": "ad_input_channel_2", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "counts"},
+      {"cf_name": "ad_input_channel_3", "cf_size": 4, "cf_type": "CmdField<uint32_t>", "cf_units": "counts"},
+      {"cf_name": "spare_3", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+
+      {"cf_name": "sdi1_sdi_address", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi1_phase", "cf_size": 1, "cf_type": "BmSdiphase"},
+      {"cf_name": "sdi1_driver_id", "cf_size": 1, "cf_type": "BmSdidriver"},
+      {"cf_name": "sdi1_spare_1", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi1_sensor_model", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>"},
+      {"cf_name": "sdi1_serial_number", "cf_size": 11, "cf_type": "CmdFieldArrayUByte<11>"},
+      {"cf_name": "sdi1_spare_3", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi1_sensor_version", "cf_size": 3, "cf_type": "CmdField<uint32_t, 3>"},
+      {"cf_name": "sdi1_spare_4", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+
+      {"cf_name": "sdi2_sdi_address", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi2_phase", "cf_size": 1, "cf_type": "BmSdiphase"},
+      {"cf_name": "sdi2_driver_id", "cf_size": 1, "cf_type": "BmSdidriver"},
+      {"cf_name": "sdi2_spare_1", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi2_sensor_model", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>"},
+      {"cf_name": "sdi2_serial_number", "cf_size": 11, "cf_type": "CmdFieldArrayUByte<11>"},
+      {"cf_name": "sdi2_spare_3", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi2_sensor_version", "cf_size": 3, "cf_type": "CmdField<uint32_t, 3>"},
+      {"cf_name": "sdi2_spare_4", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+
+      {"cf_name": "sdi3_sdi_address", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi3_phase", "cf_size": 1, "cf_type": "BmSdiphase"},
+      {"cf_name": "sdi3_driver_id", "cf_size": 1, "cf_type": "BmSdidriver"},
+      {"cf_name": "sdi3_spare_1", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi3_sensor_model", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>"},
+      {"cf_name": "sdi3_serial_number", "cf_size": 11, "cf_type": "CmdFieldArrayUByte<11>"},
+      {"cf_name": "sdi3_spare_3", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi3_sensor_version", "cf_size": 3, "cf_type": "CmdField<uint32_t, 3>"},
+      {"cf_name": "sdi3_spare_4", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+
+      {"cf_name": "sdi4_sdi_address", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi4_phase", "cf_size": 1, "cf_type": "BmSdiphase"},
+      {"cf_name": "sdi4_driver_id", "cf_size": 1, "cf_type": "BmSdidriver"},
+      {"cf_name": "sdi4_spare_1", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi4_sensor_model", "cf_size": 6, "cf_type": "CmdField<uint64_t, 6>"},
+      {"cf_name": "sdi4_serial_number", "cf_size": 11, "cf_type": "CmdFieldArrayUByte<11>"},
+      {"cf_name": "sdi4_spare_3", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "sdi4_sensor_version", "cf_size": 3, "cf_type": "CmdField<uint32_t, 3>"},
+      {"cf_name": "sdi4_spare_4", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+
+      {"cf_name": "adc_serial_number", "cf_size": 8, "cf_type": "CmdFieldHex<uint64_t>"},
+      {"cf_name": "adc_model", "cf_size": 1, "cf_type": "BmAdcmodel"},
+      {"cf_name": "adc_revision", "cf_size": 1, "cf_type": "CmdField<uint8_t>"},
+      {"cf_name": "adc_spare_1", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "adc_spare_2", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "adc_spare_3", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "adc_spare_4", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"},
+      {"cf_name": "adc_spare_5", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"}
+    ],
+
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+  },
+
+
+   "cx_environmental_processor_status":{
+    "cmd_fields": [],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cy_environmental_processor_status"}
+    ]
+
+  },
+
+
+  "c1_stat":{
+    "cmd_fields":[
+
+      {"cf_name": "status_bitmap", "cf_size": 4, "cf_type": "BmStatStatusBitmap"}
+
+    ],
+
+    "cmd_number": "0xA9",
+    "crc_and_header": true,
+    "originator": "dp",
+    "fixed_map": true,
+    "cmd_map":[
+        {"key_name": "cx_global_status"},
+        {"key_name": "cx_gps_status"},
+        {"key_name": "cx_power_supply_status"},
+        {"key_name": "cx_boom_positions"},
+        {"key_name": "cx_thread_status"},
+        {"key_name": "cx_pll_status"},
+        {"key_name": "cx_gps_satellites"},
+        {"key_name": "cx_arp_status"},
+        {"key_name": "cx_data_port_1_status"},
+        {"key_name": "cx_data_port_2_status"},
+        {"key_name": "cx_data_port_3_status"},
+        {"key_name": "cx_data_port_4_status"},
+        {"key_name": "cx_serial_interface_1_status"},
+        {"key_name": "cx_serial_interface_2_status"},
+        {"key_name": "cx_serial_interface_3_status"},
+        {"key_name": "cx_ethernet_status"},
+        {"key_name": "cx_baler_status"},
+        {"key_name": "cx_dynamic_ip"},
+        {"key_name": "cx_auxiliary_board_status"},
+        {"key_name": "cx_serial_sensor_status"},
+        {"key_name": "cx_environmental_processor_status"}
+    ]
+
+  },
+
+  "c1_rqsc":{
+    "cmd_fields":[
+    ],
+    "cmd_number": "0x2F",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
+  "c1_sc":{
+    "cmd_fields":[
+
+      {"cf_name": "sensor_output_1_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_2_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_3_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_4_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_5_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_6_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_7_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_8_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"}
+
+    ],
+    "cmd_number": "0xAF",
+    "crc_and_header": true,
+    "originator": "q"
+ },
+
+  "c1_qcal":{
+    "cmd_fields":[
+
+      {"cf_name": "starting_time", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "waveform", "cf_size": 2, "cf_type": "BmCalWaveform"},
+      {"cf_name": "amplitude", "cf_size": 2, "cf_type": "CmdFieldCalAmplitude"},
+      {"cf_name": "cal_duration", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+      {"cf_name": "settling_time", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+      {"cf_name": "calibration_bitmap", "cf_size": 2, "cf_type": "BmCalibrationBitmap"},
+      {"cf_name": "trailer_time", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+      {"cf_name": "sensor_control_bitmap", "cf_size": 2, "cf_type": "BmCalSensorControlBitmap"},
+      {"cf_name": "monitor_channel_bitmap", "cf_size": 2, "cf_type": "BmCalMonitorChannel"},
+      {"cf_name": "frequency_divider", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "spare_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "coupling_bytes", "cf_size": 12, "cf_type": "CmdFieldArrayChar<12>"}
+    ],
+    "cmd_number": "0x23",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
+  "c1_stop":{
+    "cmd_fields":[
+    ],
+    "cmd_number": "0x24",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
+  "c2_rqqv":{
+    "cmd_fields":[
+
+      {"cf_name": "lowest_sequence_number", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "channel_map", "cf_size": 2, "cf_type": "BmChannelMap"}
+
+    ],
+    "cmd_number": "0x5F",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
+  "cx_qv":{
+    "cmd_fields":[
+
+      {"cf_name": "channel", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "shift_count", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "seconds_offset", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+      {"cf_name": "spare_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"},
+      {"cf_name": "starting_value", "cf_size": 4, "cf_type": "CmdField<int32_t>"},
+      {"cf_name": "byte_difference", "cf_size": 40, "cf_type": "CmdFieldArrayByte<40>"}
+    ],
+    "cmd_number": "0",
+    "crc_and_header": false,
+    "originator": "q"
+ },
+
+
+  "c2_qv":{
+    "cmd_fields":[
+
+      {"cf_name": "starting_sequence_number", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "seconds_count", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+      {"cf_name": "number_of_entries", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "actual_channel_mask", "cf_size": 2, "cf_type": "BmChannelMap"},
+      {"cf_name": "spare_0", "cf_size": 2, "cf_type": "CmdFieldIgnore<uint16_t>"}
+    ],
+    "cmd_number": "0xCA",
+    "crc_and_header": true,
+    "originator": "q",
+    "fixed_map": false,
+    "cmd_map":[
+        {"key_name": "cx_qv"}
+    ]
+ },
+
+  "c2_samass":{
+    "cmd_fields":[
+      {"cf_name": "tolerance_1a", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_1b", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_1c", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "maximum_tries_1", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "normal_interval_1", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "squelch_interval_1", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "sensor_control_bitmap_1", "cf_size": 2, "cf_type": "BmStatSensorControlBitmap"},
+      {"cf_name": "pulse_duration_1", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::centi>"},
+      {"cf_name": "tolerance_2a", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_2b", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_2c", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "maximum_tries_2", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "normal_interval_2", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "squelch_interval_2", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "sensor_control_bitmap_2", "cf_size": 2, "cf_type": "BmStatSensorControlBitmap"},
+      {"cf_name": "pulse_duration_2", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::centi>"}
+    ],
+    "cmd_number": "0x57",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
+  "c2_rqamass":{
+    "cmd_fields":[
+    ],
+    "cmd_number": "0x58",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
+  "c2_amass":{
+    "cmd_fields":[
+      {"cf_name": "tolerance_1a", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_1b", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_1c", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "maximum_tries_1", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "normal_interval_1", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "squelch_interval_1", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "sensor_control_bitmap_1", "cf_size": 2, "cf_type": "BmStatSensorControlBitmap"},
+      {"cf_name": "pulse_duration_1", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::centi>"},
+      {"cf_name": "tolerance_2a", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_2b", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "tolerance_2c", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "maximum_tries_2", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+      {"cf_name": "normal_interval_2", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "squelch_interval_2", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::ratio<60> >"},
+      {"cf_name": "sensor_control_bitmap_2", "cf_size": 2, "cf_type": "BmStatSensorControlBitmap"},
+      {"cf_name": "pulse_duration_2", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::centi>"}
+    ],
+    "cmd_number": "0xC4",
+    "crc_and_header": true,
+    "originator": "q"
+ },
+
+"c1_glob":{
+  "cmd_fields":
+  [
+    {"cf_name": "clock_timeout", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+    {"cf_name": "initial_vco", "cf_size": 2, "cf_type": "BmInitialVco"},
+    {"cf_name": "gps_backup_power", "cf_size": 2, "cf_type": "CmdField<bool, 2>"},
+    {"cf_name": "aux_status_web_flags", "cf_size": 2, "cf_type": "BmAuxStatusWebFlags"},
+    {"cf_name": "gain_pre_amp", "cf_size": 2, "cf_type": "BmGainPreAmp"},
+    {"cf_name": "linear_phase_filters", "cf_size": 2, "cf_type": "BmLinearPhaseFilters"},
+    {"cf_name": "input_bitmap", "cf_size": 2, "cf_type": "BmInputBitmap"},
+    {"cf_name": "web_server_tcp_port", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "server_timeout", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+    {"cf_name": "drift_tolerance", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::micro>"},
+    {"cf_name": "jump_filter", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "jump_threshold", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::micro>"},
+    {"cf_name": "calibrator_offset", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "sensor_control_bitmap", "cf_size": 2, "cf_type": "BmStatSensorControlBitmap"},
+    {"cf_name": "sampling_phase", "cf_size": 2, "cf_type": "CmdFieldDuration<int16_t>"},
+    {"cf_name": "gps_cold_start_seconds", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},
+    {"cf_name": "kmi_user_tag", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+
+    {"cf_name": "channel_1_freq_bit_0_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_1_freq_bit_1_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_1_freq_bit_2_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_1_freq_bit_3_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_1_freq_bit_4_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_1_freq_bit_5_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_1_freq_bit_6_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_1_freq_bit_7_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+
+    {"cf_name": "channel_2_freq_bit_0_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_2_freq_bit_1_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_2_freq_bit_2_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_2_freq_bit_3_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_2_freq_bit_4_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_2_freq_bit_5_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_2_freq_bit_6_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_2_freq_bit_7_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+
+    {"cf_name": "channel_3_freq_bit_0_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_3_freq_bit_1_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_3_freq_bit_2_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_3_freq_bit_3_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_3_freq_bit_4_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_3_freq_bit_5_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_3_freq_bit_6_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_3_freq_bit_7_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+
+    {"cf_name": "channel_4_freq_bit_0_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_4_freq_bit_1_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_4_freq_bit_2_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_4_freq_bit_3_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_4_freq_bit_4_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_4_freq_bit_5_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_4_freq_bit_6_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_4_freq_bit_7_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+
+    {"cf_name": "channel_5_freq_bit_0_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_5_freq_bit_1_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_5_freq_bit_2_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_5_freq_bit_3_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_5_freq_bit_4_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_5_freq_bit_5_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_5_freq_bit_6_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_5_freq_bit_7_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+
+    {"cf_name": "channel_6_freq_bit_0_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_6_freq_bit_1_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_6_freq_bit_2_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_6_freq_bit_3_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_6_freq_bit_4_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_6_freq_bit_5_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_6_freq_bit_6_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "channel_6_freq_bit_7_scale", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+
+    {"cf_name": "channel_1_offset", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_2_offset", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_3_offset", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_4_offset", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_5_offset", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_6_offset", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+
+    {"cf_name": "channel_1_gain", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_2_gain", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_3_gain", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_4_gain", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_5_gain", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "channel_6_gain", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+
+    {"cf_name": "ignore", "cf_size": 4, "cf_type": "CmdFieldIgnore<uint32_t>"}
+  ],
+  "cmd_number": "0xA6",
+  "crc_and_header": true,
+  "originator": "q"
+},
+
+"c1_rqglob":{
+  "cmd_fields":
+  [
+  ],
+  "cmd_number": "0x1B",
+  "crc_and_header": true,
+  "originator": "dp"
+},
+
+"dt_open":{
+"cmd_fields":
+  [
+  ],
+  "cmd_number": "0xB",
+  "crc_and_header": true,
+  "originator": "dp"
+},
+
+"qdp_crc":{
+  "cmd_fields":
+  [
+    {"cf_name": "crc", "cf_size": 4, "cf_type": "CmdFieldArrayUByte<4>"}
+  ],
+  "cmd_number": "0x0",
+  "crc_and_header": false,
+  "originator": "both"
+}
+
+}
+
+

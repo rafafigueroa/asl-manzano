@@ -1,0 +1,791 @@
+
+{
+
+  "bm_dev_unitid":{
+    "bm_fields":[
+
+        {"bmf_name": "unit_id", "bmf_code_full_range": true,
+            "bmf_codes":[
+                {"bmf_code_name": "sp1320_power_supply", "bmf_code": 13},
+                {"bmf_code_name": "power_supply_1", "bmf_code": 15},
+                {"bmf_code_name": "power_supply_2", "bmf_code": 17},
+                {"bmf_code_name": "power_supply_3", "bmf_code": 19},
+                {"bmf_code_name": "black_and_white_camera", "bmf_code": 20},
+                {"bmf_code_name": "qcal_calibrator", "bmf_code": 33},
+                {"bmf_code_name": "whoi_controller", "bmf_code": 99}
+            ]
+        }
+
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_calibration_bitmap":{
+    "bm_fields":[
+
+        {"bmf_name": "input", "bmf_code_full_range": true,
+            "bmf_codes":[
+                {"bmf_code_name": "a", "bmf_code": 3},
+                {"bmf_code_name": "b", "bmf_code": 56}
+            ]
+        }
+
+    ],
+    "mf_size": 2, "bm_originator": "dp"
+  },
+
+  "bm_serialsensor_units":{
+    "bm_fields":[
+
+        {"bmf_name": "pressure_units", "bmf_code_full_range": true,
+            "bmf_codes":[
+                {"bmf_code_name": "unknown", "bmf_code": 0},
+                {"bmf_code_name": "psi", "bmf_code": 1},
+                {"bmf_code_name": "hpa", "bmf_code": 2},
+                {"bmf_code_name": "bar", "bmf_code": 3},
+                {"bmf_code_name": "kpa", "bmf_code": 4},
+                {"bmf_code_name": "mpa", "bmf_code": 5},
+                {"bmf_code_name": "in_hg", "bmf_code": 6},
+                {"bmf_code_name": "mm_hg", "bmf_code": 7},
+                {"bmf_code_name": "m_h2o", "bmf_code": 8}
+            ]
+        }
+
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_serialsensor_validfields":{
+    "bm_fields":[
+
+      {"bmf_name": "pressure_measurement_is_valid", "bmf_bit": 0},
+      {"bmf_name": "internal_temperature_measurement_is_valid", "bmf_bit": 1},
+      {"bmf_name": "humidity_measurement_is_valid", "bmf_bit": 2},
+      {"bmf_name": "external_temperature_measurement_is_valid", "bmf_bit": 3}
+
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_sdiphase":{
+    "bm_fields":[
+
+        {"bmf_name": "sdi_phase", "bmf_code_full_range": true,
+            "bmf_codes": [
+                {"bmf_code_name": "ready_to_run", "bmf_code": 6},
+                {"bmf_code_name": "sampling", "bmf_code": 7},
+                {"bmf_code_name": "waiting_for_sample_result", "bmf_code": 8}
+            ]
+        }
+
+    ],
+    "mf_size": 1, "bm_originator": "q"
+  },
+
+
+  "bm_sdidriver":{
+    "bm_fields":[
+
+        {"bmf_name": "sdi_driver", "bmf_code_full_range": true,
+            "bmf_codes": [
+                {"bmf_code_name": "vaisala_wxt520_weather_station", "bmf_code": 1}
+            ]
+        }
+
+    ],
+    "mf_size": 1, "bm_originator": "q"
+  },
+
+  "bm_adcmodel":{
+    "bm_fields":[
+
+        {"bmf_name": "adc_model", "bmf_code_full_range": true,
+            "bmf_codes": [
+                {"bmf_code_name": "no_adc_module_installed", "bmf_code": 0},
+                {"bmf_code_name": "one_channel_adc_module_configured_for_setra_use", "bmf_code": 1},
+                {"bmf_code_name": "generic_one_channel_adc_module", "bmf_code": 2},
+                {"bmf_code_name": "generic_three_adc_module", "bmf_code": 3}
+            ]
+        }
+
+    ],
+    "mf_size": 1, "bm_originator": "q"
+  },
+
+
+  "bm_cerr":{
+    "bm_fields":[
+
+        {"bmf_name": "error_code", "bmf_code_full_range": true,
+            "bmf_codes": [
+                {"bmf_code_name": "no_permission_invalid_password", "bmf_code": 0},
+                {"bmf_code_name": "too_many_configuration_or_special_functions", "bmf_code": 1},
+                {"bmf_code_name": "you_are_not_registered", "bmf_code": 2},
+                {"bmf_code_name": "invalid_registration_response", "bmf_code": 3},
+                {"bmf_code_name": "parameter_error", "bmf_code": 4},
+                {"bmf_code_name": "tried_to_read_an_eeprom_structure_that_is_not_valid", "bmf_code": 5},
+                {"bmf_code_name": "configuration_only", "bmf_code": 6},
+                {"bmf_code_name": "special_functions_port_only", "bmf_code": 7},
+                {"bmf_code_name": "memory_operation_in_progress", "bmf_code": 8},
+                {"bmf_code_name": "calibration_in_progress", "bmf_code": 9},
+                {"bmf_code_name": "data_not_yet_available_for_quickview", "bmf_code": 10},
+                {"bmf_code_name": "console_virtual_interface_only", "bmf_code": 11},
+                {"bmf_code_name": "flash_write_or_erase_error", "bmf_code": 12}
+            ]
+        }
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+
+ "bm_charging_phase":{
+    "bm_fields":[
+
+      {"bmf_name": "charging_phase", "bmf_code_full_range": true,
+          "bmf_codes": [
+              {"bmf_code_name": "not_charging", "bmf_code": 0},
+              {"bmf_code_name": "bulk", "bmf_code": 1},
+              {"bmf_code_name": "absorption", "bmf_code": 2},
+              {"bmf_code_name": "float_phase", "bmf_code": 3},
+              {"bmf_code_name": "equalization", "bmf_code": 4}
+          ]
+      }
+
+    ]
+,    "mf_size": 2, "bm_originator": "q"
+
+},
+
+ "bm_stat_clock_quality":{
+    "bm_fields":[
+
+      {"bmf_name": "clock_has_ever_had_lock", "bmf_bit": 0},
+      {"bmf_name": "clock_currently_has_2d_lock", "bmf_bit": 1},
+      {"bmf_name": "clock_currently_has_3d_lock", "bmf_bit": 2},
+      {"bmf_name": "clock_currently_has_1d_lock", "bmf_bit": 3},
+      {"bmf_name": "timemarks_current_frozen_due_to_filtering", "bmf_bit": 4},
+      {"bmf_name": "speculative_lock_based_on_internal_clock", "bmf_bit": 5},
+      {"bmf_name": "pll_status", "bmf_code_full_range": false,
+          "bmf_code_begin": 6, "bmf_code_mask": "0x3",
+          "bmf_codes": [
+              {"bmf_code_name": "pll_not_enabled",  "bmf_code": 0},
+              {"bmf_code_name": "pll_hold", "bmf_code": 1},
+              {"bmf_code_name": "pll_tracking", "bmf_code": 2},
+              {"bmf_code_name": "pll_locked", "bmf_code": 3}
+          ]
+      }
+    ]
+
+,   "mf_size": 2, "bm_originator": "q"
+},
+
+ "bm_aux_status_web_flags":{
+    "bm_fields":[
+
+      {"bmf_name": "allow_unauthenticated_baler_power_control_on_web_page", "bmf_bit": 2},
+      {"bmf_name": "allow_unauthenticated_baler_link_web_page", "bmf_bit": 3},
+      {"bmf_name": "show_q330_serial_number_on_web_page", "bmf_bit": 4},
+      {"bmf_name": "aux_reporting_interval", "bmf_code_full_range": false,
+          "bmf_code_begin": 0, "bmf_code_mask": "0x3",
+          "bmf_codes": [
+              {"bmf_code_name": "not_reported",  "bmf_code": 0},
+              {"bmf_code_name": "one_hertz", "bmf_code": 1}
+          ]
+      },
+      {"bmf_name": "status_port_reporting_interval", "bmf_code_full_range": false,
+          "bmf_code_begin": 8, "bmf_code_mask": "0x3",
+          "bmf_codes": [
+              {"bmf_code_name": "not_reported",  "bmf_code": 0},
+              {"bmf_code_name": "one_hertz", "bmf_code": 1}
+          ]
+      }
+    ]
+
+,   "mf_size": 2, "bm_originator": "q"
+},
+
+"bm_gain_pre_amp":{
+  "bm_fields":
+  [
+
+    {"bmf_name": "gain_pre_amp_channel_1", "bmf_code_full_range": false,
+      "bmf_code_begin": 0, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "disabled",  "bmf_code": 0},
+        {"bmf_code_name": "pre_amp_off", "bmf_code": 1},
+        {"bmf_code_name": "pre_amp_on", "bmf_code": 2}
+      ]
+    },
+
+    {"bmf_name": "gain_pre_amp_channel_2", "bmf_code_full_range": false,
+      "bmf_code_begin": 2, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "disabled",  "bmf_code": 0},
+        {"bmf_code_name": "pre_amp_off", "bmf_code": 1},
+        {"bmf_code_name": "pre_amp_on", "bmf_code": 2}
+      ]
+    },
+
+    {"bmf_name": "gain_pre_amp_channel_3", "bmf_code_full_range": false,
+      "bmf_code_begin": 4, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "disabled",  "bmf_code": 0},
+        {"bmf_code_name": "pre_amp_off", "bmf_code": 1},
+        {"bmf_code_name": "pre_amp_on", "bmf_code": 2}
+      ]
+    },
+
+    {"bmf_name": "gain_pre_amp_channel_4", "bmf_code_full_range": false,
+      "bmf_code_begin": 6, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "disabled",  "bmf_code": 0},
+        {"bmf_code_name": "pre_amp_off", "bmf_code": 1},
+        {"bmf_code_name": "pre_amp_on", "bmf_code": 2}
+      ]
+    },
+
+    {"bmf_name": "gain_pre_amp_channel_5", "bmf_code_full_range": false,
+      "bmf_code_begin": 8, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "disabled",  "bmf_code": 0},
+        {"bmf_code_name": "pre_amp_off", "bmf_code": 1},
+        {"bmf_code_name": "pre_amp_on", "bmf_code": 2}
+      ]
+    },
+
+    {"bmf_name": "gain_pre_amp_channel_6", "bmf_code_full_range": false,
+      "bmf_code_begin": 10, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "disabled",  "bmf_code": 0},
+        {"bmf_code_name": "pre_amp_off", "bmf_code": 1},
+        {"bmf_code_name": "pre_amp_on", "bmf_code": 2}
+      ]
+    }
+  ],
+
+  "mf_size": 2, "bm_originator": "q"
+},
+
+"bm_linear_phase_filters":{
+  "bm_fields":
+  [
+
+    {"bmf_name": "linear_phase_filters_input_a", "bmf_code_full_range": false,
+      "bmf_code_begin": 0, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "for_all_frequencies", "bmf_code": 0},
+        {"bmf_code_name": "below_100Hz", "bmf_code": 1},
+        {"bmf_code_name": "below_40Hz", "bmf_code": 2},
+        {"bmf_code_name": "below_20Hz", "bmf_code": 3}
+      ]
+    },
+
+    {"bmf_name": "linear_phase_filters_input_b", "bmf_code_full_range": false,
+      "bmf_code_begin": 2, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "for_all_frequencies", "bmf_code": 0},
+        {"bmf_code_name": "below_100Hz", "bmf_code": 1},
+        {"bmf_code_name": "below_40Hz", "bmf_code": 2},
+        {"bmf_code_name": "below_20Hz", "bmf_code": 3}
+      ]
+    }
+
+  ],
+
+  "mf_size": 2, "bm_originator": "q"
+},
+
+"bm_input_bitmap":{
+  "bm_fields":
+  [
+
+    {"bmf_name": "channel_1_uses_mux_special_input", "bmf_bit": 0},
+    {"bmf_name": "channel_2_uses_mux_special_input", "bmf_bit": 1},
+    {"bmf_name": "channel_3_uses_mux_special_input", "bmf_bit": 2},
+    {"bmf_name": "channel_4_uses_mux_special_input", "bmf_bit": 3},
+    {"bmf_name": "channel_5_uses_mux_special_input", "bmf_bit": 4},
+    {"bmf_name": "channel_6_uses_mux_special_input", "bmf_bit": 5},
+
+    {"bmf_name": "input_a_type", "bmf_code_full_range": false,
+      "bmf_code_begin": 8, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "one_pps_input", "bmf_code": 0},
+        {"bmf_code_name": "reference_input", "bmf_code": 1},
+        {"bmf_code_name": "calibrator_output", "bmf_code": 2},
+        {"bmf_code_name": "grounded_input", "bmf_code": 3}
+      ]
+    },
+
+    {"bmf_name": "input_b_type", "bmf_code_full_range": false,
+      "bmf_code_begin": 10, "bmf_code_mask": "0x3",
+      "bmf_codes":
+      [
+        {"bmf_code_name": "one_pps_input", "bmf_code": 0},
+        {"bmf_code_name": "reference_input", "bmf_code": 1},
+        {"bmf_code_name": "calibrator_output", "bmf_code": 2},
+        {"bmf_code_name": "grounded_input", "bmf_code": 3}
+      ]
+    }
+
+  ],
+
+  "mf_size": 2, "bm_originator": "q"
+},
+
+
+
+ "bm_cal_waveform":{
+    "bm_fields":[
+
+      {"bmf_name": "negative_step", "bmf_bit": 6},
+      {"bmf_name": "automatic_calibration", "bmf_bit": 7},
+      {"bmf_name": "waveform", "bmf_code_full_range": false,
+          "bmf_code_begin": 0, "bmf_code_mask": "0x7",
+          "bmf_codes": [
+              {"bmf_code_name": "sine",  "bmf_code": 0},
+              {"bmf_code_name": "red_noise", "bmf_code": 1},
+              {"bmf_code_name": "white_noise", "bmf_code": 2},
+              {"bmf_code_name": "step", "bmf_code": 3},
+              {"bmf_code_name": "random", "bmf_code": 4}
+          ]
+      }
+    ]
+
+,   "mf_size": 2, "bm_originator": "dp"
+},
+
+
+ "bm_sensor_control_bitmap":{
+    "bm_fields":[
+
+      {"bmf_name": "active_high", "bmf_bit": 8},
+      {"bmf_name": "sensor_control_mapping", "bmf_code_full_range": false,
+          "bmf_code_begin": 0, "bmf_code_mask": "0x7F",
+          "bmf_codes": [
+              {"bmf_code_name": "not_doing_calibration_or_recentering", "bmf_code": 0},
+              {"bmf_code_name": "sensor_a_calibration", "bmf_code": 1},
+              {"bmf_code_name": "sensor_a_centering", "bmf_code": 2},
+              {"bmf_code_name": "sensor_a_capacitive_coupling", "bmf_code": 3},
+              {"bmf_code_name": "sensor_b_calibration", "bmf_code": 4},
+              {"bmf_code_name": "sensor_b_centering", "bmf_code": 5},
+              {"bmf_code_name": "sensor_b_capacitive_coupling", "bmf_code": 6},
+              {"bmf_code_name": "sensor_a_lock", "bmf_code": 7},
+              {"bmf_code_name": "sensor_a_unlock", "bmf_code": 8},
+              {"bmf_code_name": "sensor_a_aux_1", "bmf_code": 9},
+              {"bmf_code_name": "sensor_a_aux_2", "bmf_code": 10},
+              {"bmf_code_name": "sensor_b_lock", "bmf_code": 11},
+              {"bmf_code_name": "sensor_b_unlock", "bmf_code": 12},
+              {"bmf_code_name": "sensor_b_aux_1", "bmf_code": 13},
+              {"bmf_code_name": "sensor_b_aux_2", "bmf_code": 14}
+          ]
+      }
+
+    ]
+,    "mf_size": 4, "bm_originator": "q"
+},
+
+
+ "bm_stat_sensor_control_bitmap":{
+    "bm_fields":[
+
+      {"bmf_name": "active_high", "bmf_bit": 8},
+      {"bmf_name": "sensor_control_mapping", "bmf_code_full_range": false,
+          "bmf_code_begin": 0, "bmf_code_mask": "0x7F",
+          "bmf_codes": [
+              {"bmf_code_name": "not_doing_calibration_or_recentering", "bmf_code": 0},
+              {"bmf_code_name": "sensor_a_calibration", "bmf_code": 1},
+              {"bmf_code_name": "sensor_a_centering", "bmf_code": 2},
+              {"bmf_code_name": "sensor_a_capacitive_coupling", "bmf_code": 3},
+              {"bmf_code_name": "sensor_b_calibration", "bmf_code": 4},
+              {"bmf_code_name": "sensor_b_centering", "bmf_code": 5},
+              {"bmf_code_name": "sensor_b_capacitive_coupling", "bmf_code": 6},
+              {"bmf_code_name": "sensor_a_lock", "bmf_code": 7},
+              {"bmf_code_name": "sensor_a_unlock", "bmf_code": 8},
+              {"bmf_code_name": "sensor_a_aux_1", "bmf_code": 9},
+              {"bmf_code_name": "sensor_a_aux_2", "bmf_code": 10},
+              {"bmf_code_name": "sensor_b_lock", "bmf_code": 11},
+              {"bmf_code_name": "sensor_b_unlock", "bmf_code": 12},
+              {"bmf_code_name": "sensor_b_aux_1", "bmf_code": 13},
+              {"bmf_code_name": "sensor_b_aux_2", "bmf_code": 14}
+          ]
+      }
+
+    ]
+,    "mf_size": 2, "bm_originator": "both"
+},
+
+
+ "bm_cal_sensor_control_bitmap":{
+    "bm_fields":[
+
+      {"bmf_name": "genen_1_a", "bmf_bit": 0},
+      {"bmf_name": "genen_2_a", "bmf_bit": 1},
+      {"bmf_name": "genen_3_a", "bmf_bit": 2},
+      {"bmf_name": "calen_a", "bmf_bit": 3},
+      {"bmf_name": "genen_1_b", "bmf_bit": 4},
+      {"bmf_name": "genen_2_b", "bmf_bit": 5},
+      {"bmf_name": "genen_3_b", "bmf_bit": 6},
+      {"bmf_name": "calen_b", "bmf_bit": 7}
+    ]
+,    "mf_size": 2, "bm_originator": "dp"
+},
+
+ "bm_cal_monitor_channel":{
+    "bm_fields":[
+
+      {"bmf_name": "channel_1", "bmf_bit": 0},
+      {"bmf_name": "channel_2", "bmf_bit": 1},
+      {"bmf_name": "channel_3", "bmf_bit": 2},
+      {"bmf_name": "channel_4", "bmf_bit": 3},
+      {"bmf_name": "channel_5", "bmf_bit": 4},
+      {"bmf_name": "channel_6", "bmf_bit": 5}
+    ]
+,    "mf_size": 2, "bm_originator": "dp"
+},
+
+ "bm_channel_map":{
+    "bm_fields":[
+
+      {"bmf_name": "channel_1", "bmf_bit": 0},
+      {"bmf_name": "channel_2", "bmf_bit": 1},
+      {"bmf_name": "channel_3", "bmf_bit": 2},
+      {"bmf_name": "channel_4", "bmf_bit": 3},
+      {"bmf_name": "channel_5", "bmf_bit": 4},
+      {"bmf_name": "channel_6", "bmf_bit": 5}
+    ]
+,    "mf_size": 2, "bm_originator": "dp"
+},
+
+ "bm_pll_state":{
+    "bm_fields":[
+
+      {"bmf_name": "pll_status", "bmf_code_full_range": false,
+          "bmf_code_begin": 6, "bmf_code_mask": "0x3",
+          "bmf_codes": [
+              {"bmf_code_name": "pll_not_enabled", "bmf_code": 0},
+              {"bmf_code_name": "pll_hold", "bmf_code": 1},
+              {"bmf_code_name": "pll_tracking", "bmf_code": 2},
+              {"bmf_code_name": "pll_locked", "bmf_code": 3}
+          ]
+      }
+    ]
+
+,   "mf_size": 2, "bm_originator": "q"
+},
+
+
+ "bm_balerstatus":{
+    "bm_fields":[
+
+      {"bmf_name": "timeout_counts", "bmf_val_begin": 0, "bmf_val_mask": "0xFFF"},
+      {"bmf_name": "baler_is_currently_forced_off_for_the_minimum_off_time", "bmf_bit": 12},
+      {"bmf_name": "set_to_one", "bmf_bit": 13},
+      {"bmf_name": "baler_power_status", "bmf_code_full_range": false,
+        "bmf_code_begin": 14, "bmf_code_mask": "0x3",
+        "bmf_codes": [
+              {"bmf_code_name": "baler_off",  "bmf_code": 0},
+              {"bmf_code_name": "baler_power_turned_on_by_a_command", "bmf_code": 1},
+              {"bmf_code_name": "baler_power_turned_on_automatically", "bmf_code": 2},
+              {"bmf_code_name": "baler_power_is_continuous", "bmf_code": 3}
+        ]
+      }
+    ]
+
+,   "mf_size": 2, "bm_originator": "q"
+},
+
+ "bm_initial_vco":{
+    "bm_fields":[
+
+      {"bmf_name": "automatic_vco_setting_by_pll", "bmf_bit": 15},
+      {"bmf_name": "initial_vco", "bmf_val_begin": 0, "bmf_val_mask": "0xFFF"}
+    ]
+
+,   "mf_size": 2, "bm_originator": "q"
+},
+
+ "bm_processorid":{
+    "bm_fields":[
+
+      {"bmf_name": "architecture_revision", "bmf_val_begin": 10, "bmf_val_mask": "0x7"},
+      {"bmf_name": "architecture_type", "bmf_val_begin": 13, "bmf_val_mask": "0x7"},
+      {"bmf_name": "processor_revision", "bmf_val_begin": 16, "bmf_val_mask": "0xF"},
+      {"bmf_name": "processor_type", "bmf_val_begin": 24, "bmf_val_mask": "0xFF"}
+    ]
+
+,   "mf_size": 4, "bm_originator": "q"
+},
+
+ "bm_firmwareversion":{
+    "bm_fields":[
+
+      {"bmf_name": "firmware_version", "bmf_val_begin": 8, "bmf_val_mask": "0xFF"},
+      {"bmf_name": "firmware_revision", "bmf_val_begin": 0, "bmf_val_mask": "0xFF"}
+    ]
+
+,   "mf_size": 2, "bm_originator": "q"
+},
+
+
+
+  "bm_fg_thread":{
+    "bm_fields":[
+
+      {"bmf_name": "global_event_value", "bmf_val_begin": 0, "bmf_val_mask": "0x1FFF"},
+      {"bmf_name": "global_event", "bmf_bit": 13},
+      {"bmf_name": "thread_is_waiting_for_an_event", "bmf_bit": 14},
+      {"bmf_name": "thread_is_blocked", "bmf_bit": 15}
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_fg_environmental":{
+    "bm_fields":[
+
+      {"bmf_name": "flash_manufacturing_constants_are_not_valid", "bmf_bit": 0},
+      {"bmf_name": "aux_io_line_1_is_active", "bmf_bit": 1},
+      {"bmf_name": "aux_io_line_2_is_active", "bmf_bit": 2}
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_fg_fix":{
+    "bm_fields":[
+
+      {"bmf_name": "ethernet_installed", "bmf_bit": 0},
+      {"bmf_name": "can_statreq_dynamic_ip", "bmf_bit": 1},
+      {"bmf_name": "can_statreq_auxiliary_board", "bmf_bit": 2},
+      {"bmf_name": "can_expanded_c1_web_cmds", "bmf_bit": 3},
+      {"bmf_name": "can_statreq_serial_sensor", "bmf_bit": 4},
+      {"bmf_name": "can_report_255maplus_supply_current", "bmf_bit": 5},
+      {"bmf_name": "at_least_one_environmental_proc_configured", "bmf_bit": 6},
+      {"bmf_name": "is_Q330S", "bmf_bit": 7}
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_ethernet_linkstatus":{
+    "bm_fields":[
+
+        {"bmf_name": "polarity_ok", "bmf_bit": 4},
+        {"bmf_name": "link_ok", "bmf_bit": 15}
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_cal_fail":{
+    "bm_fields":[
+
+      {"bmf_name": "channel_1_failed_calibration", "bmf_bit": 0},
+      {"bmf_name": "channel_2_failed_calibration", "bmf_bit": 1},
+      {"bmf_name": "channel_3_failed_calibration", "bmf_bit": 2},
+      {"bmf_name": "channel_4_failed_calibration", "bmf_bit": 3},
+      {"bmf_name": "channel_5_failed_calibration", "bmf_bit": 4},
+      {"bmf_name": "channel_6_failed_calibration", "bmf_bit": 5},
+      {"bmf_name": "channel_7_failed_calibration", "bmf_bit": 6},
+      {"bmf_name": "channel_8_failed_calibration", "bmf_bit": 7}
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_dev_opt":{
+    "bm_fields":[
+
+        {"bmf_name": "polling_for_data_status_enabled", "bmf_bit": 0}
+    ],
+    "mf_size": 2, "bm_originator": "q"
+
+  },
+
+  "bm_fg_sphy":{
+    "bm_fields":[
+
+      {"bmf_name": "fill_mode_enabled", "bmf_bit": 0},
+      {"bmf_name": "flush_packet_buffer_time_based", "bmf_bit": 1},
+      {"bmf_name": "freeze_data_port_output", "bmf_bit": 2},
+      {"bmf_name": "freeze_packet_buff_input", "bmf_bit": 3},
+      {"bmf_name": "keep_oldest_data_packet_buffer", "bmf_bit": 4},
+      {"bmf_name": "dp_piggyback_statreq_with_dt_dack", "bmf_bit": 8},
+      {"bmf_name": "comm_fault_led_if_last_flush_buff_5plus", "bmf_bit": 9},
+      {"bmf_name": "allow_hotswap_on_this_dataport", "bmf_bit": 10},
+      {"bmf_name": "flush_sliding_window_buff_based_on_time", "bmf_bit": 11},
+      {"bmf_name": "send_datapackets_encoded_base_96", "bmf_bit": 14},
+      {"bmf_name": "save_changes_in_eeprom", "bmf_bit": 15}
+
+    ],
+    "mf_size": 2, "bm_originator": "both"
+ },
+
+ "bm_rqstat":{
+    "bm_fields":[
+
+      {"bmf_name": "global_status", "bmf_bit": 0},
+      {"bmf_name": "gps_status", "bmf_bit": 1},
+      {"bmf_name": "power_supply_status", "bmf_bit": 2},
+      {"bmf_name": "boom_positions", "bmf_bit": 3},
+      {"bmf_name": "thread_status", "bmf_bit": 4},
+      {"bmf_name": "pll_status", "bmf_bit": 5},
+      {"bmf_name": "gps_satellites", "bmf_bit": 6},
+      {"bmf_name": "arp_status", "bmf_bit": 7},
+      {"bmf_name": "data_port_1_status", "bmf_bit": 8},
+      {"bmf_name": "data_port_2_status", "bmf_bit": 9},
+      {"bmf_name": "data_port_3_status", "bmf_bit": 10},
+      {"bmf_name": "data_port_4_status", "bmf_bit": 11},
+      {"bmf_name": "serial_interface_1_status", "bmf_bit": 12},
+      {"bmf_name": "serial_interface_2_status", "bmf_bit": 13},
+      {"bmf_name": "serial_interface_3_status", "bmf_bit": 14},
+      {"bmf_name": "ethernet_status", "bmf_bit": 15},
+      {"bmf_name": "baler_status", "bmf_bit": 16},
+      {"bmf_name": "dynamic_ip", "bmf_bit": 17},
+      {"bmf_name": "auxiliary_board_status", "bmf_bit": 18},
+      {"bmf_name": "serial_sensor_status", "bmf_bit": 19},
+      {"bmf_name": "environmental_processor_status", "bmf_bit": 20}    ]
+
+,    "mf_size": 4, "bm_originator": "dp"
+},
+
+ "bm_stat_status_bitmap":{
+    "bm_fields":[
+
+      {"bmf_name": "global_status", "bmf_bit": 0},
+      {"bmf_name": "gps_status", "bmf_bit": 1},
+      {"bmf_name": "power_supply_status", "bmf_bit": 2},
+      {"bmf_name": "boom_positions_temperatures_and_voltages", "bmf_bit": 3},
+      {"bmf_name": "thread_status", "bmf_bit": 4},
+      {"bmf_name": "pll_status", "bmf_bit": 5},
+      {"bmf_name": "gps_satellites", "bmf_bit": 6},
+      {"bmf_name": "arp_status", "bmf_bit": 7},
+      {"bmf_name": "data_port_1_status", "bmf_bit": 8},
+      {"bmf_name": "data_port_2_status", "bmf_bit": 9},
+      {"bmf_name": "data_port_3_status", "bmf_bit": 10},
+      {"bmf_name": "data_port_4_status", "bmf_bit": 11},
+      {"bmf_name": "serial_interface_1_status", "bmf_bit": 12},
+      {"bmf_name": "serial_interface_2_status", "bmf_bit": 13},
+      {"bmf_name": "serial_interface_3_status", "bmf_bit": 14},
+      {"bmf_name": "ethernet_status", "bmf_bit": 15},
+      {"bmf_name": "baler_status", "bmf_bit": 16},
+      {"bmf_name": "dynamic_ip_addresses", "bmf_bit": 17},
+      {"bmf_name": "auxiliary_board_status", "bmf_bit": 18},
+      {"bmf_name": "serial_sensor_status", "bmf_bit": 19},
+      {"bmf_name": "environmental_processor_status", "bmf_bit": 20}    ]
+
+,    "mf_size": 4, "bm_originator": "q"
+},
+
+ "bm_balerstatus_special":{
+    "bm_fields":[
+
+      {"bmf_name": "baler_is_connected_on_serial_1", "bmf_bit": 0},
+      {"bmf_name": "baler_is_connected_on_serial_2", "bmf_bit": 1},
+      {"bmf_name": "baler_is_connected_on_ethernet", "bmf_bit": 3},
+      {"bmf_name": "q330_will_accept_a_connection_on_serial_1_from_a_baler_assigned_to_another_q330", "bmf_bit": 4},
+      {"bmf_name": "q330_will_accept_a_connection_on_serial_2_from_a_baler_assigned_to_another_q330", "bmf_bit": 5},
+      {"bmf_name": "q330_will_accept_a_connection_on_ethernet_from_a_baler_assigned_to_another_q330", "bmf_bit": 7}
+    ]
+
+,    "mf_size": 4, "bm_originator": "q"
+},
+
+ "bm_stat_calibrator_status":{
+    "bm_fields":[
+
+      {"bmf_name": "calibration_enable_is_on_this_second", "bmf_bit": 0},
+      {"bmf_name": "calibration_signal_is_on_this_second", "bmf_bit": 1},
+      {"bmf_name": "calibrator_should_be_generating_a_signal_but_isnt", "bmf_bit": 2}
+
+    ]
+,    "mf_size": 2, "bm_originator": "q"
+},
+
+
+ "bm_misc_inputs":{
+    "bm_fields":[
+
+      {"bmf_name": "ac_ok", "bmf_bit": 0},
+      {"bmf_name": "input_spare_1", "bmf_bit": 1},
+      {"bmf_name": "input_spare_2", "bmf_bit": 2},
+      {"bmf_name": "analog_fault", "bmf_bit": 3},
+      {"bmf_name": "main_power", "bmf_bit": 4},
+      {"bmf_name": "analog_power", "bmf_bit": 6},
+      {"bmf_name": "trigger", "bmf_bit": 7}
+
+    ]
+,    "mf_size": 2, "bm_originator": "q"
+},
+
+ "bm_alerts":{
+    "bm_fields":[
+
+      {"bmf_name": "load_0_will_be_off_after_delay", "bmf_bit": 0},
+      {"bmf_name": "load_1_will_be_off_after_delay", "bmf_bit": 1},
+      {"bmf_name": "load_2_will_be_off_after_delay", "bmf_bit": 2},
+      {"bmf_name": "load_3_will_be_off_after_delay", "bmf_bit": 3},
+      {"bmf_name": "load_4_will_be_off_after_delay", "bmf_bit": 4},
+      {"bmf_name": "load_5_will_be_off_after_delay", "bmf_bit": 5},
+      {"bmf_name": "load_6_will_be_off_after_delay", "bmf_bit": 6},
+      {"bmf_name": "load_7_will_be_off_after_delay", "bmf_bit": 7}
+
+    ]
+,    "mf_size": 1, "bm_originator": "q"
+},
+
+
+ "bm_loads_off":{
+    "bm_fields":[
+
+      {"bmf_name": "load_0_is_currently_off", "bmf_bit": 0},
+      {"bmf_name": "load_1_is_currently_off", "bmf_bit": 1},
+      {"bmf_name": "load_2_is_currently_off", "bmf_bit": 2},
+      {"bmf_name": "load_3_is_currently_off", "bmf_bit": 3},
+      {"bmf_name": "load_4_is_currently_off", "bmf_bit": 4},
+      {"bmf_name": "load_5_is_currently_off", "bmf_bit": 5},
+      {"bmf_name": "load_6_is_currently_off", "bmf_bit": 6},
+      {"bmf_name": "load_7_is_currently_off", "bmf_bit": 7}
+
+    ]
+,    "mf_size": 1, "bm_originator": "q"
+},
+
+
+ "bm_ctrl_flags":{
+    "bm_fields":[
+
+      {"bmf_name": "save_current_programming_to_eeprom", "bmf_bit": 0},
+      {"bmf_name": "reboot", "bmf_bit": 1},
+      {"bmf_name": "re_sync", "bmf_bit": 2},
+      {"bmf_name": "turn_gps_on", "bmf_bit": 3},
+      {"bmf_name": "turn_gps_off", "bmf_bit": 4},
+      {"bmf_name": "cold_start_gps", "bmf_bit": 5},
+      {"bmf_name": "reboot_envproc_on_serial_1", "bmf_bit": 6},
+      {"bmf_name": "reboot_envproc_on_serial_2", "bmf_bit": 7}
+    ]
+
+,    "mf_size": 2, "bm_originator": "dp"
+},
+
+
+  "bm_fg_dataport":{
+    "bm_fields":[
+
+      {"bmf_name": "baler_should_disconnect_and_prepare_to_reconnect_to_a_data_vacuum", "bmf_bit": 0},
+      {"bmf_name": "baler_should_stay_powered_on", "bmf_bit": 1},
+      {"bmf_name": "baler_should_shutdown_immediately", "bmf_bit": 2},
+      {"bmf_name": "packet_memory_reduced_due_to_bad_packet_memory_ram", "bmf_bit": 15}
+    ],
+    "mf_size": 2, "bm_originator": "q"
+  }
+}
+
+
+
+
+

@@ -1,0 +1,32 @@
+{
+  "DUMMY":
+  {
+    "digitizer":
+    [
+      {
+        "serial_number": "0",
+
+        "port_config": {"ip_remote":"", "port_remote":4000,
+                        "auth_code":"0", "port_host":7357,
+                        "protocol_version": 2},
+
+        "port_control": {"ip_remote":"", "port_remote":4001,
+                         "auth_code":"0", "port_host":7358,
+                         "protocol_version": 2},
+
+        "port_data": {"ip_remote":"", "port_remote":4002,
+                      "auth_code":"0", "port_host":7359,
+                      "protocol_version": 2},
+
+        "sensor":
+        [
+          {
+            "input": "A",
+            "model": "STS2",
+            "cals": "TIMED_SEND_TEST"
+          }
+        ]
+      }
+    ]
+  }
+}

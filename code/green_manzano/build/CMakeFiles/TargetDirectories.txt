@@ -1,0 +1,1 @@
+/Users/rfigueroa/aslmanzano/code/green_manzano/build/CMakeFiles/green_manzano.dir

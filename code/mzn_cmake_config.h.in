@@ -1,0 +1,3 @@
+#define k_mzn_code_DIR "@k_mzn_code_DIR@"
+#define k_mzn_runtime_config_DIR "@k_mzn_runtime_config_DIR@"
+#define k_mzn_runtime_scripts_DIR "@k_mzn_runtime_scripts_DIR@"
