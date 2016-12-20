@@ -1,24 +1,26 @@
+
 **Manzano**
 =======================
 
 Manzano is a library to communicate with the Quanterra Q330 family of digitizers, and E300 electronics for STS1 sensors.
 
-green_manzano is the command line interactive application.
+**green_manzano** is the command line interactive application.
 
 * This README file includes instructions for green_manzano compilation and instalation.
-
 * The MAN page (green_manzano.1) includes basic usage.
-
 * The doxyfile (Doxyfile) can be used to generate automatic documentation.
 
----------------------------------------------------------
-Basic instructions to install green_manzano (linux):
+> **Dependencies:**
+> CMake
+> C++14 compiler (clang++-3.5)
+> Linux or Mac OS X
 
-The only external depencies are CMake, clang++-3.5.
+---------------------------------------------------------
+## Install dependencies (Linux)
 
 Google test is needed to run the tests, but is not needed to install green_manzano.
 
-* Install CMake
+* Install latest CMake (tested with 3.4.1)
 
 * Install build tools:
 ```sh
@@ -51,17 +53,17 @@ $ vim ~/manzano/runtime_config/config.json
 ```
 
 ---------------------------------------------------------
-Mac OS:
+## Mac OS installation **green_manzano**:
 
-* Install command line tools (and clang++), run and click install when prompted:
+*  Install latest CMake (tested with 3.4.1)
+
+> **Mac OS X CMake install steps:**
+> http://tudat.tudelft.nl/projects/tudat/wiki/Install_on_Mac_OS_X
+
+* Install command line tools, click *install* when prompted:
 ```sh
 $ xcode-select --install
 ```
-* Download latest stable version of CMake, and follow these instructions
-(CMake part only):
-
-http://tudat.tudelft.nl/projects/tudat/wiki/Install_on_Mac_OS_X
-
 
 ---------------------------------------------------------
 DISCLAIMER:
