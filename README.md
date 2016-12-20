@@ -1,4 +1,3 @@
-
 **Manzano**
 =======================
 
@@ -11,9 +10,9 @@ Manzano is a library to communicate with the Quanterra Q330 family of digitizers
 * The doxyfile (Doxyfile) can be used to generate automatic documentation.
 
 > **Dependencies:**
-> CMake
-> C++14 compiler (clang++-3.5)
-> Linux or Mac OS X
+> * CMake
+> * C++14 compiler (clang++-3.5)
+> * Linux or Mac OS X
 
 ---------------------------------------------------------
 ## Install dependencies (Linux)
@@ -30,7 +29,23 @@ $ sudo apt-get install clang-3.5 # or newer
 $ export CXX=/usr/bin/clang++-3.5 # or add to .bashrc
 ```
 
-* Clone repository (for example at home directory)
+---------------------------------------------------------
+## Install dependencies (Mac OS X):
+
+*  Install latest CMake (tested with 3.4.1)
+
+> **Mac OS X CMake install steps:**
+> http://tudat.tudelft.nl/projects/tudat/wiki/Install_on_Mac_OS_X
+
+* Install command line tools, click *install* when prompted:
+```sh
+$ xcode-select --install
+```
+
+---------------------------------------------------------
+## Install green_manzano
+
+* Clone manzano repository (for example at home directory)
 
 * Move to green_manzano directory:
 ```sh
@@ -41,7 +56,7 @@ $ cd ~/manzano/code/green_manzano
 ~/manzano/code/green_manzano$ mkdir build
 ~/manzano/code/green_manzano$ cd build
 ```
-* Build:
+* Make/Install:
 ```sh
 ~/manzano/code/green_manzano/build$ cmake ..
 ~/manzano/code/green_manzano/build$ make
@@ -50,19 +65,6 @@ $ cd ~/manzano/code/green_manzano
 * Edit configuration file (see example_config.json):
 ```sh
 $ vim ~/manzano/runtime_config/config.json
-```
-
----------------------------------------------------------
-## Mac OS installation **green_manzano**:
-
-*  Install latest CMake (tested with 3.4.1)
-
-> **Mac OS X CMake install steps:**
-> http://tudat.tudelft.nl/projects/tudat/wiki/Install_on_Mac_OS_X
-
-* Install command line tools, click *install* when prompted:
-```sh
-$ xcode-select --install
 ```
 
 ---------------------------------------------------------
