@@ -9,15 +9,14 @@ Manzano is a library to communicate with the Quanterra Q330 family of digitizers
 * The MAN page (green_manzano.1) includes basic usage.
 * The doxyfile (Doxyfile) can be used to generate automatic documentation.
 
-> **Dependencies:**
+> **External Dependencies:**
 > * CMake
 > * C++14 compiler (clang++-3.5)
 > * Linux or Mac OS X
+> * Google test (not required for green_manzano installation)
 
 ---------------------------------------------------------
 ## Install dependencies (Linux)
-
-Google test is needed to run the tests, but is not needed to install green_manzano.
 
 * Install latest CMake (tested with 3.4.1)
 
