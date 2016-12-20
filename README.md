@@ -9,11 +9,11 @@ Manzano is a library to communicate with the Quanterra Q330 family of digitizers
 * The MAN page (green_manzano.1) includes basic usage.
 * The doxyfile (Doxyfile) can be used to generate automatic documentation.
 
-> **External Dependencies:**
-> * CMake
-> * C++14 compiler (clang++-3.5)
-> * Linux or Mac OS X
-> * Google test (not required for green_manzano installation)
+**External Dependencies:**
+ * CMake
+ * C++14 compiler (clang++-3.5)
+ * Linux or Mac OS X
+ * Google test (not required for green_manzano installation)
 
 ---------------------------------------------------------
 ## Install dependencies (Linux)
@@ -61,6 +61,8 @@ $ cd ~/manzano/code/green_manzano
 ~/manzano/code/green_manzano/build$ make
 ~/manzano/code/green_manzano/build$ sudo make install
 ```
+> green_manzano does not require admin priviliges, only the installation. The last step can be skipped, simply run the binary from the build directory.
+
 * Edit configuration file (see example_config.json):
 ```sh
 $ vim ~/manzano/runtime_config/config.json
