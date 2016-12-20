@@ -64,7 +64,7 @@ xcode-select --install
 Download latest stable version of CMake, and follow these instructions
 (CMake part only):
 
-http://tudat.tudelft.nl/projects/tudat/wiki/Install\_on\_Mac\_OS\_X
+http://tudat.tudelft.nl/projects/tudat/wiki/Install_on_Mac_OS_X
 
 
 ---------------------------------------------------------
