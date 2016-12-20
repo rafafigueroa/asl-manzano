@@ -62,6 +62,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
                           Kind::qview,
                           Kind::ctrl,
                           Kind::center,
+                          Kind::global,
                           Kind::ping,
                           Kind::dev,
                           Kind::stat};
@@ -143,6 +144,7 @@ InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) 
                           Kind::ping,
                           Kind::center,
                           Kind::ctrl,
+                          Kind::global,
                           Kind::dev,
                           Kind::stat};
 

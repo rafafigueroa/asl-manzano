@@ -55,6 +55,7 @@ enum class Kind {
     qview,
     poll,
     ping,
+    global,
     dev,
     stat,
 
@@ -112,6 +113,7 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
 
         case Kind::poll          : os << "poll"; break;
         case Kind::ping          : os << "ping"; break;
+        case Kind::global        : os << "global"; break;
         case Kind::dev           : os << "dev"; break;
         case Kind::center        : os << "center"; break;
         case Kind::qview         : os << "qview"; break;

@@ -20,6 +20,7 @@ void InstructionInterpreter::match(UserInstruction const & ui,
         case Kind::status:  cm.run<action, Kind::status>(ui, ta);  break;
         case Kind::command: cm.run<action, Kind::command>(ui, ta); break;
         case Kind::poll:    cm.run<action, Kind::poll>(ui, ta);    break;
+        case Kind::global:  cm.run<action, Kind::global>(ui, ta);  break;
         case Kind::ping:    cm.run<action, Kind::ping>(ui, ta);    break;
         case Kind::stat:    cm.run<action, Kind::stat>(ui, ta);    break;
         case Kind::qview:   cm.run<action, Kind::qview>(ui, ta);   break;
@@ -32,7 +33,7 @@ void InstructionInterpreter::match(UserInstruction const & ui,
         case Kind::pulse:   cm.run<action, Kind::pulse>(ui, ta);   break;
         case Kind::uptime:  cm.run<action, Kind::uptime>(ui, ta);  break;
         case Kind::mzn:     cm.run<action, Kind::mzn>(ui, ta);     break;
-        case Kind::plan:    cm.run<action, Kind::plan>(ui, ta);     break;
+        case Kind::plan:    cm.run<action, Kind::plan>(ui, ta);    break;
         default:
             throw std::logic_error{"at InstructionInterpreter::run_instruction"};
     }

@@ -31,6 +31,14 @@ void Comm::run<Action::get, Kind::ping>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
+void Comm::run<Action::get, Kind::global>(UserInstruction const & ui,
+                                        TargetAddress const & ta) {
+    // C1Rqglob, C1glob
+    q_send_recv<Action::get, Kind::global>(ui, ta);
+}
+
+// -------------------------------------------------------------------------- //
+template<>
 void Comm::run<Action::get, Kind::stat>(UserInstruction const & ui,
                                         TargetAddress const & ta) {
     // C1Rqstat, C1Stat (multi command)

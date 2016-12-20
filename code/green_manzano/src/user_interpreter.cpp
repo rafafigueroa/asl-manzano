@@ -84,6 +84,7 @@ Kind UserInterpreter::match_kind(std::string const & token) {
     if (token == "status")  return Kind::status;
     if (token == "command") return Kind::command;
     if (token == "poll")    return Kind::poll;
+    if (token == "global")  return Kind::global;
     if (token == "ping")    return Kind::ping;
     if (token == "stat")    return Kind::stat;
     if (token == "qview")   return Kind::qview;
@@ -102,7 +103,7 @@ Kind UserInterpreter::match_kind(std::string const & token) {
     std::stringstream error_msg;
     error_msg << "mismatch in kind token \'" << token << "\' \n"
               << "\nkinds: "
-              << "\ntarget config status command poll ping stat qview dev"
+              << "\ntarget config status command poll global ping stat qview dev"
               << "\nctrl reg dereg center cal pulse  plan";
 
     throw WarningException("UserInterpreter",

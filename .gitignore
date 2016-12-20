@@ -1,0 +1,82 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+
+# Executables
+*.exe
+*.out
+*.app
+
+# swap files
+*.swp
+*.swo
+
+# config
+runtime_config/config.json
+
+# temp files
+*.tmp
+
+# pdf
+*.pdf
+
+# latex
+*.aux
+*.glo
+*.idx
+*.log
+*.toc
+*.ist
+*.acn
+*.acr
+*.alg
+*.bbl
+*.blg
+*.dvi
+*.glg
+*.gls
+*.ilg
+*.ind
+*.lof
+*.lot
+*.maf
+*.mtc
+*.mtc1
+*.out
+*.synctex.gz
+
+# config file with user directory
+mzn_cmake_config.h
+# binary directories have their own .ignore
+*bin/
+*build/
+
+# mac
+*.DS_Store
+
+# eclipse
+.cproject
+.project
+/Debug*
+.settings

@@ -90,7 +90,7 @@ private:
     template <Action action, Kind kind>
     inline
     void q_send_recv(UserInstruction const & ui,
-                       TargetAddress const & ta) {
+                     TargetAddress const & ta) {
 
         // send and receive commands
         auto cmd_input =
