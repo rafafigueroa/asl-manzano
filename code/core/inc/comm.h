@@ -71,10 +71,12 @@ private:
     CmdFileReader cmd_file_reader_;
 
 public:
+
+    //! primary template
     //! a template specialization for each legal combination is provided
-    // can use typename std::enable_if<action != Action::get>::type
+    //! can use typename std::enable_if<action != Action::get>::type
     // --------------------------------------------------------------------- //
-    template<Action action, Kind kind>
+    template <Action action, Kind kind>
     void run(UserInstruction const & ui, TargetAddress const & ta) {
 
         std::stringstream ss;

@@ -24,8 +24,8 @@ class CmdFileReader {
 
     using Seconds = std::chrono::seconds;
 
+    //! same lifetime as CmdFieldReader
     SeismicNetwork const & sn_;
-
 
 public:
     explicit

@@ -52,6 +52,13 @@ template <> struct Co<Action::set, Kind::dereg>   {using type = C1Cack;};
 template <> struct Co<Action::stop, Kind::cal>    {using type = C1Cack;};
 template <> struct Co<Action::start, Kind::cal>   {using type = C1Cack;};
 
+// -------------------------------------------------------------------------- //
+template <Action action, Kind kind>
+static
+bool constexpr has_co_defined() {
+    return not std::is_void<typename Co<action, kind>::type>::value;
+}
+
 } // end namespace
 
 #endif // _MZN_UI_TO_CMD_TYPE_H_

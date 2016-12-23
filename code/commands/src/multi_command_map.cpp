@@ -72,7 +72,6 @@ uint16_t MultiCommandMap::msg_to_data(std::vector<uint8_t> const & msg,
             // pure virtual in multi_command
             create_new_ic(ck);
 
-            //TODO: manage exception
             set_command_index(ck, inner_commands.size() - 1);
 
             if (inner_commands.back() != nullptr) {

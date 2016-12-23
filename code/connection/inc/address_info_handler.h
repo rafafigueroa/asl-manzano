@@ -43,6 +43,7 @@ struct SockAddr {
 //! the types (time_t, long int) are for compatibility with C sockets
 // -------------------------------------------------------------------------- //
 struct TimeoutDuration {
+
     TimeoutDuration() = default;
     ~TimeoutDuration() = default;
 
@@ -50,7 +51,7 @@ struct TimeoutDuration {
     using MicroSeconds = std::chrono::microseconds;
 
     // converting constructor
-    template<typename Rep, typename Period>
+    template <typename Rep, typename Period>
     TimeoutDuration(std::chrono::duration<Rep, Period> const timeout) {
 
         // truncates towards zero. i.e. 3.4s to 3s

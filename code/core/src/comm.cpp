@@ -158,6 +158,14 @@ void Comm::run<Action::stop, Kind::cal>(UserInstruction const & ui,
     md.send_recv(q.port_config, cmd_stop, cack);
     */
 }
+
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::show, Kind::target>(UserInstruction const & ui,
+                                           TargetAddress const & ta) {
+    stream_output.show<Kind::target>(ta);
+}
+
 // -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::show, Kind::plan>(UserInstruction const & ui,
@@ -273,9 +281,12 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
         // --------- E300 registration ----------- //
         for (auto & s : q.s) {
             try {
-                if (s.config.has_e300) s.port_e300().reg();
-                std::cout << std::endl
-                          << "\n** E300 REGISTERED! ** " << std::endl;
+
+                if (s.config.has_e300) {
+                    s.port_e300().reg();
+                    std::cout << std::endl
+                              << "\n** E300 REGISTERED! ** " << std::endl;
+                }
 
             } catch (InfoException & e) {
                 std::cerr << std::endl << "e300 error"
@@ -446,11 +457,7 @@ void Comm::run<Action::edit, Kind::stat>(UserInstruction const & ui,
 // -------------------------------------------------------------------------- //
 // for stream_output
 // -------------------------------------------------------------------------- //
-template<>
-void Comm::run<Action::show, Kind::target>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
-    stream_output.show<Kind::target>(ta);
-}
+
 
 template<>
 void Comm::run<Action::show, Kind::config>(UserInstruction const & ui,
