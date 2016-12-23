@@ -31,17 +31,19 @@ public:
     using Duration = std::chrono::duration<T, Period>;
 
     //! behave like a std::chrono::duration when possible
-    using rep = T;
-    using period = Period;
+    using rep = typename Duration::rep; // same as T
+    using period = typename Duration::period; // Period
 
     //! constructs base
     explicit
     CmdFieldDuration() : CmdField<T>{} {}
 
+    //! constructor with duration
     template <typename input_T, typename input_Period>
     explicit
     CmdFieldDuration(std::chrono::duration<input_T, input_Period> const d) :
             CmdField<T>{} {
+        //! use mutator in operator()
         (*this)(d);
     }
 
@@ -52,11 +54,9 @@ public:
     Duration const operator()() const;
 
     // mutator
-    template<typename input_T, typename input_Period>
+    template <typename input_T, typename input_Period>
     inline
     void operator()(std::chrono::duration<input_T, input_Period> const d);
-
-
 };
 
 // operator<< overload, always have units seconds
@@ -142,7 +142,7 @@ CmdFieldDuration<T, Period>::operator() () const {
 // operator() overload (mutator)
 // -------------------------------------------------------------------------- //
 template <typename T, typename Period>
-template<typename input_T, typename input_Period>
+template <typename input_T, typename input_Period>
 inline
 void CmdFieldDuration<T, Period>::operator()(
         std::chrono::duration<input_T, input_Period> const d) {

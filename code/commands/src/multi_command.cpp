@@ -17,6 +17,7 @@ MultiCommand::MultiCommand(MultiCommand && rhs) noexcept :
         Command( std::move(rhs) ),
         inner_commands( std::move(rhs.inner_commands) ) {}
 
+/*
 // move assignment operator
 // -------------------------------------------------------------------------- //
 MultiCommand & MultiCommand::operator=(MultiCommand && rhs) noexcept {
@@ -27,6 +28,7 @@ MultiCommand & MultiCommand::operator=(MultiCommand && rhs) noexcept {
     }
     return *this;
 }
+*/
 
 // -------------------------------------------------------------------------- //
 uint16_t MultiCommand::msg_to_data(std::vector<uint8_t> const & msg,

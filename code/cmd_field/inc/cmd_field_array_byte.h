@@ -9,6 +9,7 @@
 namespace mzn {
 
 //! Array of int8_t, when intended to be printed/used as numbers
+//! @see CmdFieldArray
 /*! @author rfigueroa@usgs.gov */
 // -------------------------------------------------------------------------- //
 template <std::size_t N>

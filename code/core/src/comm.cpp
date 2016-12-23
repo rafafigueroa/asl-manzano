@@ -208,12 +208,6 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
     auto & q = sn.q_ref(ta);
 
     try {
-
-        // register with e300
-        for (auto & s : q.s) {
-            if (s.config.has_e300) s.port_e300().reg();
-        }
-
         // DP Request server registration
         C1Rqsrv cmd_rqsrv;
         cmd_rqsrv.serial_number(q.config.serial_number);
@@ -263,7 +257,7 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
         C1Cack cmd_cack;
 
         md.send_recv(q.port_config, cmd_srvrsp, cmd_cack);
-        std::cout << std::endl << "\n** REGISTERED! ** " << std::endl;
+        std::cout << std::endl << "\n** Digitizer REGISTERED! ** " << std::endl;
 
         // setup status
         q.port_config.registered = true;
@@ -275,6 +269,21 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
         // move to cmd store
         output_store.cmd_map[task_id] =
             std::make_unique<C1Cack>( std::move(cmd_cack) );
+
+        // --------- E300 registration ----------- //
+        for (auto & s : q.s) {
+            try {
+                if (s.config.has_e300) s.port_e300().reg();
+                std::cout << std::endl
+                          << "\n** E300 REGISTERED! ** " << std::endl;
+
+            } catch (InfoException & e) {
+                std::cerr << std::endl << "e300 error"
+                          << e.what() << "\n"
+                          << "communication with e300 failed"
+                          << "\ncheck e300_server running on station";
+            }
+        }
 
     } catch(Exception const & e) {
 

@@ -42,7 +42,7 @@ inline
 std::ostream & operator<<(std::ostream & cf_os,
                           CmdFieldArray<osT, osN> const & cf) {
     cf_os << "[";
-    for (auto const & b : cf.data() ) cf_os << b << " ";
+    for ( auto const & b : cf.data() ) cf_os << b << " ";
     cf_os << "]";
     return cf_os;
 }

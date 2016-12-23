@@ -10,6 +10,8 @@
 #include <memory>
 
 namespace mzn {
+
+// -------------------------------------------------------------------------- //
 class MultiCommand : public Command {
 
 //! Base for all commands that contains other inner commands
@@ -25,7 +27,7 @@ public:
 
     ~MultiCommand() = default;
     MultiCommand(MultiCommand && rhs) noexcept;
-    MultiCommand & operator=(MultiCommand && rhs) noexcept;
+    //MultiCommand & operator=(MultiCommand && rhs) noexcept;
     //MultiCommand(MultiCommand const &) = default;
     //! Stores pointers to the inner commands, starts empty.
     /*! create_new_ic managed in create_new_ic.

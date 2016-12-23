@@ -9,6 +9,7 @@
 namespace mzn {
 
 //! Array of chars, when intended to be printed as text (e.g. ascii) chars
+//! @see CmdFieldArray
 /*! @author rfigueroa@usgs.gov */
 // -------------------------------------------------------------------------- //
 template <std::size_t N>

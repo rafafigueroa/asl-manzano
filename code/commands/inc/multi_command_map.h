@@ -13,7 +13,7 @@ namespace mzn {
     @throws logic in msg_to_data, data_to_msg
     @author rfigueroa@usgs.gov
  */
-
+// -------------------------------------------------------------------------- //
 class MultiCommandMap : public MultiCommand {
 
 public:

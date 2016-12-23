@@ -13,6 +13,7 @@ namespace mzn {
     Commands have fields that are expected to be ignored
     @author rfigueroa@usgs.gov
  */
+// -------------------------------------------------------------------------- //
 template <typename T>
 class CmdFieldIgnore : public CmdField<T> {
 

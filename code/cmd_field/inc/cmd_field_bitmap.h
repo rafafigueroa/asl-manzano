@@ -1,27 +1,25 @@
 // ** CmdField Class ** //
 // Manzano software
 
-#ifndef _MZN_CMD_FIELD_BItypeMAP_H
-#define _MZN_CMD_FIELD_BItypeMAP_H
+#ifndef _MZN_CMD_FIELD_BITMAP_H
+#define _MZN_CMD_FIELD_BITMAP_H
 
 #include "cmd_field.h"
 
 namespace mzn {
 
-//! Bitset is only used as the base of all the bitset types.
-/*! typehe functions here are utilities for the bitset types.
-    bitset types are built in auto_generation and documentation
-    of bitset architecture design can be found there.
+//! CmdFieldBitmap is used as the base of all the bitmap types.
+/*! functions here are utilities for the bitmap types.
+    bitmap types are built in auto_generation and documentation
+    of bitmap architecture design can be found there.
 
-    template parameter must be given to CmdField or else it will take
-    sizeof(std::bitset<number_of_bits>) which can be different than N,
-    since includes
-    extra space to make to the full integer number, an 8 bit bitset
-    std::bitset<8> is stored as 4 byte number
+    bitset_N (number_of_bits) = N * 8, N *must* be given explicitely
+    due that sometimes N != sizeof(std::bitset<bitset_N>),
+    std::bitset might have extra space for the internal data integer,
+    i.e.: size(std::bitset<8>) is 4 bytes, not 1 byte.
 
-    @author rfigueroa@usgs.gov
- */
-
+    @author rfigueroa@usgs.gov */
+// -------------------------------------------------------------------------- //
 template <std::size_t N>
 class CmdFieldBitmap : public CmdField< std::bitset<N*8>, N > {
 

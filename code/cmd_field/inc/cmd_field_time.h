@@ -15,6 +15,7 @@ namespace mzn {
     The internal representation in data is seconds since 1970 epoch
     for a different epoch, use the shift template parameter
     This class should be used to measure a point in time, not a duration
+    see tests for additional usage information and demostration
     @author rfigueroa@usgs.gov
  */
 // -------------------------------------------------------------------------- //
@@ -32,6 +33,7 @@ public:
     explicit
     CmdFieldTime();
 
+    //! uses mutator in operator()
     template <typename Duration>
     explicit
     CmdFieldTime(Time::TimePoint<Duration> const tp) : CmdField<T>{} {

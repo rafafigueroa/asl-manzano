@@ -9,8 +9,9 @@
 namespace mzn {
 
 //! Overloads base operator(), operator<<
-/*!
+/*! used for QCal
     @author rfigueroa@usgs.gov */
+// -------------------------------------------------------------------------- //
 class CmdFieldCalAmplitude : public CmdField<int16_t> {
 public:
 

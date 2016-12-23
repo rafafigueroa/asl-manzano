@@ -32,6 +32,7 @@ namespace mzn {
     @throws logic in msg_to_data, data_to_msg
     @author rfigueroa@usgs.gov
  */
+// -------------------------------------------------------------------------- //
 class Command {
 
 //! calls virtual protected function os_print
@@ -43,7 +44,10 @@ public:
     // --------------------------------------------------------------------- //
     Command(uint8_t const cmd_number,
             uint16_t const cmd_data_size,
-            bool const multi_cmd = false);
+            bool const multi_cmd = false) :
+        cmd_number_{cmd_number},
+        cmd_data_size_{cmd_data_size},
+        multi_cmd_{multi_cmd} {}
 
     // --------------------------------------------------------------------- //
     ~Command() = default;
@@ -54,6 +58,7 @@ public:
             cmd_data_size_(rhs.cmd_data_size_),
             multi_cmd_(rhs.multi_cmd_) {}
 
+    /*
     // --------------------------------------------------------------------- //
     Command & operator=(Command && rhs) noexcept {
         cmd_number_ = rhs.cmd_number_;
@@ -69,6 +74,7 @@ public:
         multi_cmd_ = rhs.multi_cmd_;
         return *this;
     }
+    */
 
     // --------------------------------------------------------------------- //
     Command(Command const & rhs) noexcept :
@@ -86,7 +92,7 @@ protected:
     /*! used in message_dispatch.cpp to check which msg was received
         for the different commands, e.g.: 0X23 for qcal.
      */
-    uint8_t cmd_number_;
+    uint8_t const cmd_number_;
 
     //! The sum of all N for all the cmd_field.
     /*! used in message_dispatch.cpp to fill the msg length in qdp header.
@@ -94,12 +100,12 @@ protected:
         used in udp_connection.cpp to fit the msg size.
         used in all cmds to check msg size in msg_to_data and data_to_msg
      */
-    uint16_t cmd_data_size_;
+    uint16_t const cmd_data_size_;
 
-    //! is this a command that contains other commands?
+    //! flag: is this a command that contains other commands?
     /*! used in message_dispatch.cpp to setup the size of expected mc msgs.
      */
-    bool multi_cmd_;
+    bool const multi_cmd_;
 
 public:
     //! pure virtual, calls data_to_msg on cmd fields in order

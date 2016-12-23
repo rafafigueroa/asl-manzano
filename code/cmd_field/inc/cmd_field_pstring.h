@@ -15,7 +15,6 @@ namespace mzn {
     @author rfigueroa@usgs.gov
     @throws logic setting operator() with wrong value
  */
-
 // -------------------------------------------------------------------------- //
 template <std::size_t N>
 class CmdFieldPstring : public CmdFieldArray<uint8_t, N> {

@@ -11,8 +11,8 @@ namespace mzn {
 //! Overloads operator<<
 /*!
     @author rfigueroa@usgs.gov
-    TODO? get back to T, N in general?
  */
+// -------------------------------------------------------------------------- //
 template <typename T>
 class CmdFieldHex : public CmdField<T> {
 
@@ -29,6 +29,7 @@ public:
 };
 
 //! operator<< overload to show the number as hex
+// -------------------------------------------------------------------------- //
 template <typename osT>
 inline
 std::ostream & operator<<(std::ostream & cf_os,
@@ -42,6 +43,7 @@ std::ostream & operator<<(std::ostream & cf_os,
 }
 
 //! special case for uint8_t or it would be streamed as a text char
+// -------------------------------------------------------------------------- //
 template <>
 inline
 std::ostream & operator<<(std::ostream & cf_os,

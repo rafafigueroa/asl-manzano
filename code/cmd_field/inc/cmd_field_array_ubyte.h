@@ -9,6 +9,7 @@
 namespace mzn {
 
 //! Array of unsigned bytes
+//! @see CmdFieldArray
 /*! @author rfigueroa@usgs.gov */
 // -------------------------------------------------------------------------- //
 template <std::size_t N>

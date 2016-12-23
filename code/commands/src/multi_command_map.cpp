@@ -15,6 +15,7 @@ MultiCommandMap::MultiCommandMap(MultiCommandMap && rhs) noexcept :
         MultiCommand( std::move(rhs) ),
         command_index_map_( std::move(rhs.command_index_map_) ) {}
 
+/*
 // move assignment operator
 // -------------------------------------------------------------------------- //
 MultiCommandMap & MultiCommandMap::operator=(MultiCommandMap && rhs) noexcept {
@@ -25,7 +26,7 @@ MultiCommandMap & MultiCommandMap::operator=(MultiCommandMap && rhs) noexcept {
     }
     return *this;
 }
-
+*/
 // -------------------------------------------------------------------------- //
 void MultiCommandMap::set_command_index(uint8_t const cmd_key,
                                         int const cmd_index) {

@@ -35,14 +35,14 @@ template<> struct CmdFieldTempType<std::bitset<32>>{using type = unsigned long;}
 
 //! cast to the cmd_field temporary type
 // -------------------------------------------------------------------------- //
-template<typename T>
+template <typename T>
 typename CmdFieldTempType<T>::type
 cmd_field_temp_cast(T data) {
     return static_cast<typename CmdFieldTempType<T>::type>(data);
 }
 
 // -------------------------------------------------------------------------- //
-template<std::size_t Nbits>
+template <std::size_t Nbits>
 typename CmdFieldTempType< std::bitset<Nbits>  >::type
 cmd_field_temp_cast(std::bitset<Nbits> data) {
     return data.to_ulong();

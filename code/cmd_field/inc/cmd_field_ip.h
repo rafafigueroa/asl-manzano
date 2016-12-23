@@ -11,6 +11,7 @@ namespace mzn {
 //! Overloads operator<<
 /*!
     @author rfigueroa@usgs.gov */
+// -------------------------------------------------------------------------- //
 
 class CmdFieldIp : public CmdField<uint32_t> {
 

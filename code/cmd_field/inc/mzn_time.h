@@ -58,7 +58,7 @@ using Years = std::chrono::duration<Rep, date::years::period>;
 
 //! time_points
 // -------------------------------------------------------------------------- //
-template<typename Rep = std::chrono::seconds::rep>
+template <typename Rep = std::chrono::seconds::rep>
 using SysTimeSeconds = date::time_of_day< Seconds<Rep> >;
 
 using DayPoint = date::day_point;
@@ -69,8 +69,8 @@ template <typename Duration>
 using TimePoint = std::chrono::time_point<SysClock, Duration>;
 
 // -------------------------------------------------------------------------- //
-template<typename Duration = SysClock::duration,
-         typename Rep = typename Duration::rep>
+template <typename Duration = SysClock::duration,
+          typename Rep = typename Duration::rep>
 inline
 SysTimeSeconds<typename Duration::rep> constexpr
 sys_time_of_day(TimePoint<Duration> const tp = SysClock::now() ) {
@@ -142,7 +142,7 @@ uint32_t constexpr k_shift_seconds_1970_2000 =
 
 //! operator<< seconds of any rep (std::chrono::seconds is a special case)
 // -------------------------------------------------------------------------- //
-template<typename Rep>
+template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::ratio<1, 1> > const d) {
@@ -187,7 +187,7 @@ std::ostream & operator<<(std::ostream & os,
 
 //! operator<< microseconds of any rep
 // -------------------------------------------------------------------------- //
-template<typename Rep>
+template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::micro> const d) {
@@ -210,7 +210,7 @@ std::ostream & operator<<(std::ostream & os,
 
 //! operator<< milliseconds of any rep
 // -------------------------------------------------------------------------- //
-template<typename Rep>
+template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::milli> const d) {
@@ -234,7 +234,7 @@ std::ostream & operator<<(std::ostream & os,
 
 //! operator<< minutes of any rep (std::chrono::minutes is a special case)
 // -------------------------------------------------------------------------- //
-template<typename Rep>
+template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::ratio<60> > const d) {
@@ -247,7 +247,7 @@ std::ostream & operator<<(std::ostream & os,
 
 //! operator<< hours of any rep (std::chrono::hours is a special case)
 // -------------------------------------------------------------------------- //
-template<typename Rep>
+template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::ratio<3600> > const d) {
@@ -260,7 +260,7 @@ std::ostream & operator<<(std::ostream & os,
 
 //! operator<< deci seconds of any rep
 // -------------------------------------------------------------------------- //
-template<typename Rep>
+template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::deci> const d) {
@@ -273,7 +273,7 @@ std::ostream & operator<<(std::ostream & os,
 
 //! operator<< centi seconds of any rep
 // -------------------------------------------------------------------------- //
-template<typename Rep>
+template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::centi> const d) {
