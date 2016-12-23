@@ -13,25 +13,16 @@
 
 namespace mzn {
 
-
+//! CmdField temporary type
 /*! During the msg_to_data and data_to_msg in CmdField, the data type might
     temporarily be cast to an unsigned int for endianness correction operations
     (except for array/vector types which do not use this).
+    @author rfigueroa@usgs.gov
  */
 // -------------------------------------------------------------------------- //
 template <typename DataType>
 struct CmdFieldTempType {using type = DataType;};
 
-// -------------------------------------------------------------------------- //
-template <typename T>
-struct IsStdArray {bool constexpr static value = false;};
-template <typename T, std::size_t N>
-struct IsStdArray<std::array<T, N>> {bool constexpr static value = true;};
-// -------------------------------------------------------------------------- //
-template <typename T>
-struct IsStdBitset {bool constexpr static value = false;};
-template <std::size_t N>
-struct IsStdBitset<std::bitset<N>> {bool constexpr static value = true;};
 //! template specialization for special cases
 // -------------------------------------------------------------------------- //
 template<> struct CmdFieldTempType<float>{using type = uint32_t;};
@@ -42,6 +33,7 @@ template<> struct CmdFieldTempType<std::bitset<8>> {using type = unsigned long;}
 template<> struct CmdFieldTempType<std::bitset<16>>{using type = unsigned long;};
 template<> struct CmdFieldTempType<std::bitset<32>>{using type = unsigned long;};
 
+//! cast to the cmd_field temporary type
 // -------------------------------------------------------------------------- //
 template<typename T>
 typename CmdFieldTempType<T>::type
@@ -292,6 +284,18 @@ std::size_t CmdField<float, 4>::data_to_msg(M & msg,
 
     return mf_pos + N;
 }
+
+//! utility
+// -------------------------------------------------------------------------- //
+template <typename T>
+struct IsStdArray {bool constexpr static value = false;};
+template <typename T, std::size_t N>
+struct IsStdArray<std::array<T, N>> {bool constexpr static value = true;};
+// -------------------------------------------------------------------------- //
+template <typename T>
+struct IsStdBitset {bool constexpr static value = false;};
+template <std::size_t N>
+struct IsStdBitset<std::bitset<N>> {bool constexpr static value = true;};
 
 } // << mzn
 
