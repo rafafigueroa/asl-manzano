@@ -4,6 +4,11 @@
 namespace mzn {
 
 // -------------------------------------------------------------------------- //
+void autocal() {
+
+}
+
+// -------------------------------------------------------------------------- //
 Comm::Comm() : sn{},
                md{},
                output_store{},
@@ -81,62 +86,6 @@ void Comm::run<Action::start, Kind::cal>(UserInstruction const & ui,
     // qcal, C1Qcal, C1Cack, no default option
     q_send_recv<Action::start, Kind::cal>(ui, ta);
 }
-
-// -------------------------------------------------------------------------- //
-template<>
-void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
-
-
-    auto msg_tasks =
-        cmd_file_reader_.construct_msg_tasks<Action::start, Kind::cal>(ui, ta);
-
-    std::cout << std::endl << "planning cals for " << ta << "\n";
-
-    for (auto const & msg_task : msg_tasks) {
-        std::cout << std::endl << msg_task;
-     }
-
-    auto & s = sn.s_ref(ta);
-    if (s.config.has_e300) {
-
-
-        using Seconds = Time::Seconds<>;
-        using Hours = Time::Hours<>;
-
-        // connect external calibration signal from e300
-        s.port_e300().cal_connect();
-
-        // if the calibration plan takes more than an hour, the e300
-        // needs to be kept awake or it will go back to "safe" mode
-        // technically this only needs to happen if a single calibration
-        // takes more than an hour.
-        bool need_to_be_kept_alive = false;
-
-        for (auto const & msg_task : msg_tasks) {
-            if ( msg_task.run_duration() >= Hours(1) ) {
-                need_to_be_kept_alive = true;
-                break;
-            }
-        }
-
-        // for now the e300 gets kept alive their entire duration
-        // TODO: use a vector of futures on keep_alive, to have different
-        // keep alive periods if needed
-        // right now it could do one long calibration like that
-        if (need_to_be_kept_alive) {
-
-            Seconds total_plan_run_duration;
-            for (auto const & msg_task : msg_tasks) {
-                total_plan_run_duration += msg_task.run_duration();
-            }
-            s.port_e300().keep_alive(total_plan_run_duration);
-        }
-    }
-
-    msg_task_manager_.add( std::move(msg_tasks) );
-}
-
 // -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::stop, Kind::cal>(UserInstruction const & ui,
@@ -339,6 +288,90 @@ void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
+void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
+                                        TargetAddress const & ta) {
+
+    auto msg_tasks =
+        cmd_file_reader_.construct_msg_tasks<Action::start, Kind::cal>(ui, ta);
+
+    std::cout << std::endl << "planning cals for " << ta << "\n";
+
+    for (auto const & msg_task : msg_tasks) {
+        std::cout << std::endl << msg_task;
+     }
+
+    auto & s = sn.s_ref(ta);
+    if (s.config.has_e300) {
+
+        using Seconds = Time::Seconds<>;
+        using Hours = Time::Hours<>;
+
+        // connect external calibration signal from e300
+        s.port_e300().cal_connect();
+
+        // if the calibration plan takes more than an hour, the e300
+        // needs to be kept awake or it will go back to "safe" mode
+        // technically this only needs to happen if a single calibration
+        // takes more than an hour.
+        bool need_to_be_kept_alive = false;
+
+        for (auto const & msg_task : msg_tasks) {
+            if ( msg_task.run_duration() >= Hours(1) ) {
+                need_to_be_kept_alive = true;
+                break;
+            }
+        }
+
+        // for now the e300 gets kept alive their entire duration
+        // TODO: use a vector of futures on keep_alive, to have different
+        // keep alive periods if needed
+        // right now it could do one long calibration like that
+        if (need_to_be_kept_alive) {
+
+            Seconds total_plan_run_duration;
+            for (auto const & msg_task : msg_tasks) {
+                total_plan_run_duration += msg_task.run_duration();
+            }
+            s.port_e300().keep_alive(total_plan_run_duration);
+        }
+    }
+
+    // msg_task_manager_.add( std::move(msg_tasks) );
+
+    auto & q = sn.q_ref(ta);
+
+    for (auto & msg_task : msg_tasks) {
+
+        // sleep on this thread, each msg task has the delay duration
+        // already calculated.
+        std::this_thread::sleep_for( msg_task.delay() );
+
+        std::cout << std::endl << "\nregister before each msg\n";
+
+        Comm::run<Action::set, Kind::reg>(ui, ta);
+
+        std::cout << std::endl << "\nsend cal message\n";
+
+        md.send_recv( q.port_config,
+                      *(msg_task.cmd_send.get()),
+                      *(msg_task.cmd_recv.get()) );
+
+        std::cout << std::endl << "\ndigitizer response\n";
+
+        std::cout << std::endl << *(msg_task.cmd_recv.get());
+
+        msg_task.done = true;
+
+        std::cout << std::endl << "\nde-register before each msg\n";
+
+        Comm::run<Action::set, Kind::dereg>(ui, ta);
+    }
+
+}
+
+
+// -------------------------------------------------------------------------- //
+template<>
 void Comm::run<Action::set, Kind::center>(UserInstruction const & ui,
                                           TargetAddress const & ta) {
 
@@ -476,6 +509,7 @@ void Comm::run<Action::show, Kind::command>(UserInstruction const & ui,
                                             TargetAddress const & ta) {
     stream_output.show<Kind::command>(ta);
 }
+
 /*
 template<>
 void Comm::data_recv(Digitizer & q) {

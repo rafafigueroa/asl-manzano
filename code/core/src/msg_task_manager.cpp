@@ -97,7 +97,6 @@ MsgTask MsgTaskManager::wait_send_recv(MsgTask && msg_task) {
         if (cv_notified and cv_cancel_task_) {
             std::cout << std::endl << "Task Cancelled\n";
             return std::move(msg_task);
-
         }
 
         if ( (not cv_notified) and (not cv_cancel_task_) ) {
@@ -112,7 +111,6 @@ MsgTask MsgTaskManager::wait_send_recv(MsgTask && msg_task) {
             std::cout << std::endl << *(msg_task.cmd_recv.get());
             msg_task.done = true;
             return std::move(msg_task);
-
         }
 
         throw std::logic_error("MsgTaskManager::wait_and_send");
