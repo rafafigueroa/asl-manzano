@@ -38,7 +38,8 @@ public:
       e.g., for false: bool_property [ ]
       e.g., for true:  bool_property [*] */
     // --------------------------------------------------------------------- //
-    char bool_indicator(bool const b) const { return (b) ? '*' : ' '; }
+    static
+    char bool_indicator(bool const b) {return (b) ? '*' : ' ';}
 
     //! bitset as unsigned long, use codes
     // --------------------------------------------------------------------- //

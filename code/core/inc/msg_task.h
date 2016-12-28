@@ -104,8 +104,8 @@ inline
 std::ostream & operator<<(std::ostream & os, MsgTask const & msg_task) {
 
     os << "++ " << msg_task.action << " " << msg_task.kind << " " << msg_task.ta
-       << " ~~ " << "delay: " << msg_task.delay
-       << " ~~ " << "run_duration: " << msg_task.run_duration;
+       << " ~~ " << "run_duration: " << msg_task.run_duration
+       << " done[" << CmdFieldBitmap<1>::bool_indicator(msg_task.done) << "]";
 
     return os;
 }

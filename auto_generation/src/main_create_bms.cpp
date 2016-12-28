@@ -322,6 +322,8 @@ for (auto bm_itr = bms_json.begin(); bm_itr != bms_json.end(); ++bm_itr) {
             bm_h_fs << "\n    ";
             bm_h_fs << "unsigned long const " << bmf_name << "() const {";
 
+            std::string bmf_class_name = make_classname_format(bmf_name);
+
             if(bmf_code_full_range) {
                 // the entire bitset can be evaluated
                 bm_h_fs << "return " << bm_T << "::raw_value();}";
@@ -335,7 +337,11 @@ for (auto bm_itr = bms_json.begin(); bm_itr != bms_json.end(); ++bm_itr) {
                 std::string bmf_code_mask =
                     bmf_json["bmf_code_mask"];
 
-                bm_h_fs << "return " << bm_T << "::raw_value_from_range(" << bmf_code_begin << ", " << bmf_code_mask << ");}";
+
+                bm_h_fs << "return " << bm_T
+                        << "::raw_value_from_range(" << bmf_code_begin
+                        << ", " << bmf_code_mask << ");}";
+
             } // end of getter for code
 
         // *** raw value in bitset ***
