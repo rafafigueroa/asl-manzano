@@ -24,35 +24,36 @@ public:
         generic_three_adc_module = 3,
     };
 
-    unsigned long const adc_model() const {return CmdFieldBitmap<1>::raw_value();}
+    AdcModel const adc_model() const {return static_cast<AdcModel>( CmdFieldBitmap<1>::raw_value() );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmAdcmodel const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.adc_model();
-    bm_os << "\n   adc_model : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmAdcmodel::AdcModel const & bmc) {
+    using AdcModel = BmAdcmodel::AdcModel;
+    bm_os << "\n   adc_model : ";
+    switch(bmc) {
 
-    case 0 : {
+    case AdcModel::no_adc_module_installed : {
          bm_os << "no_adc_module_installed";
          break;}
 
-    case 1 : {
+    case AdcModel::one_channel_adc_module_configured_for_setra_use : {
          bm_os << "one_channel_adc_module_configured_for_setra_use";
          break;}
 
-    case 2 : {
+    case AdcModel::generic_one_channel_adc_module : {
          bm_os << "generic_one_channel_adc_module";
          break;}
 
-    case 3 : {
+    case AdcModel::generic_three_adc_module : {
          bm_os << "generic_three_adc_module";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmAdcmodel const & bm) {
+    bm_os << "\n";
+    bm_os << bm.adc_model();
     bm_os << "\n";
     return bm_os;
 }
@@ -118,10 +119,42 @@ public:
     bool const allow_unauthenticated_baler_power_control_on_web_page() const {return this -> data_.test(2);}
     bool const allow_unauthenticated_baler_link_web_page() const {return this -> data_.test(3);}
     bool const show_q330_serial_number_on_web_page() const {return this -> data_.test(4);}
-    unsigned long const aux_reporting_interval() const {return CmdFieldBitmap<2>::raw_value_from_range(0, 0x3);}
-    unsigned long const status_port_reporting_interval() const {return CmdFieldBitmap<2>::raw_value_from_range(8, 0x3);}
+    AuxReportingInterval const aux_reporting_interval() const {return static_cast<AuxReportingInterval>( CmdFieldBitmap<2>::raw_value_from_range(0, 0x3) );}
+    StatusPortReportingInterval const status_port_reporting_interval() const {return static_cast<StatusPortReportingInterval>( CmdFieldBitmap<2>::raw_value_from_range(8, 0x3) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmAuxStatusWebFlags::AuxReportingInterval const & bmc) {
+    using AuxReportingInterval = BmAuxStatusWebFlags::AuxReportingInterval;
+    bm_os << "\n   aux_reporting_interval : ";
+    switch(bmc) {
+
+    case AuxReportingInterval::not_reported : {
+         bm_os << "not_reported";
+         break;}
+
+    case AuxReportingInterval::one_hertz : {
+         bm_os << "one_hertz";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmAuxStatusWebFlags::StatusPortReportingInterval const & bmc) {
+    using StatusPortReportingInterval = BmAuxStatusWebFlags::StatusPortReportingInterval;
+    bm_os << "\n   status_port_reporting_interval : ";
+    switch(bmc) {
+
+    case StatusPortReportingInterval::not_reported : {
+         bm_os << "not_reported";
+         break;}
+
+    case StatusPortReportingInterval::one_hertz : {
+         bm_os << "one_hertz";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmAuxStatusWebFlags const & bm) {
     bm_os << "\n";
     bm_os << "\n   [" << bm.bool_indicator( bm.allow_unauthenticated_baler_power_control_on_web_page() ) << "] " <<
@@ -130,38 +163,8 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmAuxStatusWebFlags const
         "allow_unauthenticated_baler_link_web_page";
     bm_os << "\n   [" << bm.bool_indicator( bm.show_q330_serial_number_on_web_page() ) << "] " <<
         "show_q330_serial_number_on_web_page";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.aux_reporting_interval();
-    bm_os << "\n   aux_reporting_interval : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "not_reported";
-         break;}
-
-    case 1 : {
-         bm_os << "one_hertz";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.status_port_reporting_interval();
-    bm_os << "\n   status_port_reporting_interval : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "not_reported";
-         break;}
-
-    case 1 : {
-         bm_os << "one_hertz";
-         break;}
-    }
-}
+    bm_os << bm.aux_reporting_interval();
+    bm_os << bm.status_port_reporting_interval();
     bm_os << "\n";
     return bm_os;
 }
@@ -184,9 +187,33 @@ public:
     const unsigned long timeout_counts() const {return CmdFieldBitmap<2>::raw_value_from_range(0, 0xFFF);}
     bool const baler_is_currently_forced_off_for_the_minimum_off_time() const {return this -> data_.test(12);}
     bool const set_to_one() const {return this -> data_.test(13);}
-    unsigned long const baler_power_status() const {return CmdFieldBitmap<2>::raw_value_from_range(14, 0x3);}
+    BalerPowerStatus const baler_power_status() const {return static_cast<BalerPowerStatus>( CmdFieldBitmap<2>::raw_value_from_range(14, 0x3) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmBalerstatus::BalerPowerStatus const & bmc) {
+    using BalerPowerStatus = BmBalerstatus::BalerPowerStatus;
+    bm_os << "\n   baler_power_status : ";
+    switch(bmc) {
+
+    case BalerPowerStatus::baler_off : {
+         bm_os << "baler_off";
+         break;}
+
+    case BalerPowerStatus::baler_power_turned_on_by_a_command : {
+         bm_os << "baler_power_turned_on_by_a_command";
+         break;}
+
+    case BalerPowerStatus::baler_power_turned_on_automatically : {
+         bm_os << "baler_power_turned_on_automatically";
+         break;}
+
+    case BalerPowerStatus::baler_power_is_continuous : {
+         bm_os << "baler_power_is_continuous";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmBalerstatus const & bm) {
     bm_os << "\n";
     bm_os << "\n   timeout_counts : " << bm.timeout_counts();
@@ -194,30 +221,7 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmBalerstatus const & bm)
         "baler_is_currently_forced_off_for_the_minimum_off_time";
     bm_os << "\n   [" << bm.bool_indicator( bm.set_to_one() ) << "] " <<
         "set_to_one";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.baler_power_status();
-    bm_os << "\n   baler_power_status : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "baler_off";
-         break;}
-
-    case 1 : {
-         bm_os << "baler_power_turned_on_by_a_command";
-         break;}
-
-    case 2 : {
-         bm_os << "baler_power_turned_on_automatically";
-         break;}
-
-    case 3 : {
-         bm_os << "baler_power_is_continuous";
-         break;}
-    }
-}
+    bm_os << bm.baler_power_status();
     bm_os << "\n";
     return bm_os;
 }
@@ -398,46 +402,47 @@ public:
 
     bool const negative_step() const {return this -> data_.test(6);}
     bool const automatic_calibration() const {return this -> data_.test(7);}
-    unsigned long const waveform() const {return CmdFieldBitmap<2>::raw_value_from_range(0, 0x7);}
+    Waveform const waveform() const {return static_cast<Waveform>( CmdFieldBitmap<2>::raw_value_from_range(0, 0x7) );}
     void negative_step(const bool b) {this -> data_.set(6, b);}
     void automatic_calibration(const bool b) {this -> data_.set(7, b);}
     void waveform(Waveform const c) {CmdFieldBitmap<2>::set_raw_value_in_range(0, 0x7, static_cast<unsigned long>(c) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmCalWaveform::Waveform const & bmc) {
+    using Waveform = BmCalWaveform::Waveform;
+    bm_os << "\n   waveform : ";
+    switch(bmc) {
+
+    case Waveform::sine : {
+         bm_os << "sine";
+         break;}
+
+    case Waveform::red_noise : {
+         bm_os << "red_noise";
+         break;}
+
+    case Waveform::white_noise : {
+         bm_os << "white_noise";
+         break;}
+
+    case Waveform::step : {
+         bm_os << "step";
+         break;}
+
+    case Waveform::random : {
+         bm_os << "random";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmCalWaveform const & bm) {
     bm_os << "\n";
     bm_os << "\n   [" << bm.bool_indicator( bm.negative_step() ) << "] " <<
         "negative_step";
     bm_os << "\n   [" << bm.bool_indicator( bm.automatic_calibration() ) << "] " <<
         "automatic_calibration";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.waveform();
-    bm_os << "\n   waveform : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "sine";
-         break;}
-
-    case 1 : {
-         bm_os << "red_noise";
-         break;}
-
-    case 2 : {
-         bm_os << "white_noise";
-         break;}
-
-    case 3 : {
-         bm_os << "step";
-         break;}
-
-    case 4 : {
-         bm_os << "random";
-         break;}
-    }
-}
+    bm_os << bm.waveform();
     bm_os << "\n";
     return bm_os;
 }
@@ -455,28 +460,29 @@ public:
         b = 56,
     };
 
-    unsigned long const input() const {return CmdFieldBitmap<2>::raw_value();}
+    Input const input() const {return static_cast<Input>( CmdFieldBitmap<2>::raw_value() );}
     void input(Input const c) {this -> data_ = std::bitset<16>( static_cast<unsigned long>(c) );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmCalibrationBitmap const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.input();
-    bm_os << "\n   input : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmCalibrationBitmap::Input const & bmc) {
+    using Input = BmCalibrationBitmap::Input;
+    bm_os << "\n   input : ";
+    switch(bmc) {
 
-    case 3 : {
+    case Input::a : {
          bm_os << "a";
          break;}
 
-    case 56 : {
+    case Input::b : {
          bm_os << "b";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmCalibrationBitmap const & bm) {
+    bm_os << "\n";
+    bm_os << bm.input();
     bm_os << "\n";
     return bm_os;
 }
@@ -505,71 +511,72 @@ public:
         flash_write_or_erase_error = 12,
     };
 
-    unsigned long const error_code() const {return CmdFieldBitmap<2>::raw_value();}
+    ErrorCode const error_code() const {return static_cast<ErrorCode>( CmdFieldBitmap<2>::raw_value() );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmCerr const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.error_code();
-    bm_os << "\n   error_code : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmCerr::ErrorCode const & bmc) {
+    using ErrorCode = BmCerr::ErrorCode;
+    bm_os << "\n   error_code : ";
+    switch(bmc) {
 
-    case 0 : {
+    case ErrorCode::no_permission_invalid_password : {
          bm_os << "no_permission_invalid_password";
          break;}
 
-    case 1 : {
+    case ErrorCode::too_many_configuration_or_special_functions : {
          bm_os << "too_many_configuration_or_special_functions";
          break;}
 
-    case 2 : {
+    case ErrorCode::you_are_not_registered : {
          bm_os << "you_are_not_registered";
          break;}
 
-    case 3 : {
+    case ErrorCode::invalid_registration_response : {
          bm_os << "invalid_registration_response";
          break;}
 
-    case 4 : {
+    case ErrorCode::parameter_error : {
          bm_os << "parameter_error";
          break;}
 
-    case 5 : {
+    case ErrorCode::tried_to_read_an_eeprom_structure_that_is_not_valid : {
          bm_os << "tried_to_read_an_eeprom_structure_that_is_not_valid";
          break;}
 
-    case 6 : {
+    case ErrorCode::configuration_only : {
          bm_os << "configuration_only";
          break;}
 
-    case 7 : {
+    case ErrorCode::special_functions_port_only : {
          bm_os << "special_functions_port_only";
          break;}
 
-    case 8 : {
+    case ErrorCode::memory_operation_in_progress : {
          bm_os << "memory_operation_in_progress";
          break;}
 
-    case 9 : {
+    case ErrorCode::calibration_in_progress : {
          bm_os << "calibration_in_progress";
          break;}
 
-    case 10 : {
+    case ErrorCode::data_not_yet_available_for_quickview : {
          bm_os << "data_not_yet_available_for_quickview";
          break;}
 
-    case 11 : {
+    case ErrorCode::console_virtual_interface_only : {
          bm_os << "console_virtual_interface_only";
          break;}
 
-    case 12 : {
+    case ErrorCode::flash_write_or_erase_error : {
          bm_os << "flash_write_or_erase_error";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmCerr const & bm) {
+    bm_os << "\n";
+    bm_os << bm.error_code();
     bm_os << "\n";
     return bm_os;
 }
@@ -629,39 +636,40 @@ public:
         equalization = 4,
     };
 
-    unsigned long const charging_phase() const {return CmdFieldBitmap<2>::raw_value();}
+    ChargingPhase const charging_phase() const {return static_cast<ChargingPhase>( CmdFieldBitmap<2>::raw_value() );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmChargingPhase const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.charging_phase();
-    bm_os << "\n   charging_phase : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmChargingPhase::ChargingPhase const & bmc) {
+    using ChargingPhase = BmChargingPhase::ChargingPhase;
+    bm_os << "\n   charging_phase : ";
+    switch(bmc) {
 
-    case 0 : {
+    case ChargingPhase::not_charging : {
          bm_os << "not_charging";
          break;}
 
-    case 1 : {
+    case ChargingPhase::bulk : {
          bm_os << "bulk";
          break;}
 
-    case 2 : {
+    case ChargingPhase::absorption : {
          bm_os << "absorption";
          break;}
 
-    case 3 : {
+    case ChargingPhase::float_phase : {
          bm_os << "float_phase";
          break;}
 
-    case 4 : {
+    case ChargingPhase::equalization : {
          bm_os << "equalization";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmChargingPhase const & bm) {
+    bm_os << "\n";
+    bm_os << bm.charging_phase();
     bm_os << "\n";
     return bm_os;
 }
@@ -749,47 +757,48 @@ public:
         whoi_controller = 99,
     };
 
-    unsigned long const unit_id() const {return CmdFieldBitmap<2>::raw_value();}
+    UnitId const unit_id() const {return static_cast<UnitId>( CmdFieldBitmap<2>::raw_value() );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmDevUnitid const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.unit_id();
-    bm_os << "\n   unit_id : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmDevUnitid::UnitId const & bmc) {
+    using UnitId = BmDevUnitid::UnitId;
+    bm_os << "\n   unit_id : ";
+    switch(bmc) {
 
-    case 13 : {
+    case UnitId::sp1320_power_supply : {
          bm_os << "sp1320_power_supply";
          break;}
 
-    case 15 : {
+    case UnitId::power_supply_1 : {
          bm_os << "power_supply_1";
          break;}
 
-    case 17 : {
+    case UnitId::power_supply_2 : {
          bm_os << "power_supply_2";
          break;}
 
-    case 19 : {
+    case UnitId::power_supply_3 : {
          bm_os << "power_supply_3";
          break;}
 
-    case 20 : {
+    case UnitId::black_and_white_camera : {
          bm_os << "black_and_white_camera";
          break;}
 
-    case 33 : {
+    case UnitId::qcal_calibrator : {
          bm_os << "qcal_calibrator";
          break;}
 
-    case 99 : {
+    case UnitId::whoi_controller : {
          bm_os << "whoi_controller";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmDevUnitid const & bm) {
+    bm_os << "\n";
+    bm_os << bm.unit_id();
     bm_os << "\n";
     return bm_os;
 }
@@ -1058,136 +1067,142 @@ public:
         pre_amp_on = 2,
     };
 
-    unsigned long const gain_pre_amp_channel_1() const {return CmdFieldBitmap<2>::raw_value_from_range(0, 0x3);}
-    unsigned long const gain_pre_amp_channel_2() const {return CmdFieldBitmap<2>::raw_value_from_range(2, 0x3);}
-    unsigned long const gain_pre_amp_channel_3() const {return CmdFieldBitmap<2>::raw_value_from_range(4, 0x3);}
-    unsigned long const gain_pre_amp_channel_4() const {return CmdFieldBitmap<2>::raw_value_from_range(6, 0x3);}
-    unsigned long const gain_pre_amp_channel_5() const {return CmdFieldBitmap<2>::raw_value_from_range(8, 0x3);}
-    unsigned long const gain_pre_amp_channel_6() const {return CmdFieldBitmap<2>::raw_value_from_range(10, 0x3);}
+    GainPreAmpChannel1 const gain_pre_amp_channel_1() const {return static_cast<GainPreAmpChannel1>( CmdFieldBitmap<2>::raw_value_from_range(0, 0x3) );}
+    GainPreAmpChannel2 const gain_pre_amp_channel_2() const {return static_cast<GainPreAmpChannel2>( CmdFieldBitmap<2>::raw_value_from_range(2, 0x3) );}
+    GainPreAmpChannel3 const gain_pre_amp_channel_3() const {return static_cast<GainPreAmpChannel3>( CmdFieldBitmap<2>::raw_value_from_range(4, 0x3) );}
+    GainPreAmpChannel4 const gain_pre_amp_channel_4() const {return static_cast<GainPreAmpChannel4>( CmdFieldBitmap<2>::raw_value_from_range(6, 0x3) );}
+    GainPreAmpChannel5 const gain_pre_amp_channel_5() const {return static_cast<GainPreAmpChannel5>( CmdFieldBitmap<2>::raw_value_from_range(8, 0x3) );}
+    GainPreAmpChannel6 const gain_pre_amp_channel_6() const {return static_cast<GainPreAmpChannel6>( CmdFieldBitmap<2>::raw_value_from_range(10, 0x3) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmGainPreAmp::GainPreAmpChannel1 const & bmc) {
+    using GainPreAmpChannel1 = BmGainPreAmp::GainPreAmpChannel1;
+    bm_os << "\n   gain_pre_amp_channel_1 : ";
+    switch(bmc) {
+
+    case GainPreAmpChannel1::disabled : {
+         bm_os << "disabled";
+         break;}
+
+    case GainPreAmpChannel1::pre_amp_off : {
+         bm_os << "pre_amp_off";
+         break;}
+
+    case GainPreAmpChannel1::pre_amp_on : {
+         bm_os << "pre_amp_on";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmGainPreAmp::GainPreAmpChannel2 const & bmc) {
+    using GainPreAmpChannel2 = BmGainPreAmp::GainPreAmpChannel2;
+    bm_os << "\n   gain_pre_amp_channel_2 : ";
+    switch(bmc) {
+
+    case GainPreAmpChannel2::disabled : {
+         bm_os << "disabled";
+         break;}
+
+    case GainPreAmpChannel2::pre_amp_off : {
+         bm_os << "pre_amp_off";
+         break;}
+
+    case GainPreAmpChannel2::pre_amp_on : {
+         bm_os << "pre_amp_on";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmGainPreAmp::GainPreAmpChannel3 const & bmc) {
+    using GainPreAmpChannel3 = BmGainPreAmp::GainPreAmpChannel3;
+    bm_os << "\n   gain_pre_amp_channel_3 : ";
+    switch(bmc) {
+
+    case GainPreAmpChannel3::disabled : {
+         bm_os << "disabled";
+         break;}
+
+    case GainPreAmpChannel3::pre_amp_off : {
+         bm_os << "pre_amp_off";
+         break;}
+
+    case GainPreAmpChannel3::pre_amp_on : {
+         bm_os << "pre_amp_on";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmGainPreAmp::GainPreAmpChannel4 const & bmc) {
+    using GainPreAmpChannel4 = BmGainPreAmp::GainPreAmpChannel4;
+    bm_os << "\n   gain_pre_amp_channel_4 : ";
+    switch(bmc) {
+
+    case GainPreAmpChannel4::disabled : {
+         bm_os << "disabled";
+         break;}
+
+    case GainPreAmpChannel4::pre_amp_off : {
+         bm_os << "pre_amp_off";
+         break;}
+
+    case GainPreAmpChannel4::pre_amp_on : {
+         bm_os << "pre_amp_on";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmGainPreAmp::GainPreAmpChannel5 const & bmc) {
+    using GainPreAmpChannel5 = BmGainPreAmp::GainPreAmpChannel5;
+    bm_os << "\n   gain_pre_amp_channel_5 : ";
+    switch(bmc) {
+
+    case GainPreAmpChannel5::disabled : {
+         bm_os << "disabled";
+         break;}
+
+    case GainPreAmpChannel5::pre_amp_off : {
+         bm_os << "pre_amp_off";
+         break;}
+
+    case GainPreAmpChannel5::pre_amp_on : {
+         bm_os << "pre_amp_on";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmGainPreAmp::GainPreAmpChannel6 const & bmc) {
+    using GainPreAmpChannel6 = BmGainPreAmp::GainPreAmpChannel6;
+    bm_os << "\n   gain_pre_amp_channel_6 : ";
+    switch(bmc) {
+
+    case GainPreAmpChannel6::disabled : {
+         bm_os << "disabled";
+         break;}
+
+    case GainPreAmpChannel6::pre_amp_off : {
+         bm_os << "pre_amp_off";
+         break;}
+
+    case GainPreAmpChannel6::pre_amp_on : {
+         bm_os << "pre_amp_on";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmGainPreAmp const & bm) {
     bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.gain_pre_amp_channel_1();
-    bm_os << "\n   gain_pre_amp_channel_1 : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "disabled";
-         break;}
-
-    case 1 : {
-         bm_os << "pre_amp_off";
-         break;}
-
-    case 2 : {
-         bm_os << "pre_amp_on";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.gain_pre_amp_channel_2();
-    bm_os << "\n   gain_pre_amp_channel_2 : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "disabled";
-         break;}
-
-    case 1 : {
-         bm_os << "pre_amp_off";
-         break;}
-
-    case 2 : {
-         bm_os << "pre_amp_on";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.gain_pre_amp_channel_3();
-    bm_os << "\n   gain_pre_amp_channel_3 : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "disabled";
-         break;}
-
-    case 1 : {
-         bm_os << "pre_amp_off";
-         break;}
-
-    case 2 : {
-         bm_os << "pre_amp_on";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.gain_pre_amp_channel_4();
-    bm_os << "\n   gain_pre_amp_channel_4 : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "disabled";
-         break;}
-
-    case 1 : {
-         bm_os << "pre_amp_off";
-         break;}
-
-    case 2 : {
-         bm_os << "pre_amp_on";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.gain_pre_amp_channel_5();
-    bm_os << "\n   gain_pre_amp_channel_5 : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "disabled";
-         break;}
-
-    case 1 : {
-         bm_os << "pre_amp_off";
-         break;}
-
-    case 2 : {
-         bm_os << "pre_amp_on";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.gain_pre_amp_channel_6();
-    bm_os << "\n   gain_pre_amp_channel_6 : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "disabled";
-         break;}
-
-    case 1 : {
-         bm_os << "pre_amp_off";
-         break;}
-
-    case 2 : {
-         bm_os << "pre_amp_on";
-         break;}
-    }
-}
+    bm_os << bm.gain_pre_amp_channel_1();
+    bm_os << bm.gain_pre_amp_channel_2();
+    bm_os << bm.gain_pre_amp_channel_3();
+    bm_os << bm.gain_pre_amp_channel_4();
+    bm_os << bm.gain_pre_amp_channel_5();
+    bm_os << bm.gain_pre_amp_channel_6();
     bm_os << "\n";
     return bm_os;
 }
@@ -1241,10 +1256,58 @@ public:
     bool const channel_4_uses_mux_special_input() const {return this -> data_.test(3);}
     bool const channel_5_uses_mux_special_input() const {return this -> data_.test(4);}
     bool const channel_6_uses_mux_special_input() const {return this -> data_.test(5);}
-    unsigned long const input_a_type() const {return CmdFieldBitmap<2>::raw_value_from_range(8, 0x3);}
-    unsigned long const input_b_type() const {return CmdFieldBitmap<2>::raw_value_from_range(10, 0x3);}
+    InputAType const input_a_type() const {return static_cast<InputAType>( CmdFieldBitmap<2>::raw_value_from_range(8, 0x3) );}
+    InputBType const input_b_type() const {return static_cast<InputBType>( CmdFieldBitmap<2>::raw_value_from_range(10, 0x3) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmInputBitmap::InputAType const & bmc) {
+    using InputAType = BmInputBitmap::InputAType;
+    bm_os << "\n   input_a_type : ";
+    switch(bmc) {
+
+    case InputAType::one_pps_input : {
+         bm_os << "one_pps_input";
+         break;}
+
+    case InputAType::reference_input : {
+         bm_os << "reference_input";
+         break;}
+
+    case InputAType::calibrator_output : {
+         bm_os << "calibrator_output";
+         break;}
+
+    case InputAType::grounded_input : {
+         bm_os << "grounded_input";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmInputBitmap::InputBType const & bmc) {
+    using InputBType = BmInputBitmap::InputBType;
+    bm_os << "\n   input_b_type : ";
+    switch(bmc) {
+
+    case InputBType::one_pps_input : {
+         bm_os << "one_pps_input";
+         break;}
+
+    case InputBType::reference_input : {
+         bm_os << "reference_input";
+         break;}
+
+    case InputBType::calibrator_output : {
+         bm_os << "calibrator_output";
+         break;}
+
+    case InputBType::grounded_input : {
+         bm_os << "grounded_input";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmInputBitmap const & bm) {
     bm_os << "\n";
     bm_os << "\n   [" << bm.bool_indicator( bm.channel_1_uses_mux_special_input() ) << "] " <<
@@ -1259,54 +1322,8 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmInputBitmap const & bm)
         "channel_5_uses_mux_special_input";
     bm_os << "\n   [" << bm.bool_indicator( bm.channel_6_uses_mux_special_input() ) << "] " <<
         "channel_6_uses_mux_special_input";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.input_a_type();
-    bm_os << "\n   input_a_type : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "one_pps_input";
-         break;}
-
-    case 1 : {
-         bm_os << "reference_input";
-         break;}
-
-    case 2 : {
-         bm_os << "calibrator_output";
-         break;}
-
-    case 3 : {
-         bm_os << "grounded_input";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.input_b_type();
-    bm_os << "\n   input_b_type : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "one_pps_input";
-         break;}
-
-    case 1 : {
-         bm_os << "reference_input";
-         break;}
-
-    case 2 : {
-         bm_os << "calibrator_output";
-         break;}
-
-    case 3 : {
-         bm_os << "grounded_input";
-         break;}
-    }
-}
+    bm_os << bm.input_a_type();
+    bm_os << bm.input_b_type();
     bm_os << "\n";
     return bm_os;
 }
@@ -1334,60 +1351,62 @@ public:
         below_20Hz = 3,
     };
 
-    unsigned long const linear_phase_filters_input_a() const {return CmdFieldBitmap<2>::raw_value_from_range(0, 0x3);}
-    unsigned long const linear_phase_filters_input_b() const {return CmdFieldBitmap<2>::raw_value_from_range(2, 0x3);}
+    LinearPhaseFiltersInputA const linear_phase_filters_input_a() const {return static_cast<LinearPhaseFiltersInputA>( CmdFieldBitmap<2>::raw_value_from_range(0, 0x3) );}
+    LinearPhaseFiltersInputB const linear_phase_filters_input_b() const {return static_cast<LinearPhaseFiltersInputB>( CmdFieldBitmap<2>::raw_value_from_range(2, 0x3) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmLinearPhaseFilters::LinearPhaseFiltersInputA const & bmc) {
+    using LinearPhaseFiltersInputA = BmLinearPhaseFilters::LinearPhaseFiltersInputA;
+    bm_os << "\n   linear_phase_filters_input_a : ";
+    switch(bmc) {
+
+    case LinearPhaseFiltersInputA::for_all_frequencies : {
+         bm_os << "for_all_frequencies";
+         break;}
+
+    case LinearPhaseFiltersInputA::below_100Hz : {
+         bm_os << "below_100Hz";
+         break;}
+
+    case LinearPhaseFiltersInputA::below_40Hz : {
+         bm_os << "below_40Hz";
+         break;}
+
+    case LinearPhaseFiltersInputA::below_20Hz : {
+         bm_os << "below_20Hz";
+         break;}
+    } // end switch
+    return bm_os;
+}
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmLinearPhaseFilters::LinearPhaseFiltersInputB const & bmc) {
+    using LinearPhaseFiltersInputB = BmLinearPhaseFilters::LinearPhaseFiltersInputB;
+    bm_os << "\n   linear_phase_filters_input_b : ";
+    switch(bmc) {
+
+    case LinearPhaseFiltersInputB::for_all_frequencies : {
+         bm_os << "for_all_frequencies";
+         break;}
+
+    case LinearPhaseFiltersInputB::below_100Hz : {
+         bm_os << "below_100Hz";
+         break;}
+
+    case LinearPhaseFiltersInputB::below_40Hz : {
+         bm_os << "below_40Hz";
+         break;}
+
+    case LinearPhaseFiltersInputB::below_20Hz : {
+         bm_os << "below_20Hz";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmLinearPhaseFilters const & bm) {
     bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.linear_phase_filters_input_a();
-    bm_os << "\n   linear_phase_filters_input_a : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "for_all_frequencies";
-         break;}
-
-    case 1 : {
-         bm_os << "below_100Hz";
-         break;}
-
-    case 2 : {
-         bm_os << "below_40Hz";
-         break;}
-
-    case 3 : {
-         bm_os << "below_20Hz";
-         break;}
-    }
-}
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.linear_phase_filters_input_b();
-    bm_os << "\n   linear_phase_filters_input_b : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "for_all_frequencies";
-         break;}
-
-    case 1 : {
-         bm_os << "below_100Hz";
-         break;}
-
-    case 2 : {
-         bm_os << "below_40Hz";
-         break;}
-
-    case 3 : {
-         bm_os << "below_20Hz";
-         break;}
-    }
-}
+    bm_os << bm.linear_phase_filters_input_a();
+    bm_os << bm.linear_phase_filters_input_b();
     bm_os << "\n";
     return bm_os;
 }
@@ -1482,35 +1501,36 @@ public:
         pll_locked = 3,
     };
 
-    unsigned long const pll_status() const {return CmdFieldBitmap<2>::raw_value_from_range(6, 0x3);}
+    PllStatus const pll_status() const {return static_cast<PllStatus>( CmdFieldBitmap<2>::raw_value_from_range(6, 0x3) );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmPllState const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.pll_status();
-    bm_os << "\n   pll_status : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmPllState::PllStatus const & bmc) {
+    using PllStatus = BmPllState::PllStatus;
+    bm_os << "\n   pll_status : ";
+    switch(bmc) {
 
-    case 0 : {
+    case PllStatus::pll_not_enabled : {
          bm_os << "pll_not_enabled";
          break;}
 
-    case 1 : {
+    case PllStatus::pll_hold : {
          bm_os << "pll_hold";
          break;}
 
-    case 2 : {
+    case PllStatus::pll_tracking : {
          bm_os << "pll_tracking";
          break;}
 
-    case 3 : {
+    case PllStatus::pll_locked : {
          bm_os << "pll_locked";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmPllState const & bm) {
+    bm_os << "\n";
+    bm_os << bm.pll_status();
     bm_os << "\n";
     return bm_os;
 }
@@ -1649,23 +1669,24 @@ public:
         vaisala_wxt520_weather_station = 1,
     };
 
-    unsigned long const sdi_driver() const {return CmdFieldBitmap<1>::raw_value();}
+    SdiDriver const sdi_driver() const {return static_cast<SdiDriver>( CmdFieldBitmap<1>::raw_value() );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmSdidriver const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.sdi_driver();
-    bm_os << "\n   sdi_driver : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmSdidriver::SdiDriver const & bmc) {
+    using SdiDriver = BmSdidriver::SdiDriver;
+    bm_os << "\n   sdi_driver : ";
+    switch(bmc) {
 
-    case 1 : {
+    case SdiDriver::vaisala_wxt520_weather_station : {
          bm_os << "vaisala_wxt520_weather_station";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmSdidriver const & bm) {
+    bm_os << "\n";
+    bm_os << bm.sdi_driver();
     bm_os << "\n";
     return bm_os;
 }
@@ -1684,31 +1705,32 @@ public:
         waiting_for_sample_result = 8,
     };
 
-    unsigned long const sdi_phase() const {return CmdFieldBitmap<1>::raw_value();}
+    SdiPhase const sdi_phase() const {return static_cast<SdiPhase>( CmdFieldBitmap<1>::raw_value() );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmSdiphase const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.sdi_phase();
-    bm_os << "\n   sdi_phase : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmSdiphase::SdiPhase const & bmc) {
+    using SdiPhase = BmSdiphase::SdiPhase;
+    bm_os << "\n   sdi_phase : ";
+    switch(bmc) {
 
-    case 6 : {
+    case SdiPhase::ready_to_run : {
          bm_os << "ready_to_run";
          break;}
 
-    case 7 : {
+    case SdiPhase::sampling : {
          bm_os << "sampling";
          break;}
 
-    case 8 : {
+    case SdiPhase::waiting_for_sample_result : {
          bm_os << "waiting_for_sample_result";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmSdiphase const & bm) {
+    bm_os << "\n";
+    bm_os << bm.sdi_phase();
     bm_os << "\n";
     return bm_os;
 }
@@ -1740,81 +1762,82 @@ public:
     };
 
     bool const active_high() const {return this -> data_.test(8);}
-    unsigned long const sensor_control_mapping() const {return CmdFieldBitmap<4>::raw_value_from_range(0, 0x7F);}
+    SensorControlMapping const sensor_control_mapping() const {return static_cast<SensorControlMapping>( CmdFieldBitmap<4>::raw_value_from_range(0, 0x7F) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlBitmap::SensorControlMapping const & bmc) {
+    using SensorControlMapping = BmSensorControlBitmap::SensorControlMapping;
+    bm_os << "\n   sensor_control_mapping : ";
+    switch(bmc) {
+
+    case SensorControlMapping::not_doing_calibration_or_recentering : {
+         bm_os << "not_doing_calibration_or_recentering";
+         break;}
+
+    case SensorControlMapping::sensor_a_calibration : {
+         bm_os << "sensor_a_calibration";
+         break;}
+
+    case SensorControlMapping::sensor_a_centering : {
+         bm_os << "sensor_a_centering";
+         break;}
+
+    case SensorControlMapping::sensor_a_capacitive_coupling : {
+         bm_os << "sensor_a_capacitive_coupling";
+         break;}
+
+    case SensorControlMapping::sensor_b_calibration : {
+         bm_os << "sensor_b_calibration";
+         break;}
+
+    case SensorControlMapping::sensor_b_centering : {
+         bm_os << "sensor_b_centering";
+         break;}
+
+    case SensorControlMapping::sensor_b_capacitive_coupling : {
+         bm_os << "sensor_b_capacitive_coupling";
+         break;}
+
+    case SensorControlMapping::sensor_a_lock : {
+         bm_os << "sensor_a_lock";
+         break;}
+
+    case SensorControlMapping::sensor_a_unlock : {
+         bm_os << "sensor_a_unlock";
+         break;}
+
+    case SensorControlMapping::sensor_a_aux_1 : {
+         bm_os << "sensor_a_aux_1";
+         break;}
+
+    case SensorControlMapping::sensor_a_aux_2 : {
+         bm_os << "sensor_a_aux_2";
+         break;}
+
+    case SensorControlMapping::sensor_b_lock : {
+         bm_os << "sensor_b_lock";
+         break;}
+
+    case SensorControlMapping::sensor_b_unlock : {
+         bm_os << "sensor_b_unlock";
+         break;}
+
+    case SensorControlMapping::sensor_b_aux_1 : {
+         bm_os << "sensor_b_aux_1";
+         break;}
+
+    case SensorControlMapping::sensor_b_aux_2 : {
+         bm_os << "sensor_b_aux_2";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlBitmap const & bm) {
     bm_os << "\n";
     bm_os << "\n   [" << bm.bool_indicator( bm.active_high() ) << "] " <<
         "active_high";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.sensor_control_mapping();
-    bm_os << "\n   sensor_control_mapping : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "not_doing_calibration_or_recentering";
-         break;}
-
-    case 1 : {
-         bm_os << "sensor_a_calibration";
-         break;}
-
-    case 2 : {
-         bm_os << "sensor_a_centering";
-         break;}
-
-    case 3 : {
-         bm_os << "sensor_a_capacitive_coupling";
-         break;}
-
-    case 4 : {
-         bm_os << "sensor_b_calibration";
-         break;}
-
-    case 5 : {
-         bm_os << "sensor_b_centering";
-         break;}
-
-    case 6 : {
-         bm_os << "sensor_b_capacitive_coupling";
-         break;}
-
-    case 7 : {
-         bm_os << "sensor_a_lock";
-         break;}
-
-    case 8 : {
-         bm_os << "sensor_a_unlock";
-         break;}
-
-    case 9 : {
-         bm_os << "sensor_a_aux_1";
-         break;}
-
-    case 10 : {
-         bm_os << "sensor_a_aux_2";
-         break;}
-
-    case 11 : {
-         bm_os << "sensor_b_lock";
-         break;}
-
-    case 12 : {
-         bm_os << "sensor_b_unlock";
-         break;}
-
-    case 13 : {
-         bm_os << "sensor_b_aux_1";
-         break;}
-
-    case 14 : {
-         bm_os << "sensor_b_aux_2";
-         break;}
-    }
-}
+    bm_os << bm.sensor_control_mapping();
     bm_os << "\n";
     return bm_os;
 }
@@ -1839,55 +1862,56 @@ public:
         m_h2o = 8,
     };
 
-    unsigned long const pressure_units() const {return CmdFieldBitmap<2>::raw_value();}
+    PressureUnits const pressure_units() const {return static_cast<PressureUnits>( CmdFieldBitmap<2>::raw_value() );}
 };
 
-inline std::ostream & operator<<(std::ostream & bm_os, BmSerialsensorUnits const & bm) {
-    bm_os << "\n";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.pressure_units();
-    bm_os << "\n   pressure_units : " << c << " : ";
-    switch(c) {
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmSerialsensorUnits::PressureUnits const & bmc) {
+    using PressureUnits = BmSerialsensorUnits::PressureUnits;
+    bm_os << "\n   pressure_units : ";
+    switch(bmc) {
 
-    case 0 : {
+    case PressureUnits::unknown : {
          bm_os << "unknown";
          break;}
 
-    case 1 : {
+    case PressureUnits::psi : {
          bm_os << "psi";
          break;}
 
-    case 2 : {
+    case PressureUnits::hpa : {
          bm_os << "hpa";
          break;}
 
-    case 3 : {
+    case PressureUnits::bar : {
          bm_os << "bar";
          break;}
 
-    case 4 : {
+    case PressureUnits::kpa : {
          bm_os << "kpa";
          break;}
 
-    case 5 : {
+    case PressureUnits::mpa : {
          bm_os << "mpa";
          break;}
 
-    case 6 : {
+    case PressureUnits::in_hg : {
          bm_os << "in_hg";
          break;}
 
-    case 7 : {
+    case PressureUnits::mm_hg : {
          bm_os << "mm_hg";
          break;}
 
-    case 8 : {
+    case PressureUnits::m_h2o : {
          bm_os << "m_h2o";
          break;}
-    }
+    } // end switch
+    return bm_os;
 }
+inline std::ostream & operator<<(std::ostream & bm_os, BmSerialsensorUnits const & bm) {
+    bm_os << "\n";
+    bm_os << bm.pressure_units();
     bm_os << "\n";
     return bm_os;
 }
@@ -1964,9 +1988,33 @@ public:
     bool const clock_currently_has_1d_lock() const {return this -> data_.test(3);}
     bool const timemarks_current_frozen_due_to_filtering() const {return this -> data_.test(4);}
     bool const speculative_lock_based_on_internal_clock() const {return this -> data_.test(5);}
-    unsigned long const pll_status() const {return CmdFieldBitmap<2>::raw_value_from_range(6, 0x3);}
+    PllStatus const pll_status() const {return static_cast<PllStatus>( CmdFieldBitmap<2>::raw_value_from_range(6, 0x3) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmStatClockQuality::PllStatus const & bmc) {
+    using PllStatus = BmStatClockQuality::PllStatus;
+    bm_os << "\n   pll_status : ";
+    switch(bmc) {
+
+    case PllStatus::pll_not_enabled : {
+         bm_os << "pll_not_enabled";
+         break;}
+
+    case PllStatus::pll_hold : {
+         bm_os << "pll_hold";
+         break;}
+
+    case PllStatus::pll_tracking : {
+         bm_os << "pll_tracking";
+         break;}
+
+    case PllStatus::pll_locked : {
+         bm_os << "pll_locked";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmStatClockQuality const & bm) {
     bm_os << "\n";
     bm_os << "\n   [" << bm.bool_indicator( bm.clock_has_ever_had_lock() ) << "] " <<
@@ -1981,30 +2029,7 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmStatClockQuality const 
         "timemarks_current_frozen_due_to_filtering";
     bm_os << "\n   [" << bm.bool_indicator( bm.speculative_lock_based_on_internal_clock() ) << "] " <<
         "speculative_lock_based_on_internal_clock";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.pll_status();
-    bm_os << "\n   pll_status : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "pll_not_enabled";
-         break;}
-
-    case 1 : {
-         bm_os << "pll_hold";
-         break;}
-
-    case 2 : {
-         bm_os << "pll_tracking";
-         break;}
-
-    case 3 : {
-         bm_os << "pll_locked";
-         break;}
-    }
-}
+    bm_os << bm.pll_status();
     bm_os << "\n";
     return bm_os;
 }
@@ -2036,83 +2061,84 @@ public:
     };
 
     bool const active_high() const {return this -> data_.test(8);}
-    unsigned long const sensor_control_mapping() const {return CmdFieldBitmap<2>::raw_value_from_range(0, 0x7F);}
+    SensorControlMapping const sensor_control_mapping() const {return static_cast<SensorControlMapping>( CmdFieldBitmap<2>::raw_value_from_range(0, 0x7F) );}
     void active_high(const bool b) {this -> data_.set(8, b);}
     void sensor_control_mapping(SensorControlMapping const c) {CmdFieldBitmap<2>::set_raw_value_in_range(0, 0x7F, static_cast<unsigned long>(c) );}
 };
 
+//! special operator<< for enum class (codes) in bm
+inline std::ostream & operator<<(std::ostream & bm_os, BmStatSensorControlBitmap::SensorControlMapping const & bmc) {
+    using SensorControlMapping = BmStatSensorControlBitmap::SensorControlMapping;
+    bm_os << "\n   sensor_control_mapping : ";
+    switch(bmc) {
+
+    case SensorControlMapping::not_doing_calibration_or_recentering : {
+         bm_os << "not_doing_calibration_or_recentering";
+         break;}
+
+    case SensorControlMapping::sensor_a_calibration : {
+         bm_os << "sensor_a_calibration";
+         break;}
+
+    case SensorControlMapping::sensor_a_centering : {
+         bm_os << "sensor_a_centering";
+         break;}
+
+    case SensorControlMapping::sensor_a_capacitive_coupling : {
+         bm_os << "sensor_a_capacitive_coupling";
+         break;}
+
+    case SensorControlMapping::sensor_b_calibration : {
+         bm_os << "sensor_b_calibration";
+         break;}
+
+    case SensorControlMapping::sensor_b_centering : {
+         bm_os << "sensor_b_centering";
+         break;}
+
+    case SensorControlMapping::sensor_b_capacitive_coupling : {
+         bm_os << "sensor_b_capacitive_coupling";
+         break;}
+
+    case SensorControlMapping::sensor_a_lock : {
+         bm_os << "sensor_a_lock";
+         break;}
+
+    case SensorControlMapping::sensor_a_unlock : {
+         bm_os << "sensor_a_unlock";
+         break;}
+
+    case SensorControlMapping::sensor_a_aux_1 : {
+         bm_os << "sensor_a_aux_1";
+         break;}
+
+    case SensorControlMapping::sensor_a_aux_2 : {
+         bm_os << "sensor_a_aux_2";
+         break;}
+
+    case SensorControlMapping::sensor_b_lock : {
+         bm_os << "sensor_b_lock";
+         break;}
+
+    case SensorControlMapping::sensor_b_unlock : {
+         bm_os << "sensor_b_unlock";
+         break;}
+
+    case SensorControlMapping::sensor_b_aux_1 : {
+         bm_os << "sensor_b_aux_1";
+         break;}
+
+    case SensorControlMapping::sensor_b_aux_2 : {
+         bm_os << "sensor_b_aux_2";
+         break;}
+    } // end switch
+    return bm_os;
+}
 inline std::ostream & operator<<(std::ostream & bm_os, BmStatSensorControlBitmap const & bm) {
     bm_os << "\n";
     bm_os << "\n   [" << bm.bool_indicator( bm.active_high() ) << "] " <<
         "active_high";
- // just in case there is more than one code in a bmf
- // as in BmAuxStatusWebFlags
-{
-    unsigned int c = bm.sensor_control_mapping();
-    bm_os << "\n   sensor_control_mapping : " << c << " : ";
-    switch(c) {
-
-    case 0 : {
-         bm_os << "not_doing_calibration_or_recentering";
-         break;}
-
-    case 1 : {
-         bm_os << "sensor_a_calibration";
-         break;}
-
-    case 2 : {
-         bm_os << "sensor_a_centering";
-         break;}
-
-    case 3 : {
-         bm_os << "sensor_a_capacitive_coupling";
-         break;}
-
-    case 4 : {
-         bm_os << "sensor_b_calibration";
-         break;}
-
-    case 5 : {
-         bm_os << "sensor_b_centering";
-         break;}
-
-    case 6 : {
-         bm_os << "sensor_b_capacitive_coupling";
-         break;}
-
-    case 7 : {
-         bm_os << "sensor_a_lock";
-         break;}
-
-    case 8 : {
-         bm_os << "sensor_a_unlock";
-         break;}
-
-    case 9 : {
-         bm_os << "sensor_a_aux_1";
-         break;}
-
-    case 10 : {
-         bm_os << "sensor_a_aux_2";
-         break;}
-
-    case 11 : {
-         bm_os << "sensor_b_lock";
-         break;}
-
-    case 12 : {
-         bm_os << "sensor_b_unlock";
-         break;}
-
-    case 13 : {
-         bm_os << "sensor_b_aux_1";
-         break;}
-
-    case 14 : {
-         bm_os << "sensor_b_aux_2";
-         break;}
-    }
-}
+    bm_os << bm.sensor_control_mapping();
     bm_os << "\n";
     return bm_os;
 }

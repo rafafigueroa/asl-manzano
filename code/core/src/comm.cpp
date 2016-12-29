@@ -396,10 +396,7 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         */
 
         double frequency;
-        auto const waveform_is_sine = (cal.waveform.waveform() ==
-            static_cast<unsigned long>(BmCalWaveform::Waveform::sine) );
-
-        if (waveform_is_sine ) {
+        if (cal.waveform.waveform() == BmCalWaveform::Waveform::sine) {
             frequency = 1.0 / static_cast<double>( cal.frequency_divider() );
         } else {
             frequency = 125.0 / static_cast<double>( cal.frequency_divider() );
