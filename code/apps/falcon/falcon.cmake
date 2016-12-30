@@ -17,3 +17,14 @@ include_directories(${DIR_falcon}/inc)
 
 set(SOURCES_falcon ${SOURCES_core}
                    ${DIR_falcon}/src/falcon.cpp)
+
+# sets the projects with full paths, in my computer:
+# dir_website_data=/home/rafa/asl-manzano/code/apps/falcon/website_data
+# dir_falcon_config=/home/rafa/asl-manzano/code/../runtime_config
+set(DIR_website_data "${DIR_falcon}/website_data")
+set(DIR_falcon_config "${DIR_MZN}/../runtime_config")
+
+# copies file x.in to file x, creates file x if is not there
+# replacing @VAR@ with the value of VAR set here
+configure_file("${DIR_falcon}/falcon_dirs.conf.in"
+               "${DIR_falcon}/falcon_dirs.conf")
