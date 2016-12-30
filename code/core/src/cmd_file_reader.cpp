@@ -7,20 +7,17 @@ namespace mzn {
 CmdFileReader::CmdFileReader(SeismicNetwork const & sn) : sn_(sn) {}
 
 // -------------------------------------------------------------------------- //
-void CmdFileReader::check_json(bool const check,
-                                  std::string const & e_what) {
-    if (not check) {
-        throw WarningException("CmdFileReader",
-                               "construct_cals",
-                               e_what);
-    }
+void CmdFileReader::check_json(bool const check, std::string const & e_what) {
+
+    if (not check) throw WarningException("CmdFileReader",
+                                          "construct_cals",
+                                          e_what);
 }
 
 // -------------------------------------------------------------------------- //
 template <>
 std::vector<C1Qcal>
 CmdFileReader::construct_cmds(TargetAddress const & ta) {
-
 
     std::ifstream cals_fs;
 
@@ -76,14 +73,14 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
         // monitor channel is being defaulted (for autocals)
         // to the middle channel of the other input
         if (s.config.input == Sensor::Input::a) {
-            cal.calibration_bitmap.input(
-                BmCalibrationBitmap::Input::a );
+
+            cal.calibration_bitmap.input(BmCalibrationBitmap::Input::a);
             cal.sensor_control_bitmap.calen_a(true);
             cal.monitor_channel_bitmap.channel_5(true);
 
         } else if (s.config.input == Sensor::Input::b)  {
-            cal.calibration_bitmap.input(
-                BmCalibrationBitmap::Input::b );
+
+            cal.calibration_bitmap.input(BmCalibrationBitmap::Input::b);
             cal.sensor_control_bitmap.calen_b(true);
             cal.monitor_channel_bitmap.channel_2(true);
         }
@@ -183,9 +180,8 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
 }
 
 // -------------------------------------------------------------------------- //
-template <>
 std::vector<CmdFileReader::Seconds>
-CmdFileReader::calculate_delays(std::vector<C1Qcal> const & cmds) {
+CmdFileReader::calculate_delays(std::vector<Seconds> const & run_durations) {
 
     // --------- delays ----------- //
     // wiggle seconds might not really be needed
@@ -196,18 +192,15 @@ CmdFileReader::calculate_delays(std::vector<C1Qcal> const & cmds) {
     // ideally all cals should be sent to md_ before the first cal starts
 
     std::vector<Seconds> delays;
+    delays.reserve( run_durations.size() );
 
-    Seconds wiggle_seconds(30);
-    Seconds delay_seconds(1);
+    Seconds constexpr wiggle_seconds(30);
+    Seconds delay_seconds(0);
 
-    for (auto const & cal : cmds) {
-
+    for (auto const & run_duration : run_durations) {
         delays.push_back(delay_seconds);
-
         // delay next message to fit after this calibration
-        delay_seconds += wiggle_seconds + Seconds( cal.settling_time() +
-                                                   cal.cal_duration() +
-                                                   cal.trailer_time() );
+        delay_seconds += wiggle_seconds + run_duration;
     }
 
     return delays;
@@ -222,7 +215,7 @@ CmdFileReader::calculate_run_durations(std::vector<C1Qcal> const & cmds) {
 
     for (auto const & cal : cmds) {
 
-        Seconds run_duration_seconds(1);
+        Seconds run_duration_seconds(0);
 
         run_duration_seconds += Seconds( cal.settling_time() +
                                          cal.cal_duration() +
@@ -235,40 +228,7 @@ CmdFileReader::calculate_run_durations(std::vector<C1Qcal> const & cmds) {
     return run_durations;
 }
 
-// -------------------------------------------------------------------------- //
-    /*
-void CmdFileReader::autocal_start(Digitizer & q, Sensor const & s) {
-
-    std::vector<C1Qcal> cals = construct_cals(s);
-
-    using Seconds = std::chrono::seconds;
-
-    // wiggle seconds might not really be needed
-    // gives time to the digitizer so that you avoid the error
-    // calibration in progress
-    // but calibrations will look better with some separation
-    // and program will be more robust to system delays (this is not real time)
-    // ideally all cals should be sent to md_ before the first cal starts
-
-    Seconds wiggle_seconds(60);
-    Seconds delay_seconds(1);
-
-    C1Cack cack;
-    std::cout << std::endl << "planning " << cals.size() << " cals\n";
-
-    for (auto const & cal : cals) {
-
-        // send to message dispatch with delay
-        // TODO: use the message task manager
-        //md_.send_recv(q.port_config, cal, cack, delay_seconds);
-
-        // delay next message to fit after this calibration
-        delay_seconds += wiggle_seconds + Seconds( cal.settling_time() +
-                                                   cal.cal_duration() +
-                                                   cal.trailer_time() );
-    }
-}
-
+/*
 // -------------------------------------------------------------------------- //
 // this code would allow to setup cals at future times after
 // the command is send to the digitizer

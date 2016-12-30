@@ -370,16 +370,19 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
 
     std::cout << std::endl << "\nautocal success\n";
 
+    // print out what was done
     for (auto & msg_task : msg_tasks) {
-        std::cout << "\n-----------------------------------------------------";
-        std::cout << std::endl << msg_task;
+
+        std::cout << "\n-----------------------------------------------------"
+                  << "-------------"
+                  << std::endl << msg_task;
 
         auto const & cal =
             dynamic_cast<C1Qcal const &>( *(msg_task.cmd_send.get()) );
 
-        std::cout << "\n" << cal.cal_duration;
-        std::cout << "\n" << cal.waveform;
-        std::cout << "\n" << cal.amplitude;
+        std::cout << "\ncal_duration: " << cal.cal_duration;
+        std::cout << " amp: " << cal.amplitude;
+        std::cout << cal.waveform.waveform();
 
 
         // to show the actual frequency, calculate from internal representation
@@ -395,13 +398,14 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         Max. value is 255.
         */
 
+        // in the case of pulse calibration, infinite value is ok
         double frequency;
         if (cal.waveform.waveform() == BmCalWaveform::Waveform::sine) {
             frequency = 1.0 / static_cast<double>( cal.frequency_divider() );
         } else {
             frequency = 125.0 / static_cast<double>( cal.frequency_divider() );
         }
-        std::cout << "\nfrequency: " << frequency;
+        std::cout << " f: " << frequency;
     }
 }
 

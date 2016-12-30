@@ -46,17 +46,18 @@ public:
 private:
     //! checks json format and throws if error
     //! @throws if json format error
-    void check_json(bool const check,
-                    std::string const & e_what);
+    void check_json(bool const check, std::string const & e_what);
 
     //! read cals cal sequences config file and setup cal_tasks_;
     template <typename Ci>
     std::vector<Ci> construct_cmds(TargetAddress const & ta);
 
+    //! when using msg_task_manager, the delays allows for independent delayed
+    //! msg sending, calibrations not currently using the msg_task_manager
+    std::vector<Seconds>
+    calculate_delays(std::vector<Seconds> const & run_durations);
 
-    template <typename Ci>
-    std::vector<Seconds> calculate_delays(std::vector<Ci> const & cmds);
-
+    //! total duration, i.e.: for calibrations includes settling time
     template <typename Ci>
     std::vector<Seconds> calculate_run_durations(std::vector<Ci> const & cmds);
 };
@@ -69,8 +70,8 @@ CmdFileReader::construct_msg_tasks(UserInstruction const & ui,
                                    TargetAddress const & ta) {
 
     auto const cmds = construct_cmds<Ci>(ta);
-    auto const delays = calculate_delays(cmds);
     auto const run_durations = calculate_run_durations(cmds);
+    auto const delays = calculate_delays(run_durations);
 
     Co const cmd_recv;
 

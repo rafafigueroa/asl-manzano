@@ -6,6 +6,7 @@
 
 //! External library include
 #include "date.h"
+#include "mzn_time.h"
 
 namespace mzn {
 
