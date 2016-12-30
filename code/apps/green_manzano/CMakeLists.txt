@@ -4,7 +4,7 @@ project(green_manzano)
 include(green_manzano.cmake)
 
 set(k_green_manzano_VERSION_MAJOR 0)
-set(k_green_manzano_VERSION_MINOR 8)
+set(k_green_manzano_VERSION_MINOR 9)
 
 configure_file("${DIR_green_manzano}/inc/green_manzano_cmake_config.h.in"
                "${DIR_green_manzano}/inc/green_manzano_cmake_config.h")

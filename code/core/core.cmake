@@ -7,7 +7,7 @@ if(core_config_included)
 endif(core_config_included)
 set(core_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../mzn_config.cmake)
 include(${DIR_MZN}/commands/commands.cmake)
 include(${DIR_MZN}/seismic_network/seismic_network.cmake)
 

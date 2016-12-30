@@ -48,18 +48,18 @@ $ xcode-select --install
 
 * Move to green_manzano directory:
 ```sh
-$ cd ~/manzano/code/green_manzano
+$ cd ~/manzano/code/apps/green_manzano
 ```
 * Create and move to build directory:
 ```sh
-~/manzano/code/green_manzano$ mkdir build
-~/manzano/code/green_manzano$ cd build
+~/manzano/code/apps/green_manzano$ mkdir build
+~/manzano/code/apps/green_manzano$ cd build
 ```
 * Make/Install:
 ```sh
-~/manzano/code/green_manzano/build$ cmake ..
-~/manzano/code/green_manzano/build$ make
-~/manzano/code/green_manzano/build$ sudo make install
+~/manzano/code/apps/green_manzano/build$ cmake ..
+~/manzano/code/apps/green_manzano/build$ make
+~/manzano/code/apps/green_manzano/build$ sudo make install
 ```
 > green_manzano does not require admin priviliges, only the installation. The last step can be skipped, simply run the binary from the build directory.
 
