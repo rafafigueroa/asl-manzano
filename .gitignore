@@ -4,8 +4,12 @@ runtime_config/falcon.conf
 
 # config file with user directory
 mzn_cmake_config.h
+falcon_dirs.conf
 
-# binary directories have their own .ignore
+# falcon data directory
+*website_data/
+
+# binary and build directories
 *bin/
 *build/
 
