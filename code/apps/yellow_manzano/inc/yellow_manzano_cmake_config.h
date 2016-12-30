@@ -1,2 +1,2 @@
 #define k_yellow_manzano_VERSION_MAJOR 0
-#define k_yellow_manzano_VERSION_MINOR 1
+#define k_yellow_manzano_VERSION_MINOR 5

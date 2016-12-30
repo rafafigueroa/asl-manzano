@@ -7,13 +7,13 @@ if(green_manzano_config_included)
 endif(green_manzano_config_included)
 set(green_manzano_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../mzn_config.cmake)
 
 include(${DIR_MZN}/core/core.cmake)
 
 message("\n###### config(green_manzano) #######")
 
-set(DIR_green_manzano ${DIR_MZN}/green_manzano)
+set(DIR_green_manzano ${DIR_MZN}/apps/green_manzano)
 include_directories(${DIR_green_manzano}/inc)
 
 set(SOURCES_green_manzano ${SOURCES_core}

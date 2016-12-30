@@ -7,7 +7,7 @@ if(connection_config_included)
 endif(connection_config_included)
 set(connection_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../mzn_config.cmake)
 
 message("\n###### config(connection) #######")
 

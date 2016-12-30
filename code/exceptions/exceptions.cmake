@@ -7,7 +7,7 @@ if(exceptions_config_included)
 endif(exceptions_config_included)
 set(exceptions_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../mzn_config.cmake)
 
 message("\n###### config(exceptions) #######")
 
