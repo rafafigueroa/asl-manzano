@@ -7,7 +7,7 @@ if(instructions_config_included)
 endif(instructions_config_included)
 set(instructions_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
 
 message("\n###### config(instructions) #######")
 
@@ -15,7 +15,8 @@ set(DIR_instructions ${DIR_MZN}/instructions)
 include_directories(${DIR_instructions}/inc)
 
 set(SOURCES_instructions
-    ${DIR_instructions}/src/instruction_map.cpp
-    ${DIR_instructions}/src/target_address.cpp
+                         ${DIR_exceptions}/src/mzn_except.cpp
+                         ${DIR_instructions}/src/instruction_map.cpp
+                         ${DIR_instructions}/src/target_address.cpp
 )
 

@@ -25,12 +25,3 @@ add_executable(test_instruction_interpreter
 
 target_link_libraries(test_instruction_interpreter ${GTEST_BOTH_LIBRARIES})
 target_link_libraries(test_instruction_interpreter core)
-
-if(UNIX AND NOT APPLE)
-    ## serial is built as a library in config.cmake
-    add_dependencies(test_core serial_library)
-    target_link_libraries(test_core serial_library)
-
-endif()
-
-

@@ -64,7 +64,8 @@ TEST_F(FixtureCore, msg_task_manager) {
 
     try {
 
-        cm.run<Action::plan, Kind::cal>(ui, ta);
+        // TODO: run dummy automatically
+//        cm.run<Action::plan, Kind::cal>(ui, ta);
 
     } catch(std::exception const & e) {
         std::cerr << std::endl << "!!!!!!!!!! error\n" << e.what();

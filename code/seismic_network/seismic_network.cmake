@@ -7,14 +7,14 @@ if(seismic_network_config_included)
 endif(seismic_network_config_included)
 set(seismic_network_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
+
 include(${DIR_MZN}/instructions/instructions.cmake)
 include(${DIR_MZN}/connection/connection.cmake)
 
 message("\n###### config(seismic_network) #######")
 
 set(DIR_seismic_network ${DIR_MZN}/seismic_network)
-
 
 include_directories(${DIR_seismic_network}/inc/)
 

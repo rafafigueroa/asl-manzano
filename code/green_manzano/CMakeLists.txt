@@ -14,13 +14,6 @@ message("\n###### green_manzano #######")
 add_executable(green_manzano ${SOURCES_green_manzano})
 install(TARGETS green_manzano DESTINATION /usr/bin/)
 
-if(UNIX AND NOT APPLE)
-    ## serial is built as a library in config.cmake
-    add_dependencies(green_manzano serial_library)
-    target_link_libraries(green_manzano serial_library)
-
-endif()
-
 # ---- TEST ----- #
 if(FALSE)
 

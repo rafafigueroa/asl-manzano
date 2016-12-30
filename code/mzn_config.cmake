@@ -38,21 +38,7 @@ set(SOURCES_md5 ${DIR_MZN}/libs/md5/src/md5.cpp)
 include_directories(${DIR_MZN}/libs/json)
 
 # ----- SERIAL WJWWOOD C++ LIBRARY ----- #
-if(UNIX AND NOT APPLE)
-
-    set(DIR_serial ${DIR_MZN}/libs/serial)
-    include_directories(${DIR_serial}/include/serial)
-    include_directories(${DIR_serial}/include/serial/impl)
-
-    set(SOURCES_serial ${DIR_serial}/src/serial.cc
-                       ${DIR_serial}/src/impl/serial_unix.cc
-                       ${DIR_serial}/src/impl/list_ports/list_ports_linux.cc
-                       ${DIR_serial}/src/impl/list_ports/list_ports_osx.cc)
-
-    add_library(serial_library STATIC ${SOURCES_serial})
-    target_link_libraries(serial_library rt pthread)
-
-endif()
+# on separate file (serial_config.cmake) builds static library
 
 # ----- MANZANO EXCEPTIONS ----- #
 include_directories(${DIR_MZN}/exceptions/inc)

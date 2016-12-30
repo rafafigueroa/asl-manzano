@@ -13,18 +13,10 @@ set_target_properties(seismic_network
                       PROPERTIES
                       ARCHIVE_OUTPUT_DIRECTORY ${DIR_seismic_network}/bin)
 
-
 # ---- TEST ----- #
 add_executable(test_seismic_network ${DIR_seismic_network}/test/test_seismic_network.cpp)
 target_link_libraries(test_seismic_network ${GTEST_BOTH_LIBRARIES})
 target_link_libraries(test_seismic_network seismic_network)
 
-
-if(UNIX AND NOT APPLE)
-    ## serial is built as a library in config.cmake
-    add_dependencies(test_seismic_network serial_library)
-    target_link_libraries(test_seismic_network serial_library)
-
-endif()
 
 

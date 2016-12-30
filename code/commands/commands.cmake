@@ -7,7 +7,7 @@ if(commands_config_included)
 endif(commands_config_included)
 set(commands_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
 include(${DIR_MZN}/cmd_field/cmd_field.cmake)
 
 message("\n###### config(commands) #######")

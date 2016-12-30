@@ -7,7 +7,8 @@ if(yellow_manzano_config_included)
 endif(yellow_manzano_config_included)
 set(yellow_manzano_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../serial_config.cmake)
 
 include(${DIR_MZN}/core/core.cmake)
 

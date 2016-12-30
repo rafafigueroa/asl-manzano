@@ -7,7 +7,7 @@ if(connection_config_included)
 endif(connection_config_included)
 set(connection_config_included true)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../mzn_config.cmake)
 
 message("\n###### config(connection) #######")
 
@@ -25,8 +25,3 @@ set(SOURCES_connection ${SOURCES_exceptions}
                        ${DIR_connection}/src/address_info_handler.cpp
                        ${DIR_connection}/src/connection_handler.cpp
 )
-
-if (UNIX AND NOT APPLE)
-    list(APPEND SOURCES_connection ${DIR_connection}/src/serial_connection.cpp)
-endif()
-
