@@ -17,4 +17,3 @@ include_directories(${DIR_falcon}/inc)
 
 set(SOURCES_falcon ${SOURCES_core}
                    ${DIR_falcon}/src/falcon.cpp)
-
