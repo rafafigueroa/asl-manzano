@@ -10,6 +10,7 @@
 #include <iomanip>
 
 #include "date.h"
+#include "mzn_time.h"
 #include "string_utilities.h"
 
 //! falcon specific constructor
@@ -31,6 +32,8 @@ struct MinuteTimePoint {
     MinuteTimePoint (std::vector<std::string> const & tokens) {
 
         auto date_tokens = get_tokens(tokens[0], '/');
+        if (date_tokens.size() != 3) throw std::logic_error("date tokens != 3");
+
         // falcon date is month/day/year (2 digit year)
         // making it 4 digit, starting with 2000
         y = std::stoi(std::string("20") + date_tokens[2]);
@@ -38,6 +41,8 @@ struct MinuteTimePoint {
         d = std::stoi(date_tokens[1]);
 
         auto time_tokens = get_tokens(tokens[1], ':');
+        if (time_tokens.size() != 2) throw std::logic_error("time tokens != 2");
+
         // falcon time is hour:minute, no seconds
         h = std::stoi(time_tokens[0]);
         min = std::stoi(time_tokens[1]);
@@ -46,7 +51,7 @@ struct MinuteTimePoint {
     ~MinuteTimePoint() = default;
 
     // ---------------------------------------------------------------------- //
-    int seconds_since_midnight() const {
+    std::chrono::seconds seconds_since_midnight() const {
 
         /* overkill (left here, just in case is not the simple case)
         using Days = date::days;
@@ -64,7 +69,7 @@ struct MinuteTimePoint {
         // from seconds to hour/minute/second that can be streamed
         return since_midnight.count();
         */
-        return h*60*60 + min*60;
+        return std::chrono::seconds(h*60*60 + min*60);
     }
 
     // as in january 1 is 1
@@ -130,7 +135,7 @@ std::ostream & operator<<(std::ostream & os, MinuteTimePoint const & mtp) {
     os << "\ndate: " << mtp.y << "/" << mtp.m << "/" << mtp.d
        << " (day " << mtp.julian_day() << " of " << mtp.days_in_year() << ")"
        << "\ntime: " << mtp.h << ":" << mtp.min
-       << " (second " << mtp.seconds_since_midnight() << " since UTC midnight)"
+       << " (second " << mtp.seconds_since_midnight().count() << " since UTC midnight)"
        << "\ndata: [";
 
     return os;

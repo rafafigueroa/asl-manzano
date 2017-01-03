@@ -63,7 +63,7 @@ public:
     //! if the remote is not known, it will be set to the remote of recv msgs
     UdpConnection(int const port_host) : port_host_(port_host) {}
 
-    ~UdpConnection() { if (skfd_ > 0) close_socket();}
+    ~UdpConnection() {if (skfd_ > 0) close_socket();}
 
     //! setups posix UDP socket
     //! When the connections recv will timeout, nothing for no timeout

@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     } catch (std::exception const & e) {
 
         std::cerr << "\nclosing program, error:";
-        std::cerr << std::endl << "!_ " << e.what() << " _!";
+        std::cerr << std::endl << e.what();
         return EXIT_FAILURE;
     }
 

@@ -129,6 +129,7 @@ protected:
     std::ostream & os_print(std::ostream & os) const = 0;
 };
 
+// -------------------------------------------------------------------------- //
 inline
 std::ostream & operator<<(std::ostream & cmd_os,
                           Command const & cmd) {

@@ -1,71 +1,101 @@
 #include "falcon_data_packet.h"
+#include "f1_raw_input.h"
 
 // -------------------------------------------------------------------------- //
-std::string FalconDataPacket::to_raw_input_format() const {
+std::vector<uint8_t> FalconDataPacket::to_raw_input_format() const {
 
-    std::stringstream ss;
+    // auto network  = "NN"; // 2 chars
+    // auto station  = "sssss"; // 5 chars
+    // auto channel  = "CCC"; // 3 chars
+    // auto location = "LL"; // 2 chars
 
-    auto constexpr byte_w = 1;
-    auto constexpr short_w = 2;
-    auto constexpr int_w = 4;
+    /*
+        F1RawInput has the same format of the CWB RawInputServer
+        without the data part
 
-    auto network  = "NN"; // 2 chars
-    auto station  = "sssss"; // 5 chars
-    auto channel  = "CCC"; // 3 chars
-    auto location = "LL"; // 2 chars
+        CmdFieldHex<uint16_t> endian_check;
+        CmdField<uint16_t> number_of_samples;
+        CmdFieldArrayChar<12> seed_name;
+        CmdField<uint16_t> year;
+        CmdField<uint16_t> doy;
 
-    uint16_t constexpr endian_check = 0xa1b2;
+        // names from "Fixed Seciont of Data Header" on SEED format
+        CmdField<int16_t> sample_rate_factor;
+        CmdField<int16_t> sample_rate_multiplier;
+        BmSeedHeaderActivityFlags activity_flags;
+        BmSeedHeaderIoAndClockFlags io_and_clock_flags;
+        BmSeedHeaderDataQualityFlags data_quality_flags;
+
+        // from SEED format TODO: confirm variable type, might be bitmap
+        CmdFieldHex<uint8_t> timing_quality;
+
+        CmdFieldDuration<uint32_t> sec;
+        CmdFieldDuration<uint32_t, std::micro> usec;
+        CmdField<uint32_t> sequence_number;
+    */
+
+    mzn::F1RawInput fri;
+
+    // 0 short 0xa1b2 : this also sets the endianness of the stream
+    fri.endian_check(0xA1B2);
+
+    // 2 short nsamp : Number of samples that follow
+    fri.number_of_samples( data.size() );
+
+    // 4 string*12 seedname : NNSSSSSCCCLL seed channel name
+    std::array<char, 12> constexpr seed_name
+        { {'N','N','s','s','s','s','s','C','C','C','L','L' } };
+
+    fri.seed_name(seed_name);
+
+    // 16 short year
+    fri.year(mtp.y);
+    fri.doy( mtp.julian_day() );
 
     // from SEED format
-    // 20 short rateMantissa
-    // 22 short rateMultiplier
+    // 20 short rateMantissa == sample_rate_factor
+    // 22 short rateMultiplier == sample_rate_multiplier
+    fri.sample_rate_factor(0);
+    fri.sample_rate_multiplier(0);
+
+    // from SEED format
     // 24 byte activity
     // 25 byte ioCLock
     // 26 byte quality
+    fri.activity_flags.calibration_signals_present(false);
+    fri.io_and_clock_flags.station_volume_parity_error_possibly_present(false);
+    fri.data_quality_flags.amplifier_saturation_detected(false);
+
     // 27 byte timingQuality
+    fri.timing_quality(0);
 
-    uint16_t constexpr rate_mantissa = 2;
-    uint16_t constexpr rate_multiplier = 2;
-    uint8_t constexpr activity = 1;
-    uint8_t constexpr io_clock = 1;
-    uint8_t constexpr quality = 1;
-    uint8_t constexpr timing_quality = 1;
+    // 28 int sec : Since midnight for the starting sample
+    fri.sec( mtp.seconds_since_midnight() );
+    // 32 int usec : Of the second
+    fri.usec( std::chrono::microseconds(0) );
+    fri.sequence_number(0);
 
-    uint32_t constexpr sequence_number_of_packet = 4;
+    // serialization
+    auto const fri_data_size = fri.cmd_data_size();
+    auto const fdp_data_size = data.size();
 
-    ss << std::hex << std::setfill('0')
-       // 0 short 0xa1b2 : this also sets the endianness of the stream
-       << std::setw(short_w) << endian_check
-       // 2 short nsamp : Number of samples that follow
-       << std::setw(short_w) << static_cast<uint16_t>( data.size() )
+    std::vector<uint8_t> msg(fri_data_size + fdp_data_size, 0);
 
-       // 4 string*12 seedname : NNSSSSSCCCLL seed channel name
-       << std::setfill(' ')
-       << std::setw(2) << network
-       << std::setw(5) << station
-       << std::setw(3) << channel
-       << std::setw(2) << location
+    auto constexpr serialization_starting_byte = 0;
+    fri.data_to_msg(msg, serialization_starting_byte);
 
-       << std::hex << std::setfill('0')
-       // 16 short year
-       << std::setw(short_w) << mtp.y
-       << std::setw(short_w) << static_cast<uint16_t>( mtp.julian_day() )
+    std::cout << std::endl << fri;
 
-       << std::setw(short_w) << rate_mantissa
-       << std::setw(short_w) << rate_multiplier
-       << std::setw(byte_w) << activity
-       << std::setw(byte_w) << io_clock
-       << std::setw(byte_w) << quality
-       << std::setw(byte_w) << timing_quality
+    // TODO need to put on F1RawInput, where F1 is for falcon command
+    // copy data on message starting where the F1RawInput message ends
+    // for (int i = 0; i < fdp_data_size; i++) msg[i + fri_data_size] = data[i];
 
-       // TODO
-       // 28 int sec : Since midnight for the starting sample
-       << std::setw(int_w) << mtp.seconds_since_midnight()
-       // 32 int usec : Of the second
-       << std::setw(int_w) << 0
-       // 36 int seq : Sequence number of the packet
-       << std::setw(int_w) << sequence_number_of_packet;
+    // print out the message
+    std::cout << std::endl << std::hex << "\n<" ;
 
-       // 40 int[nsamp] data : integer data
-    return ss.str();
+    for (auto const & b : msg) std::cout << static_cast<int>(b) << " ";
+
+    std::cout << ">" << std::dec;
+
+    return msg;
 }

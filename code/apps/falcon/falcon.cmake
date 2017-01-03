@@ -15,7 +15,7 @@ message("\n###### config(falcon) #######")
 set(DIR_falcon ${DIR_MZN}/apps/falcon)
 include_directories(${DIR_falcon}/inc)
 
-set(SOURCES_falcon ${SOURCES_core}
+set(SOURCES_falcon ${SOURCES_falcon_cmds}
                    ${DIR_falcon}/src/csv_file.cpp
                    ${DIR_falcon}/src/falcon_data_packet.cpp
                    ${DIR_falcon}/src/falcon.cpp)
