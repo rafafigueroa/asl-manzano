@@ -16,6 +16,8 @@ set(DIR_falcon ${DIR_MZN}/apps/falcon)
 include_directories(${DIR_falcon}/inc)
 
 set(SOURCES_falcon ${SOURCES_core}
+                   ${DIR_falcon}/src/csv_file.cpp
+                   ${DIR_falcon}/src/falcon_data_packet.cpp
                    ${DIR_falcon}/src/falcon.cpp)
 
 # sets the projects with full paths, in my computer:
