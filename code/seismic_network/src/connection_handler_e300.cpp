@@ -111,15 +111,16 @@ void ConnectionHandlerE300::reg() {
 
 // -------------------------------------------------------------------------- //
 std::chrono::seconds
-ConnectionHandlerE300::cmd_status_for(std::chrono::seconds const keep_alive_duration,
-                         std::chrono::seconds const keep_alive_delay) {
+ConnectionHandlerE300::cmd_status_for(
+        std::chrono::seconds const keep_alive_duration,
+        std::chrono::seconds const keep_alive_delay) {
 
     // delay this process
     std::this_thread::sleep_for(keep_alive_delay);
 
     // now really lets keep this thing alive
-    auto constexpr alive_wait = std::chrono::minutes(45);
-    int const delay_times = keep_alive_duration / alive_wait + 1;
+    auto constexpr alive_wait = std::chrono::seconds( std::chrono::minutes(45) );
+    int const delay_times = keep_alive_duration.count()/alive_wait.count() + 1;
 
     std::cout << "\ndelay times: " << delay_times << "\n";
 

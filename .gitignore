@@ -1,3 +1,18 @@
+# config
+runtime_config/config.json
+runtime_config/falcon.conf
+
+# config file with user directory
+mzn_cmake_config.h
+falcon_dirs.conf
+
+# falcon data directory
+*website_data/
+
+# binary and build directories
+*bin/
+*build/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -22,7 +37,6 @@
 *.a
 *.lib
 
-
 # Executables
 *.exe
 *.out
@@ -31,9 +45,6 @@
 # swap files
 *.swp
 *.swo
-
-# config
-runtime_config/config.json
 
 # temp files
 *.tmp
@@ -66,11 +77,6 @@ runtime_config/config.json
 *.out
 *.synctex.gz
 
-# config file with user directory
-mzn_cmake_config.h
-# binary directories have their own .ignore
-*bin/
-*build/
 
 # mac
 *.DS_Store

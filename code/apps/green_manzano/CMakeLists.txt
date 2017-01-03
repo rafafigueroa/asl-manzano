@@ -23,7 +23,6 @@ set(SOURCES_test_user_interpreter ${SOURCES_core}
                                   ${DIR_green_manzano}/src/user_interpreter.cpp
                                   ${DIR_green_manzano}/test/test_user_interpreter.cpp)
 
-
 add_executable(test_user_interpreter EXCLUDE_FROM_ALL ${SOURCES_test_user_interpreter})
 target_link_libraries(test_user_interpreter ${GTEST_BOTH_LIBRARIES})
 
