@@ -19,6 +19,8 @@ int main(int argc, char **argv) {
         using M = std::vector<uint8_t>;
         std::vector<M> msgs;
 
+        auto seq = 800;
+
         // ------------------------------------------------------------------ //
         for (int i = 1; i < args.size(); i++) {
 
@@ -33,7 +35,7 @@ int main(int argc, char **argv) {
 
             for (auto const & fdp : falcon_data_packets) {
                 std::cout << "\n" << fdp;
-                auto const raw_input = fdp.to_raw_input_format();
+                auto const raw_input = fdp.to_raw_input_format(seq);
                 msgs.push_back(raw_input);
             }
         }
@@ -51,16 +53,26 @@ int main(int argc, char **argv) {
                                     ip_remote,
                                     port_remote);
 
-        M msg_recv(100);
-        M const msg_send = msgs[0];
-        cwb_connection.send_recv(msg_send, msg_recv);
 
-        // print results
-        std::cout << std::endl << "\nreceived:\n";
-        for (auto const & b : msg_recv) {
-            std::cout << "\n\'" << b << "\' " << static_cast<int>(b);
+        for (auto const & msg : msgs) {
+
+            M msg_recv(5000);
+
+            cwb_connection.send_recv(msg, msg_recv);
+
+            std::cout << std::endl
+                << "\n**************************************"
+                << "****************************";
+
+            // print results
+            std::cout << std::endl << "\nreceived:\n";
+
+            for (auto const & b : msg_recv) {
+                std::cout << b;
+            }
+
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
 
         /* FIRST time, received this:
 
@@ -72,7 +84,7 @@ int main(int argc, char **argv) {
 
             //ascii with new lines added:
 
-            19:09:312017/01/04
+            19:09:31 2017/01/04
             EdgeMom: processfile= EDGEMOM/edgemom_2 #1.setup
                                                     #Threads=14
                                                     #thr=289
