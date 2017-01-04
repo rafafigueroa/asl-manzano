@@ -1245,8 +1245,30 @@
   "cmd_number": "0x0",
   "crc_and_header": false,
   "originator": "both"
-}
+},
 
+"f1_raw_input":{
+  "cmd_fields":
+  [
+    {"cf_name": "endian_check", "cf_size": 2, "cf_type": "CmdFieldHex<uint16_t>"},
+    {"cf_name": "number_of_samples", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "seed_name", "cf_size": 12, "cf_type": "CmdFieldArrayChar<12>"},
+    {"cf_name": "year", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "doy", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},
+    {"cf_name": "sample_rate_factor", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "sample_rate_multiplier", "cf_size": 2, "cf_type": "CmdField<int16_t>"},
+    {"cf_name": "activity_flags", "cf_size": 1, "cf_type": "BmSeedHeaderActivityFlags"},
+    {"cf_name": "io_and_clock_flags", "cf_size": 1, "cf_type": "BmSeedHeaderIoAndClockFlags"},
+    {"cf_name": "data_quality_flags", "cf_size": 1, "cf_type": "BmSeedHeaderDataQualityFlags"},
+    {"cf_name": "timing_quality", "cf_size": 1, "cf_type": "CmdFieldHex<uint8_t>"},
+    {"cf_name": "sec", "cf_size": 4, "cf_type": "CmdFieldDuration<uint32_t>"},
+    {"cf_name": "usec", "cf_size": 4, "cf_type": "CmdFieldDuration<uint32_t, std::micro>"},
+    {"cf_name": "sequence_number", "cf_size": 4, "cf_type": "CmdField<uint32_t>"}
+  ],
+  "cmd_number": "0x0",
+  "crc_and_header": false,
+  "originator": "both"
+}
 }
 
 

@@ -14,6 +14,7 @@
 #include "cmd_field_array_byte.h"
 #include "cmd_field_array_char.h"
 #include "cmd_field_array_ubyte.h"
+#include "cmd_field_container.h"
 #include "cmd_field_duration.h"
 #include "cmd_field_pstring.h"
 #include "cmd_field_hex.h"
@@ -94,6 +95,8 @@ public:
     mzn::CmdFieldDuration<uint32_t> ui32duration;
     mzn::CmdFieldDuration<float, std::micro> float_us_duration;
     mzn::CmdFieldDuration<float, std::milli> float_ms_duration;
+
+    mzn::CmdFieldContainer<float> cfc_float;
 
     mzn::CmdFieldCalAmplitude amplitude;
     // the special ones:

@@ -6,7 +6,8 @@ namespace mzn {
 
 // -------------------------------------------------------------------------- //
 AddressInfoHandler::AddressInfoHandler(int const port,
-                                       std::string const & ip) {
+                                       std::string const & ip,
+                                       bool const tcp) {
 
     // setups ai or throws
     // getaddrinfo allocates memory for ai,
@@ -18,7 +19,14 @@ AddressInfoHandler::AddressInfoHandler(int const port,
     // agnostic to ip4 or ip6
     ai_hints = {}; //set struct values to 0
     ai_hints.ai_family = AF_UNSPEC;
-    ai_hints.ai_socktype = SOCK_DGRAM;
+
+    if (tcp) {
+        // TCP
+        ai_hints.ai_socktype = SOCK_STREAM;
+    } else {
+        // UDP
+        ai_hints.ai_socktype = SOCK_DGRAM;
+    }
 
     auto port_str = std::to_string(port);
 

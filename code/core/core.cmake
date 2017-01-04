@@ -18,7 +18,7 @@ set(DIR_CORE ${DIR_MZN}/core)
 include_directories(${DIR_CORE}/inc/)
 
 set(SOURCES_core ${SOURCES_md5}
-                 ${SOURCES_COMMANDS}
+                 ${SOURCES_commands}
                  ${SOURCES_seismic_network}
                  ${DIR_CORE}/src/cmd_file_reader.cpp
                  ${DIR_CORE}/src/comm.cpp

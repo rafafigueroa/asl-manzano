@@ -782,6 +782,48 @@
       {"bmf_name": "packet_memory_reduced_due_to_bad_packet_memory_ram", "bmf_bit": 15}
     ],
     "mf_size": 2, "bm_originator": "q"
+  },
+
+  "bm_seed_header_activity_flags":{
+    "bm_fields":[
+
+      {"bmf_name": "calibration_signals_present", "bmf_bit": 0},
+      {"bmf_name": "time_correction_applied", "bmf_bit": 1},
+      {"bmf_name": "beginning_of_an_event", "bmf_bit": 2},
+      {"bmf_name": "end_of_an_event", "bmf_bit": 3},
+      {"bmf_name": "positive_leap_second_happened", "bmf_bit": 4},
+      {"bmf_name": "negative_leap_second_happened", "bmf_bit": 5},
+      {"bmf_name": "event_in_progress", "bmf_bit": 6}
+    ],
+    "mf_size": 1, "bm_originator": "both"
+  },
+
+  "bm_seed_header_io_and_clock_flags":{
+    "bm_fields":[
+
+      {"bmf_name": "station_volume_parity_error_possibly_present", "bmf_bit": 0},
+      {"bmf_name": "long_record_read", "bmf_bit": 1},
+      {"bmf_name": "short_record_read", "bmf_bit": 2},
+      {"bmf_name": "start_of_time_series", "bmf_bit": 3},
+      {"bmf_name": "end_of_time_series", "bmf_bit": 4},
+      {"bmf_name": "clocked_locked", "bmf_bit": 5}
+    ],
+    "mf_size": 1, "bm_originator": "both"
+  },
+
+  "bm_seed_header_data_quality_flags":{
+    "bm_fields":[
+
+      {"bmf_name": "amplifier_saturation_detected", "bmf_bit": 0},
+      {"bmf_name": "digitizer_clipping_detected", "bmf_bit": 1},
+      {"bmf_name": "spikes_detected", "bmf_bit": 2},
+      {"bmf_name": "glitches_detected", "bmf_bit": 3},
+      {"bmf_name": "missing_or_padded_data_present", "bmf_bit": 4},
+      {"bmf_name": "telemetry_synchronization_error", "bmf_bit": 5},
+      {"bmf_name": "a_digital_filter_may_be_charging", "bmf_bit": 6},
+      {"bmf_name": "time_tag_is_questionable", "bmf_bit": 7}
+    ],
+    "mf_size": 1, "bm_originator": "both"
   }
 }
 

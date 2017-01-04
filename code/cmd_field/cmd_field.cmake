@@ -24,6 +24,7 @@ set(SOURCES_CMD_FIELD
                       ${DIR_CMD_FIELD}/src/cmd_field_array_char.cpp
                       ${DIR_CMD_FIELD}/src/cmd_field_array_ubyte.cpp
                       ${DIR_CMD_FIELD}/src/cmd_field_bitmap.cpp
+                      ${DIR_CMD_FIELD}/src/cmd_field_container.cpp
                       ${DIR_CMD_FIELD}/src/cmd_field_duration.cpp
                       ${DIR_CMD_FIELD}/src/cmd_field_hex.cpp
                       ${DIR_CMD_FIELD}/src/cmd_field_ignore.cpp

@@ -129,10 +129,11 @@ public:
 
     //! must call freeaddrinfo after using the ai from this function
     AddressInfoHandler(int const port,
-                       std::string const & ip = "");
+                       std::string const & ip = "",
+                       bool const tcp = false);
 
     //! the "if" should not be necessary
-    ~AddressInfoHandler() { if (ai != nullptr) freeaddrinfo(ai); };
+    ~AddressInfoHandler() {if (ai != nullptr) freeaddrinfo(ai);};
 };
 
 } // end mzn

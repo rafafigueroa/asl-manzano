@@ -1736,6 +1736,135 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmSdiphase const & bm) {
 }
 
 // -------------------------------------------------------------------------- //
+class BmSeedHeaderActivityFlags : public CmdFieldBitmap<1> {
+
+friend std::ostream & operator<<(std::ostream & bm_os, BmSeedHeaderActivityFlags const & bm);
+
+public:
+    explicit BmSeedHeaderActivityFlags() : CmdFieldBitmap<1>{} {};
+    bool const calibration_signals_present() const {return this -> data_.test(0);}
+    bool const time_correction_applied() const {return this -> data_.test(1);}
+    bool const beginning_of_an_event() const {return this -> data_.test(2);}
+    bool const end_of_an_event() const {return this -> data_.test(3);}
+    bool const positive_leap_second_happened() const {return this -> data_.test(4);}
+    bool const negative_leap_second_happened() const {return this -> data_.test(5);}
+    bool const event_in_progress() const {return this -> data_.test(6);}
+    void calibration_signals_present(const bool b) {this -> data_.set(0, b);}
+    void time_correction_applied(const bool b) {this -> data_.set(1, b);}
+    void beginning_of_an_event(const bool b) {this -> data_.set(2, b);}
+    void end_of_an_event(const bool b) {this -> data_.set(3, b);}
+    void positive_leap_second_happened(const bool b) {this -> data_.set(4, b);}
+    void negative_leap_second_happened(const bool b) {this -> data_.set(5, b);}
+    void event_in_progress(const bool b) {this -> data_.set(6, b);}
+};
+
+inline std::ostream & operator<<(std::ostream & bm_os, BmSeedHeaderActivityFlags const & bm) {
+    bm_os << "\n";
+    bm_os << "\n   [" << bm.bool_indicator( bm.calibration_signals_present() ) << "] " <<
+        "calibration_signals_present";
+    bm_os << "\n   [" << bm.bool_indicator( bm.time_correction_applied() ) << "] " <<
+        "time_correction_applied";
+    bm_os << "\n   [" << bm.bool_indicator( bm.beginning_of_an_event() ) << "] " <<
+        "beginning_of_an_event";
+    bm_os << "\n   [" << bm.bool_indicator( bm.end_of_an_event() ) << "] " <<
+        "end_of_an_event";
+    bm_os << "\n   [" << bm.bool_indicator( bm.positive_leap_second_happened() ) << "] " <<
+        "positive_leap_second_happened";
+    bm_os << "\n   [" << bm.bool_indicator( bm.negative_leap_second_happened() ) << "] " <<
+        "negative_leap_second_happened";
+    bm_os << "\n   [" << bm.bool_indicator( bm.event_in_progress() ) << "] " <<
+        "event_in_progress";
+    bm_os << "\n";
+    return bm_os;
+}
+
+// -------------------------------------------------------------------------- //
+class BmSeedHeaderDataQualityFlags : public CmdFieldBitmap<1> {
+
+friend std::ostream & operator<<(std::ostream & bm_os, BmSeedHeaderDataQualityFlags const & bm);
+
+public:
+    explicit BmSeedHeaderDataQualityFlags() : CmdFieldBitmap<1>{} {};
+    bool const amplifier_saturation_detected() const {return this -> data_.test(0);}
+    bool const digitizer_clipping_detected() const {return this -> data_.test(1);}
+    bool const spikes_detected() const {return this -> data_.test(2);}
+    bool const glitches_detected() const {return this -> data_.test(3);}
+    bool const missing_or_padded_data_present() const {return this -> data_.test(4);}
+    bool const telemetry_synchronization_error() const {return this -> data_.test(5);}
+    bool const a_digital_filter_may_be_charging() const {return this -> data_.test(6);}
+    bool const time_tag_is_questionable() const {return this -> data_.test(7);}
+    void amplifier_saturation_detected(const bool b) {this -> data_.set(0, b);}
+    void digitizer_clipping_detected(const bool b) {this -> data_.set(1, b);}
+    void spikes_detected(const bool b) {this -> data_.set(2, b);}
+    void glitches_detected(const bool b) {this -> data_.set(3, b);}
+    void missing_or_padded_data_present(const bool b) {this -> data_.set(4, b);}
+    void telemetry_synchronization_error(const bool b) {this -> data_.set(5, b);}
+    void a_digital_filter_may_be_charging(const bool b) {this -> data_.set(6, b);}
+    void time_tag_is_questionable(const bool b) {this -> data_.set(7, b);}
+};
+
+inline std::ostream & operator<<(std::ostream & bm_os, BmSeedHeaderDataQualityFlags const & bm) {
+    bm_os << "\n";
+    bm_os << "\n   [" << bm.bool_indicator( bm.amplifier_saturation_detected() ) << "] " <<
+        "amplifier_saturation_detected";
+    bm_os << "\n   [" << bm.bool_indicator( bm.digitizer_clipping_detected() ) << "] " <<
+        "digitizer_clipping_detected";
+    bm_os << "\n   [" << bm.bool_indicator( bm.spikes_detected() ) << "] " <<
+        "spikes_detected";
+    bm_os << "\n   [" << bm.bool_indicator( bm.glitches_detected() ) << "] " <<
+        "glitches_detected";
+    bm_os << "\n   [" << bm.bool_indicator( bm.missing_or_padded_data_present() ) << "] " <<
+        "missing_or_padded_data_present";
+    bm_os << "\n   [" << bm.bool_indicator( bm.telemetry_synchronization_error() ) << "] " <<
+        "telemetry_synchronization_error";
+    bm_os << "\n   [" << bm.bool_indicator( bm.a_digital_filter_may_be_charging() ) << "] " <<
+        "a_digital_filter_may_be_charging";
+    bm_os << "\n   [" << bm.bool_indicator( bm.time_tag_is_questionable() ) << "] " <<
+        "time_tag_is_questionable";
+    bm_os << "\n";
+    return bm_os;
+}
+
+// -------------------------------------------------------------------------- //
+class BmSeedHeaderIoAndClockFlags : public CmdFieldBitmap<1> {
+
+friend std::ostream & operator<<(std::ostream & bm_os, BmSeedHeaderIoAndClockFlags const & bm);
+
+public:
+    explicit BmSeedHeaderIoAndClockFlags() : CmdFieldBitmap<1>{} {};
+    bool const station_volume_parity_error_possibly_present() const {return this -> data_.test(0);}
+    bool const long_record_read() const {return this -> data_.test(1);}
+    bool const short_record_read() const {return this -> data_.test(2);}
+    bool const start_of_time_series() const {return this -> data_.test(3);}
+    bool const end_of_time_series() const {return this -> data_.test(4);}
+    bool const clocked_locked() const {return this -> data_.test(5);}
+    void station_volume_parity_error_possibly_present(const bool b) {this -> data_.set(0, b);}
+    void long_record_read(const bool b) {this -> data_.set(1, b);}
+    void short_record_read(const bool b) {this -> data_.set(2, b);}
+    void start_of_time_series(const bool b) {this -> data_.set(3, b);}
+    void end_of_time_series(const bool b) {this -> data_.set(4, b);}
+    void clocked_locked(const bool b) {this -> data_.set(5, b);}
+};
+
+inline std::ostream & operator<<(std::ostream & bm_os, BmSeedHeaderIoAndClockFlags const & bm) {
+    bm_os << "\n";
+    bm_os << "\n   [" << bm.bool_indicator( bm.station_volume_parity_error_possibly_present() ) << "] " <<
+        "station_volume_parity_error_possibly_present";
+    bm_os << "\n   [" << bm.bool_indicator( bm.long_record_read() ) << "] " <<
+        "long_record_read";
+    bm_os << "\n   [" << bm.bool_indicator( bm.short_record_read() ) << "] " <<
+        "short_record_read";
+    bm_os << "\n   [" << bm.bool_indicator( bm.start_of_time_series() ) << "] " <<
+        "start_of_time_series";
+    bm_os << "\n   [" << bm.bool_indicator( bm.end_of_time_series() ) << "] " <<
+        "end_of_time_series";
+    bm_os << "\n   [" << bm.bool_indicator( bm.clocked_locked() ) << "] " <<
+        "clocked_locked";
+    bm_os << "\n";
+    return bm_os;
+}
+
+// -------------------------------------------------------------------------- //
 class BmSensorControlBitmap : public CmdFieldBitmap<4> {
 
 friend std::ostream & operator<<(std::ostream & bm_os, BmSensorControlBitmap const & bm);

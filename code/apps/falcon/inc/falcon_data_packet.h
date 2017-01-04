@@ -3,6 +3,7 @@
 
 #include "falcon_header.h"
 #include "minute_time_point.h"
+#include "cmd_field_container.h"
 
 //! all data expected to be in minute intervals
 // -------------------------------------------------------------------------- //
@@ -13,10 +14,10 @@ struct FalconDataPacket {
     MinuteTimePoint mtp;
 
     // raw input takes integer data
-    std::vector<int32_t> data;
+    mzn::CmdFieldContainer<int32_t> data;
 
     // to the raw input format
-    std::string to_raw_input_format() const;
+    std::vector<uint8_t> to_raw_input_format() const;
 };
 
 // -------------------------------------------------------------------------- //
@@ -27,7 +28,7 @@ std::ostream & operator<<(std::ostream & os, FalconDataPacket const & fdp) {
 
     os << fdp.mtp;
 
-    for (auto const & d : fdp.data) os << d << " ";
+    for ( auto const & d : fdp.data() ) os << d << " ";
 
     os << "]" << " size(" << fdp.data.size() << ")";
 

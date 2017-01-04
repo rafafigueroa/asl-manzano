@@ -22,6 +22,7 @@ set(SOURCES_connection ${SOURCES_exceptions}
                        ${DIR_connection}/src/dummy_q_port.cpp
                        ${DIR_connection}/src/message.cpp
                        ${DIR_connection}/src/udp_connection.cpp
+                       ${DIR_connection}/src/tcp_connection.cpp
                        ${DIR_connection}/src/address_info_handler.cpp
                        ${DIR_connection}/src/connection_handler.cpp
 )

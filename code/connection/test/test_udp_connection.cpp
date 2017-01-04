@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 #include "udp_connection.h"
+#include "tcp_connection.h"
 #include "dummy_q_port.h"
 #include "mzn_except.h"
 
@@ -30,6 +31,7 @@ void udp_server() {
 
     // wait forever when receiving, no timeout
     mzn::UdpConnection uc(host_port);
+    mzn::TcpConnection tc(host_port+1);
 
     std::stringstream ss;
     try {
