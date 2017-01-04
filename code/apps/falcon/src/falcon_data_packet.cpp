@@ -3,7 +3,6 @@
 
 // -------------------------------------------------------------------------- //
 std::vector<uint8_t> FalconDataPacket::to_raw_input_format() const {
-
     /*
         F1RawInput has the same format of the CWB RawInputServer
         without the data part. F for Falcon.

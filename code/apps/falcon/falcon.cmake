@@ -9,6 +9,7 @@ set(falcon_config_included true)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../mzn_config.cmake)
 include(${DIR_MZN}/commands/commands.cmake)
+include(${DIR_MZN}/connection/connection.cmake)
 
 message("\n###### config(falcon) #######")
 
@@ -16,6 +17,7 @@ set(DIR_falcon ${DIR_MZN}/apps/falcon)
 include_directories(${DIR_falcon}/inc)
 
 set(SOURCES_falcon ${SOURCES_falcon_cmds}
+                   ${SOURCES_connection}
                    ${DIR_falcon}/src/csv_file.cpp
                    ${DIR_falcon}/src/falcon_data_packet.cpp
                    ${DIR_falcon}/src/falcon.cpp)

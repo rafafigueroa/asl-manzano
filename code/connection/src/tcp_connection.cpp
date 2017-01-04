@@ -1,6 +1,6 @@
 // Manzano software
 
-#include "udp_connection.h"
+#include "tcp_connection.h"
 
 namespace mzn {
 
@@ -8,7 +8,7 @@ namespace mzn {
 // -------------------------------------------------------------------------- //
 /*
 template<typename M>
-void UdpConnection::msg_resize(M & msg) {
+void TcpConnection::msg_resize(M & msg) {
 
     // cut message to size indicated in the qdp header
     // Important for variable length msgs
@@ -26,12 +26,17 @@ void UdpConnection::msg_resize(M & msg) {
 */
 
 // -------------------------------------------------------------------------- //
-void UdpConnection::setup_socket(TimeoutDuration const & timeout,
+void TcpConnection::setup_socket(TimeoutDuration const & timeout,
                                  std::string const & ip_remote,
                                  int port_remote) {
+
+    auto constexpr tcp_connection = true;
     try {
 
-        auto aih_host = AddressInfoHandler(port_host_);
+        auto const ip_host = "";
+        auto aih_host = AddressInfoHandler(port_host_,
+                                           ip_host,
+                                           tcp_connection);
 
         // --------- Socket --------- //
         // skfd_ = socket file descriptor
@@ -57,6 +62,7 @@ void UdpConnection::setup_socket(TimeoutDuration const & timeout,
             }
         }
 
+
         // --------- Bind --------- //
         int bind_result = bind(skfd_,
                                aih_host.ai->ai_addr,
@@ -67,50 +73,63 @@ void UdpConnection::setup_socket(TimeoutDuration const & timeout,
         }
 
     } catch (std::runtime_error const & e) {
-        // setup and binding was not successful
+        // setup and connection was not successful
         std::cerr << std::endl << e.what() << std::endl;
-        throw WarningException("UdpConnection",
+        throw WarningException("TcpConnection",
                                "setup_socket",
                                "Host Socket Setup Failed");
     }
 
-    // setup and binging was successful
+    // setup and binding was successful
     try {
 
         if (port_remote != 0) {
             // use port_remote, ip_remote to setup sin_remote_
-            auto aih_remote = AddressInfoHandler(port_remote, ip_remote);
+            auto aih_remote = AddressInfoHandler(port_remote,
+                                                 ip_remote,
+                                                 tcp_connection);
             // copy the relevant bits to the class member
             // before ai_remote gets freed
             sin_remote_ = *(SockAddr *)(aih_remote.ai->ai_addr);
 
+            // Additional step for TcpConnection
+            // ------ Connection ------ //
+            int connection_result = connect(skfd_,
+                                            aih_remote.ai->ai_addr,
+                                            aih_remote.ai->ai_addrlen);
+
+            if (connection_result < 0) {
+                throw std::runtime_error( std::strerror(errno) );
+            }
+
         } else {
+            // TODO: can this apply for TCP too?
             // update sin_remote_ with the remote of last received message
             should_update_sin_remote_ = true;
         }
 
     } catch (std::runtime_error const & e) {
         std::cerr << std::endl << e.what() << std::endl;
-        throw WarningException("UdpConnection",
+        throw WarningException("TcpConnection",
                                "setup_socket",
                                "Remote Socket Setup Failed");
     }
 }
 
 // -------------------------------------------------------------------------- //
-void UdpConnection::close_socket() {
+void TcpConnection::close_socket() {
     // c function
     close(skfd_);
 }
 
 // -------------------------------------------------------------------------- //
-void UdpConnection::shutdown_socket() {
+void TcpConnection::shutdown_socket() {
     // another c networking function
     shutdown(skfd_, SHUT_WR);
 }
 
 //! explicitaly instatiated template
 // -------------------------------------------------------------------------- //
-//template class UdpConnection<Qdp::Message>;
-//template class UdpConnection<std::string>;
+//template class TcpConnection<Qdp::Message>;
+//template class TcpConnection<std::string>;
 } // << mzn
