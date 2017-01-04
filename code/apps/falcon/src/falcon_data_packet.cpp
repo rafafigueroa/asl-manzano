@@ -77,7 +77,7 @@ std::vector<uint8_t> FalconDataPacket::to_raw_input_format() const {
 
     // serialization
     auto const fri_data_size = fri.cmd_data_size();
-    auto const fdp_data_size = data.size();
+    auto const fdp_data_size = data.cmd_data_size();
 
     std::vector<uint8_t> msg(fri_data_size + fdp_data_size, 0);
 
@@ -86,9 +86,10 @@ std::vector<uint8_t> FalconDataPacket::to_raw_input_format() const {
 
     std::cout << std::endl << fri;
 
-    // TODO need to put on F1RawInput, where F1 is for falcon command
     // copy data on message starting where the F1RawInput message ends
-    // for (int i = 0; i < fdp_data_size; i++) msg[i + fri_data_size] = data[i];
+    data.data_to_msg(msg, fri_data_size);
+
+    std::cout << std::endl << data;
 
     // print out the message
     std::cout << std::endl << std::hex << "\n<" ;
