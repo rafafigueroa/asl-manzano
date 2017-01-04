@@ -16,5 +16,6 @@ java \
     -b $date_" "$time_ \
     -d 86400 \
     -h $ip_ \
-    -t $format_
+    -t $format_ \
+#    -lsc
 #    -ascii
