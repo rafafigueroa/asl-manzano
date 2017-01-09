@@ -24,6 +24,15 @@
             "input": "A",
             "model": "STS2",
             "cals": "TIMED_SEND_TEST"
+          },
+
+          {
+            "input": "B",
+            "model": "STS1",
+            "cals": "STS_1_E300",
+            "port_e300": {"ip_remote":"", "port_remote":4300,
+                          "auth_code":"0", "port_host":2300,
+                          "protocol_version": 0}
           }
         ]
       }

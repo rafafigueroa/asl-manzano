@@ -125,6 +125,7 @@ void MessageDispatch::send_recv(ConnectionHandler & q_port,
         msg_recv.resize(msg_return_size);
 
         try {
+
             q_port.uc.send_recv(msg_send, msg_recv);
 
         } catch(InfoException & e) {
@@ -132,7 +133,7 @@ void MessageDispatch::send_recv(ConnectionHandler & q_port,
             std::cerr << std::endl << "caught @MessageDispatch::send_recv";
             std::cerr << e.what();
 
-            if (retry != max_retry) {
+            if (retry + 1 != max_retry) {
                 continue; // try again
             } else {
                 throw WarningException(
