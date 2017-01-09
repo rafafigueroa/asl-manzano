@@ -60,7 +60,9 @@ struct MsgTask {
         cmd_recv( std::move(rhs.cmd_recv) ),
         delay(rhs.delay),
         run_duration(rhs.run_duration),
-        conf_time( Time::SysClock::now() ) {}
+        conf_time( Time::SysClock::now() ),
+        exec_time( conf_time() + delay() ),
+        end_time( exec_time() + run_duration() ) {}
 
     Action const action;
     Kind const kind;
@@ -105,7 +107,10 @@ std::ostream & operator<<(std::ostream & os, MsgTask const & msg_task) {
 
     os << "++ " << msg_task.action << " " << msg_task.kind << " " << msg_task.ta
        << " ~~ " << "run_duration: " << msg_task.run_duration
-       << " done[" << CmdFieldBitmap<1>::bool_indicator(msg_task.done) << "]";
+       << " times:" << " conf: " << msg_task.conf_time
+       << " | exec:" << msg_task.exec_time
+       << " | end:" << msg_task.end_time;
+       // << " done[" << CmdFieldBitmap<1>::bool_indicator(msg_task.done) << "]";
 
     return os;
 }

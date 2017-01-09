@@ -57,27 +57,15 @@ int main(int argc, char **argv) {
                                     ip_remote,
                                     port_remote);
 
-        // send_recv each one of them
+        // send each one of them
         // ------------------------------------------------------------------ //
         for (auto const & msg : msgs) {
 
-            M msg_recv(5000);
-
-            cwb_connection.send_recv(msg, msg_recv);
+            cwb_connection.send(msg);
 
             std::cout << std::endl
                 << "\n**************************************"
                 << "****************************";
-
-            // print results
-            std::cout << std::endl << "\nreceived (" << msg_recv.size()
-                      << " bytes):\n";
-
-            for (auto const & b : msg_recv) {
-                std::cout << b;
-            }
-
-            std::cout << std::endl;
         }
 
     } catch (std::exception const & e) {

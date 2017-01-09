@@ -295,17 +295,16 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
 
     if (s.config.has_e300) {
 
-        using Seconds = Time::Seconds<>;
-        using Hours = Time::Hours<>;
-
         // plan cal might have been called before digitizer registration
         // where the e300 registration is done. This makes sure the e300
         // gets registered before proceeding. Also this is not caught here,
         // so if e300 registration fails, calibration fails, as it should.
-        s.port_e300().reg();
+
+        //s.port_e300().reg();
 
         // connect external calibration signal from e300
-        s.port_e300().cal_connect();
+
+        // s.port_e300().cal_connect();
 
         // if the calibration plan takes more than an hour, the e300
         // needs to be kept awake or it will go back to "safe" mode
@@ -314,7 +313,7 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         bool need_to_be_kept_alive = false;
 
         for (auto const & msg_task : msg_tasks) {
-            if ( msg_task.run_duration() >= Hours(1) ) {
+            if ( msg_task.run_duration() >= std::chrono::hours(1) ) {
                 need_to_be_kept_alive = true;
                 break;
             }
@@ -326,10 +325,12 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         // right now it could do one long calibration like that
         if (need_to_be_kept_alive) {
 
-            Seconds total_plan_run_duration;
+            auto total_plan_run_duration = std::chrono::seconds(0);
+
             for (auto const & msg_task : msg_tasks) {
                 total_plan_run_duration += msg_task.run_duration();
             }
+
             s.port_e300().keep_alive(total_plan_run_duration);
         }
     }
@@ -338,7 +339,7 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
 
     auto & q = sn.q_ref(ta);
 
-    std::chrono::seconds const wiggle_seconds(30);
+    auto const wiggle_seconds = std::chrono::seconds(30);
 
     // can't use delay since delay is meant for independently sent cals
     for (auto & msg_task : msg_tasks) {

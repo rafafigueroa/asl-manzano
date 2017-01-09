@@ -115,13 +115,16 @@ ConnectionHandlerE300::cmd_status_for(
         std::chrono::seconds const keep_alive_duration,
         std::chrono::seconds const keep_alive_delay) {
 
-    // delay this process
+    // delay this process, keep_alive_delay defaults to zero
     std::this_thread::sleep_for(keep_alive_delay);
-
     // now really lets keep this thing alive
     auto constexpr alive_wait = std::chrono::seconds( std::chrono::minutes(45) );
+    // how many times should this thread sleep t he alive_wait duration
     int const delay_times = keep_alive_duration.count()/alive_wait.count() + 1;
 
+    std::cout << "\n++++++++++++++++++++++++++++++++++++++++++++++++++++";
+    std::cout << "\nkeep_alive_duration: " << keep_alive_duration << "\n";
+    std::cout << "\nalive_wait: " << alive_wait << "\n";
     std::cout << "\ndelay times: " << delay_times << "\n";
 
     for (int i = 0; i < delay_times; i++) {
@@ -131,6 +134,7 @@ ConnectionHandlerE300::cmd_status_for(
     }
 
     auto const alive_duration = keep_alive_duration * delay_times;
+
     return alive_duration;
 }
 
