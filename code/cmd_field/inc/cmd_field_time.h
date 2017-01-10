@@ -19,7 +19,8 @@ namespace mzn {
     @author rfigueroa@usgs.gov
  */
 // -------------------------------------------------------------------------- //
-template <typename T, int shift_seconds_since_1970_epoch = 0>
+template <typename T = typename std::chrono::system_clock::rep,
+          int shift_seconds_since_1970_epoch = 0>
 class CmdFieldTime : public CmdField<T> {
 
 public:

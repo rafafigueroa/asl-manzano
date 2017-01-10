@@ -179,7 +179,6 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
         C1Srvch cmd_srvch;
 
         // dance
-        std::cout << "Dance: attempt digitizer registration" << std::endl;
         md.send_recv(q.port_config, cmd_rqsrv, cmd_srvch, false);
 
         // DP Response to Q challenge
@@ -219,7 +218,8 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
         // Q ack/cerr of DP Response
         C1Cack cmd_cack;
 
-        md.send_recv(q.port_config, cmd_srvrsp, cmd_cack);
+        md.send_recv(q.port_config, cmd_srvrsp, cmd_cack, false);
+
         std::cout << std::endl << "\n** Digitizer REGISTERED! ** " << std::endl;
 
         // setup status
@@ -261,7 +261,8 @@ void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
     // Q ack/cerr of DP Response
     C1Cack cmd_cack;
 
-    md.send_recv(q.port_config, cmd_dsrv, cmd_cack);
+    md.send_recv(q.port_config, cmd_dsrv, cmd_cack, false);
+
     std::cout << "\n\n ** deregistered from digitizer ** \n";
 
     // setup status
@@ -293,10 +294,7 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
             ta);
 
     std::cout << std::endl << "full cal plan for " << ta << ":\n";
-
-    for (auto const & msg_task : msg_tasks) {
-        std::cout << std::endl << msg_task << "\n";
-    }
+    for (auto const & msg_task : msg_tasks) msg_task.stream<C1Qcal>(std::cout);
 
     // e300 keep alive setup
     auto & s = sn.s_ref(ta);
@@ -308,11 +306,11 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         // gets registered before proceeding. Also this is not caught here,
         // so if e300 registration fails, calibration fails, as it should.
 
-        //s.port_e300().reg();
+        s.port_e300().reg();
 
         // connect external calibration signal from e300
 
-        // s.port_e300().cal_connect();
+        s.port_e300().cal_connect();
 
         // if the calibration plan takes more than an hour, the e300
         // needs to be kept awake or it will go back to "safe" mode
@@ -350,22 +348,19 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         }
     }
 
+    auto & q = sn.q_ref(ta);
+
     // ---------------------------------------------------------------------- //
     try {
-
-        auto & q = sn.q_ref(ta);
-
-        auto const wiggle_seconds = std::chrono::seconds(30);
 
         // can't use delay since delay is meant for independently sent cals
         for (auto & msg_task : msg_tasks) {
 
-            std::cout << "\nnext cal msg task:\n" << msg_task << std::endl;
+            std::cout << "\nnext cal:\n";
+            msg_task.stream<C1Qcal>(std::cout);
 
-            std::cout << std::endl << "\nregister before each cal\n";
             Comm::run<Action::set, Kind::reg>(ui, ta);
 
-            std::cout << std::endl << "\nsending cal message\n";
             md.send_recv( q.port_config,
                           *(msg_task.cmd_send.get()),
                           *(msg_task.cmd_recv.get()) );
@@ -373,68 +368,46 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
             // no throw so far, received c1_cack
             msg_task.done = true;
 
-            std::cout << std::endl << "\nde-register after each cal\n";
             Comm::run<Action::set, Kind::dereg>(ui, ta);
 
             // sleep on this thread, each msg task has the run_duration
             // already calculated.
-            auto const sleep_time = msg_task.run_duration() + wiggle_seconds;
-            std::cout << "\nsleep for: " << sleep_time;
+            auto const sleep_duration = msg_task.run_duration();
 
-            std::this_thread::sleep_for(sleep_time);
+            CmdFieldTime<> sleep_until_time;
+            sleep_until_time(std::chrono::system_clock::now() + sleep_duration);
+
+            std::cout << std::endl << "sleep for: " << sleep_duration
+                      << " until: " << sleep_until_time << std::endl;
+
+            std::this_thread::sleep_for(sleep_duration);
         }
 
         std::cout << std::endl << "\nautocal success\n";
 
         // print out what was done
         for (auto & msg_task : msg_tasks) {
-
-            std::cout << "\n------------------------------"
-                      << "------------------------------------"
-                      << std::endl << msg_task;
-
-            auto const & cal =
-                dynamic_cast<C1Qcal const &>( *(msg_task.cmd_send.get()) );
-
-            std::cout << "\ncal_duration: " << cal.cal_duration;
-            std::cout << " amp: " << cal.amplitude;
-            std::cout << cal.waveform.waveform();
-
-            // to show the actual frequency,
-            // calculate from internal representation
-            // cmd_file_reader does the reverse operation when the cal comes
-            // from a json, q330 manual comments are repeated here:
-
-            /* from the manual
-            The Frequency Divider is used to reduce the frequency
-            of a sine or noise waveform.
-            A value of 1 generates a 1Hz sine or update a noise waveform at 125Hz.
-            A value of 20 generates a 0.05Hz sine or
-            update a noise waveform at 6.25Hz.
-            Max. value is 255.
-            */
-
-            // in the case of pulse calibration, infinite value is ok
-            double frequency;
-            if (cal.waveform.waveform() == BmCalWaveform::Waveform::sine) {
-                frequency = 1.0 / static_cast<double>( cal.frequency_divider() );
-            } else {
-                frequency = 125.0 / static_cast<double>( cal.frequency_divider() );
-            }
-            std::cout << " f: " << frequency;
+            std::cout << std::endl;
+            msg_task.stream<C1Qcal>(std::cout);
         }
 
-    // cancel keep alive thread and rethrow exception
+        // all done successfully, get the future from keep alive
+        if (s.config.has_e300) s.port_e300().wait_keep_alive();
+
     } catch (Exception const & e) {
 
+        // cancel keep alive thread and rethrow exception
         std::cerr << std::endl << "caught @Comm::run<plan, cal>";
+        std::cerr << std::endl << "cancelling plan cal"
+                  << "\n deregistering: \n";
+        Comm::run<Action::set, Kind::dereg>(ui, ta);
+        std::cerr << "\n cancelling keep alive for e300: \n";
         // ok to set even if keep_alive(...)  was not called here
         if (s.config.has_e300) s.port_e300().cancel_keep_alive();
         std::cerr << std::endl << "rethrow";
         throw e;
     }
 }
-
 
 // -------------------------------------------------------------------------- //
 template<>

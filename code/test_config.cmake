@@ -12,6 +12,9 @@ find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
+message("google test include directories:")
+message(${GTEST_INCLUDE_DIRS})
+
 # This effectively redefines the location of the configuration file
 # instead of using a configuration of a real digitizer, it points to a
 # directory that has configuration information for a dummy digitizer
