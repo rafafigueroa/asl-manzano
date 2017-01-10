@@ -96,14 +96,20 @@ public:
         return not (exception_ == nullptr);
     }
 
+    template<typename Ci>
+    std::ostream &
+    stream(std::ostream & os) const;
+
 private:
     std::unique_ptr<Exception> exception_ = nullptr;
-
 };
 
 // -------------------------------------------------------------------------- //
 inline
 std::ostream & operator<<(std::ostream & os, MsgTask const & msg_task) {
+
+    os << "\n.............................."
+       << "....................................\n";
 
     os << "++ " << msg_task.action << " " << msg_task.kind << " " << msg_task.ta
        << " ~~ " << "run_duration: " << msg_task.run_duration
@@ -111,6 +117,40 @@ std::ostream & operator<<(std::ostream & os, MsgTask const & msg_task) {
        << "\n   | exec_time: " << msg_task.exec_time
        << "\n   | end_time:  " << msg_task.end_time;
        // << " done[" << CmdFieldBitmap<1>::bool_indicator(msg_task.done) << "]";
+
+    return os;
+}
+
+// -------------------------------------------------------------------------- //
+template<typename Ci>
+inline
+std::ostream & MsgTask::stream(std::ostream & os) const {
+    os << *this;
+    return os;
+}
+
+// -------------------------------------------------------------------------- //
+template<>
+inline
+std::ostream & MsgTask::stream<C1Qcal>(std::ostream & os) const {
+
+    os << *this;
+
+    // get the specific information from the command
+    try {
+
+        auto const & cal =
+            dynamic_cast<C1Qcal const &>( *( cmd_send.get() ) );
+
+        // do a lean printing of the calibration command
+        os << "\n       | settling: " << cal.settling_time
+           << "\n       | duration: " << cal.cal_duration
+           << "\n       | trailing: " << cal.trailer_time;
+
+    } catch (std::bad_cast const & e) {
+        throw std::logic_error(
+            "MsgTask::stream<C1Qcal> cmd_send is not of C1Qcal type");
+    }
 
     return os;
 }

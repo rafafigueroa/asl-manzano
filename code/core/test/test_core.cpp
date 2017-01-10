@@ -46,6 +46,8 @@ TEST_F(FixtureCore, msg_task) {
         std::cout << std::endl << msg_task;
         std::cout << std::endl << "delay: " << msg_task.delay;
      }
+
+    msg_tasks[0].stream<C1Qcal>(std::cout);
 }
 
 // -------------------------------------------------------------------------- //
@@ -53,6 +55,7 @@ TEST_F(FixtureCore, msg_task_manager) {
 
     using namespace mzn;
 
+    /*
     mzn::DummyQPort dummy_q_port( cm.sn.st[0].q[0].port_config.port_remote,
                                   std::chrono::seconds(100) );
 
@@ -71,6 +74,7 @@ TEST_F(FixtureCore, msg_task_manager) {
         std::cerr << std::endl << "!!!!!!!!!! error\n" << e.what();
         throw e;
     }
+    */
 }
 
 // -------------------------------------------------------------------------- //
