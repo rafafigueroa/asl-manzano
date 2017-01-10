@@ -12,7 +12,7 @@ configure_file("${DIR_green_manzano}/inc/green_manzano_cmake_config.h.in"
 message("\n###### green_manzano #######")
 
 add_executable(green_manzano ${SOURCES_green_manzano})
-install(TARGETS green_manzano DESTINATION /usr/bin/)
+install(TARGETS green_manzano DESTINATION /usr/local/bin/)
 
 # ---- TEST ----- #
 if(FALSE)
