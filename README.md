@@ -3,6 +3,8 @@
 
 Manzano is a library to communicate with the Quanterra Q330 family of digitizers, and E300 electronics for STS1 sensors.
 
+* Read the [Manzano Wiki](https://github.com/usgs/asl-manzano/wiki) for details.
+
 **green_manzano** is the command line interactive application.
 
 * This README file includes instructions for green_manzano compilation and instalation.
