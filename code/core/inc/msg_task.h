@@ -76,31 +76,33 @@ struct MsgTask {
     CmdFieldDuration<int> delay;
     CmdFieldDuration<int> run_duration;
 
-    // all using seconds precision
+    //! all using seconds precision
     CmdFieldTime<int> const conf_time;
-    CmdFieldTime<int> const exec_time;
-    CmdFieldTime<int> const end_time;
+    //! first provided with approximate values, but not const
+    //! so it can be udpated with values closer to actual
+    CmdFieldTime<int> exec_time;
+    CmdFieldTime<int> end_time;
 
-private:
-    CmdFieldTime<int> configuration_tp_;
-
-public:
     std::atomic<bool> done{false};
 
+    // --------------------------------------------------------------------- //
     template<typename ExceptionType>
     void set_exception(ExceptionType && e) {
         exception_ = std::make_unique<ExceptionType>(e);
     }
 
+    // --------------------------------------------------------------------- //
     bool has_exception() const {
         return not (exception_ == nullptr);
     }
 
+    // --------------------------------------------------------------------- //
     template<typename Ci>
     std::ostream &
     stream(std::ostream & os) const;
 
 private:
+
     std::unique_ptr<Exception> exception_ = nullptr;
 };
 
@@ -113,7 +115,6 @@ std::ostream & operator<<(std::ostream & os, MsgTask const & msg_task) {
 
     os << "++ " << msg_task.action << " " << msg_task.kind << " " << msg_task.ta
        << " ~~ " << "run_duration: " << msg_task.run_duration
-       << "\n   | conf_time: " << msg_task.conf_time
        << "\n   | exec_time: " << msg_task.exec_time
        << "\n   | end_time:  " << msg_task.end_time;
        // << " done[" << CmdFieldBitmap<1>::bool_indicator(msg_task.done) << "]";

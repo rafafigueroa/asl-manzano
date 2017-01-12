@@ -215,11 +215,9 @@ CmdFileReader::calculate_run_durations(std::vector<C1Qcal> const & cmds) {
 
     for (auto const & cal : cmds) {
 
-        Seconds run_duration_seconds(0);
-
-        run_duration_seconds += Seconds( cal.settling_time() +
-                                         cal.cal_duration() +
-                                         cal.trailer_time() );
+        auto run_duration_seconds = Seconds( cal.settling_time() +
+                                             cal.cal_duration() +
+                                             cal.trailer_time() );
 
         run_durations.push_back(run_duration_seconds);
 

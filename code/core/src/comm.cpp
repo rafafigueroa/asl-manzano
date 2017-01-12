@@ -282,6 +282,13 @@ template<>
 void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
                                         TargetAddress const & ta) {
 
+    std::ofstream out;
+    out.open("out.txt", std::ofstream::out | std::ofstream::trunc);
+
+    //save old buffer
+    std::streambuf * cout_buffer = std::cout.rdbuf();
+    //redirect std::cout to out.txt
+    std::cout.rdbuf( out.rdbuf() );
 
     // use start cal as individual action for when printing individual msg_task
     // since plan cal is a series of start cal
@@ -356,10 +363,16 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         // can't use delay since delay is meant for independently sent cals
         for (auto & msg_task : msg_tasks) {
 
-            std::cout << "\nnext cal:\n";
-            msg_task.stream<C1Qcal>(std::cout);
+            std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
 
             Comm::run<Action::set, Kind::reg>(ui, ta);
+
+            msg_task.exec_time( std::chrono::system_clock::now() );
+            msg_task.end_time( msg_task.exec_time() + msg_task.run_duration() );
+
+            std::cout << "\nnext cal:\n";
+            msg_task.stream<C1Qcal>(std::cout);
 
             md.send_recv( q.port_config,
                           *(msg_task.cmd_send.get()),
@@ -372,16 +385,24 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
 
             // sleep on this thread, each msg task has the run_duration
             // already calculated.
-            auto const sleep_duration = msg_task.run_duration();
+            auto const sleep_duration = msg_task.run_duration() +
+                                        std::chrono::seconds(30);
 
+            // add some wiggle time in between
             CmdFieldTime<> sleep_until_time;
             sleep_until_time(std::chrono::system_clock::now() + sleep_duration);
+
+            std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
 
             std::cout << std::endl << "sleep for: " << sleep_duration
                       << " until: " << sleep_until_time << std::endl;
 
             std::this_thread::sleep_for(sleep_duration);
         }
+
+        std::cout << std::endl << " ### now: "
+                  << Time::sys_time_of_day() << " ###\n";
 
         std::cout << std::endl << "\nautocal success\n";
 
@@ -396,6 +417,8 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
 
     } catch (Exception const & e) {
 
+        std::cout.rdbuf(cout_buffer);
+
         // cancel keep alive thread and rethrow exception
         std::cerr << std::endl << "caught @Comm::run<plan, cal>";
         std::cerr << std::endl << "cancelling plan cal"
@@ -407,6 +430,8 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         std::cerr << std::endl << "rethrow";
         throw e;
     }
+
+    std::cout.rdbuf(cout_buffer);
 }
 
 // -------------------------------------------------------------------------- //
