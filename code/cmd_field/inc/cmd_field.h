@@ -124,6 +124,9 @@ public:
     //! do not overload, use operator() for overloads
     T const & data() const {return data_;}
 
+    //! avoid unless necessary
+    void data(T const data) {data_ = data;};
+
     //! Used as the default accessor/mutator
     /*! Inherited CmdField overload this function when is different than
         accessing the plain data field. */

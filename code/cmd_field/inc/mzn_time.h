@@ -136,8 +136,35 @@ shift_epoch(TimePoint< Seconds<Rep> > const tp,
 uint32_t constexpr k_shift_seconds_1970_2000 =
         shift_seconds_for_epoch<uint32_t>(date::jan/1/2000).count();
 
+// as in january 1 is 1
+// ---------------------------------------------------------------------- //
+int julian_day(YearMonthDay const & ymd_data) {
+
+    auto ymd_start = date::year{ ymd_data.year() }/1/1;
+
+    if ( not ymd_start.ok() ) throw std::runtime_error("Invalid date");
+    if ( not ymd_data.ok() ) throw std::runtime_error("Invalid date");
+
+    auto days_start = date::day_point(ymd_start);
+    auto days_data = date::day_point(ymd_data);
+
+    auto days_diff = (days_data - days_start );
+
+    return days_diff.count() + 1; // if same, jan 1 is 1, not 0
+}
+
+// as in january 1 is 1
+// ---------------------------------------------------------------------- //
+int julian_day(int const y, int const m, int const d) {
+
+    return julian_day(date::year{y}/m/d);
+}
+
+
 } // <- Time
 
+//              END OF TIME!                                         //
+// _________________________________________________________________ //
 
 //! operator<< overloads, this should not be needed in C++17
 

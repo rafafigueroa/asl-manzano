@@ -30,8 +30,9 @@ void MsgTaskManager::stop_timed_send() {
         waiting_cv_.notify_all();
     }
 
-    std::cout << std::endl << "Getting results from futures";
     for (auto & ftr : futures) {
+
+        std::cout << std::endl << "getting results from future\n";
 
         bool ready_ftr = (ftr.wait_for(std::chrono::milliseconds(100))
                           == std::future_status::ready);

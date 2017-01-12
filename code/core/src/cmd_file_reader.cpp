@@ -19,6 +19,7 @@ template <>
 std::vector<C1Qcal>
 CmdFileReader::construct_cmds(TargetAddress const & ta) {
 
+
     std::ifstream cals_fs;
 
     std::string const runtime_config_path{k_mzn_runtime_config_DIR};
@@ -215,11 +216,9 @@ CmdFileReader::calculate_run_durations(std::vector<C1Qcal> const & cmds) {
 
     for (auto const & cal : cmds) {
 
-        Seconds run_duration_seconds(0);
-
-        run_duration_seconds += Seconds( cal.settling_time() +
-                                         cal.cal_duration() +
-                                         cal.trailer_time() );
+        auto run_duration_seconds = Seconds( cal.settling_time() +
+                                             cal.cal_duration() +
+                                             cal.trailer_time() );
 
         run_durations.push_back(run_duration_seconds);
 
@@ -228,24 +227,5 @@ CmdFileReader::calculate_run_durations(std::vector<C1Qcal> const & cmds) {
     return run_durations;
 }
 
-/*
-// -------------------------------------------------------------------------- //
-// this code would allow to setup cals at future times after
-// the command is send to the digitizer
-// ask the digitizer "what time it is?"
-C1Rqstat cmd_rqstat; // Request Status
-
-cmd_rqstat.request_bitmap.global_status(true);
-
-// setup response
-C1Stat cmd_stat; // Status
-
-md_.send_recv(q, cmd_rqstat, cmd_stat, false);
-
-CxGlobalStatus * gs =
-    dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
-
-auto next_cal_time = gs -> current_data_sequence_number();
-*/
 
 } // <- mzn

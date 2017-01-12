@@ -22,7 +22,7 @@ InstructionMap::filter_actions(TargetAddress const & ta) {
                       Action::edit,
                       Action::set,
                       Action::start,
-                      Action::plan};
+                      Action::auto_};
 
         case Scope::data_processor:
             return VA{Action::show,
@@ -88,7 +88,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
         switch (action) {
             case Action::set: return VK{Kind::center};
             case Action::start: return VK{Kind::cal, Kind::pulse};
-            case Action::plan: return VK{Kind::cal};
+            case Action::auto_: return VK{Kind::cal};
             default : return VK{};
         }
     }
