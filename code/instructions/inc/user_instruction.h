@@ -26,6 +26,7 @@ enum class Action {
     get,
     set,
     plan,
+    auto_, // auto, as in autocal is the historical term used
     stop,
     // s *
     start,
@@ -92,6 +93,7 @@ std::ostream & operator<<(std::ostream & os, Action const & action) {
         case Action::get   : os << "get"; break;
         case Action::set   : os << "set"; break;
         case Action::plan  : os << "plan"; break;
+        case Action::auto_  : os << "auto"; break;
         case Action::stop  : os << "stop"; break;
         case Action::start : os << "start"; break;
 

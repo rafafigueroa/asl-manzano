@@ -279,8 +279,8 @@ void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
+                                         TargetAddress const & ta) {
 
     std::ofstream out;
     out.open("out.txt", std::ofstream::out | std::ofstream::trunc);

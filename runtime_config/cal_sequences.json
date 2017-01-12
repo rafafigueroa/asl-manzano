@@ -77,9 +77,10 @@
 
 "TOGETHER_TEST": {
   "cals": [
-    {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":1}, "wave_form": "step"},
-    {"amplitude": -36, "settling_time": {"h":0,"m":1}, "cal_duration": {"h":0,"m":2}, "trailer_time": {"h":0,"m":0}, "wave_form": "sine", "frequency": 1.0},
-    {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":2}, "trailer_time": {"h":0,"m":1}, "wave_form": "sine", "frequency": 1.0},
+    {"amplitude": -36, "settling_time": {"h":0,"m":1}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":1}, "wave_form": "step"},
+    {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":0}, "wave_form": "step"},
+    {"amplitude": -36, "settling_time": {"h":0,"m":2}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":0}, "wave_form": "sine", "frequency": 1.0},
+    {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":1}, "wave_form": "sine", "frequency": 1.0},
     {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":1}, "wave_form": "step"},
     {"amplitude": -36, "settling_time": {"h":0,"m":1}, "cal_duration": {"h":0,"m":2}, "trailer_time": {"h":0,"m":0}, "wave_form": "sine", "frequency": 1.0},
     {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":2}, "trailer_time": {"h":0,"m":0}, "wave_form": "sine", "frequency": 1.0},

@@ -51,6 +51,7 @@ void InstructionInterpreter::run_instruction(UserInstruction const & ui,
         case Action::stop:  match<Action::stop>(ui, ta);  break;
         case Action::start: match<Action::start>(ui, ta); break;
         case Action::plan:  match<Action::plan>(ui, ta);  break;
+        case Action::auto_:  match<Action::auto_>(ui, ta);  break;
         case Action::quit:  match<Action::quit>(ui, ta);  break;
 
         // a special case here due that "edit target" changes this object only
