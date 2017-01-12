@@ -282,29 +282,78 @@ template<>
 void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
                                          TargetAddress const & ta) {
 
+    auto & q = sn.q_ref(ta);
+    auto & s = sn.s_ref(ta);
+
+    // log this
+    // ---------------------------------------------------------------------- //
+    /*
     std::ofstream out;
     out.open("out.txt", std::ofstream::out | std::ofstream::trunc);
-
     //save old buffer
     std::streambuf * cout_buffer = std::cout.rdbuf();
     //redirect std::cout to out.txt
     std::cout.rdbuf( out.rdbuf() );
-
-    // use start cal as individual action for when printing individual msg_task
-    // since plan cal is a series of start cal
-    auto const start_cal_ui = UserInstruction(Action::start, Kind::cal);
+    */
 
     // use msg task mechanism for the plan
+    // ---------------------------------------------------------------------- //
+    // with start cal as individual action for when printing individual msg_task
+    // since auto cal is a series of start cal
+    auto const start_cal_ui = UserInstruction(Action::start, Kind::cal);
     auto msg_tasks =
         cmd_file_reader_.construct_msg_tasks<Action::start, Kind::cal>(
             start_cal_ui,
             ta);
 
-    std::cout << std::endl << "full cal plan for " << ta << ":\n";
+    // the cal times depend on the digitizer time (seconds since epoch)
+    // ---------------------------------------------------------------------- //
+
+    C1Rqstat cmd_rqstat; // Request Status
+    cmd_rqstat.request_bitmap.global_status(true);
+    // setup response
+    C1Stat cmd_stat; // Status
+
+    Comm::run<Action::set, Kind::reg>(ui, ta);
+    md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+    Comm::run<Action::set, Kind::dereg>(ui, ta);
+
+    CxGlobalStatus * gs =
+        dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+    if (gs == nullptr) throw FatalException("Comm", "autocal", "gs nullptr");
+
+    // Q330 manual: "Seconds offset ... when added to a data sequence number
+    // is seconds since January 1 2000"
+    auto const q_data_seq_number = gs -> data_sequence_number.data();
+    auto const q_seconds_offset = gs -> seconds_offset.data();
+    auto const q_sec_since_epoch = q_data_seq_number + q_seconds_offset;
+
+    CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000> q_now_time;
+    q_now_time.data(q_sec_since_epoch);
+
+    std::cout << std::endl << "q_now_seq_num: " << q_sec_since_epoch;
+    std::cout << std::endl << "q_now_time: " << q_now_time;
+    std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
+
+    for (auto & msg_task : msg_tasks) {
+        auto * cal = dynamic_cast<C1Qcal *>( msg_task.cmd_send.get() );
+        if (cal == nullptr) throw FatalException("Comm",
+                                                 "autocal",
+                                                 "cal nullptr");
+
+        // settling_time is a duration, named following manual
+        cal->starting_time( msg_task.exec_time() + cal->settling_time() );
+    }
+
+    // stream full sequence
+    // ---------------------------------------------------------------------- //
+    std::cout << std::endl << "auto cal sequence for " << ta << ":\n";
     for (auto const & msg_task : msg_tasks) msg_task.stream<C1Qcal>(std::cout);
 
     // e300 keep alive setup
-    auto & s = sn.s_ref(ta);
+    // ---------------------------------------------------------------------- //
 
     if (s.config.has_e300) {
 
@@ -355,7 +404,6 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         }
     }
 
-    auto & q = sn.q_ref(ta);
 
     // ---------------------------------------------------------------------- //
     try {
@@ -383,12 +431,13 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
             Comm::run<Action::set, Kind::dereg>(ui, ta);
 
+            // add some wiggle time in between
+            auto constexpr wiggle_duration = std::chrono::seconds(20);
             // sleep on this thread, each msg task has the run_duration
             // already calculated.
             auto const sleep_duration = msg_task.run_duration() +
-                                        std::chrono::seconds(30);
+                                        wiggle_duration;
 
-            // add some wiggle time in between
             CmdFieldTime<> sleep_until_time;
             sleep_until_time(std::chrono::system_clock::now() + sleep_duration);
 
@@ -417,7 +466,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
     } catch (Exception const & e) {
 
-        std::cout.rdbuf(cout_buffer);
+        //std::cout.rdbuf(cout_buffer);
 
         // cancel keep alive thread and rethrow exception
         std::cerr << std::endl << "caught @Comm::run<plan, cal>";
@@ -431,7 +480,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         throw e;
     }
 
-    std::cout.rdbuf(cout_buffer);
+    //std::cout.rdbuf(cout_buffer);
 }
 
 // -------------------------------------------------------------------------- //
