@@ -6,28 +6,62 @@
  + [Q330 Digitizer](http://www.kinemetrics.com/uploads/PDFs/q330.pdf)
  + [E300 STS1 sensor electronics](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf)
  + [Falcon facilities monitoring system](http://rletech.com/our-products/facility-monitoring-systems/server-room-facility-monitoring/fms/)
- 
-### Key components:
- + Custom serialization library, that allows for unusual data types such as a 24 bit int.
- + Custom auto-generation process for bitmap data structures with a common internal representation.
- + Udp, Tcp and Serial connections and message handling. Serial connections uses William Woodall [C++ serial library](https://github.com/wjwwood/serial)
 
 ----------------------------------------------------------------------------
 * Read the [Manzano Wiki](https://github.com/usgs/asl-manzano/wiki) for details.
 * The MAN page (green_manzano.1) includes basic usage.
 * The doxyfile (Doxyfile) can be used to generate automatic documentation.
 
-## Manzano Applications
+----------------------------------------------------------------------------
+### Key components:
+ + Custom serialization library, that allows for unusual data types such as a 24 bit int.
+ + Custom auto-generation process for bitmap data structures with a common internal representation.
+ + Udp, Tcp and Serial connections. Serial connections uses William Woodall [C++ serial library](https://github.com/wjwwood/serial)
+ + Common addressing mechanism for a network of different devices (inclucing multiple stations).
+ + Common instruction set for easy use of devices. For example, for the Q330 digitizer:
+ 
+ ```
+ DEV:st[0]q[0] » show command
+
+
+ show
+ ├── target
+ ├── command
+ ├── config
+ ├── plan
+ └── status
+
+ edit
+ ├── target
+ └── plan
+
+ get
+ ├── poll
+ ├── qview
+ ├── ctrl
+ ├── center
+ ├── global
+ ├── ping
+ ├── dev
+ └── stat [:] [:boom] [:gps] [:gpssat] [:power] [:dataport] [:pll]
+
+ set
+ ├── ctrl [:save] [:reboot] [:resync] [:gps_on] [:gps_off] [:gps_cold_start]
+ ├── reg
+ └── dereg
+
+ stop
+ └── cal
+```
 
 ----------------------------------------------------------------------------
+## Manzano Applications
+
 ### Green Manzano 
 Command line tool to use Manzano either interactively or through a script.
 
-----------------------------------------------------------------------------
 ### Yellow Manzano 
 Interacts with an [E300](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf) electronics through an udp server. Intended to run on a station's data_processor or another linux device connected serially with the E300.
-
-
 
 ----------------------------------------------------------------------------
 ### Author / Maintainer
