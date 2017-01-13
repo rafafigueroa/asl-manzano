@@ -8,13 +8,13 @@
  + [Falcon facilities monitoring system](http://rletech.com/our-products/facility-monitoring-systems/server-room-facility-monitoring/fms/)
 
 ----------------------------------------------------------------------------
-* Read the [Manzano Wiki](https://github.com/usgs/asl-manzano/wiki) for details.
-* The MAN page (green_manzano.1) includes basic usage.
-* The doxyfile (Doxyfile) can be used to generate automatic documentation.
+* The [Manzano Wiki](https://github.com/usgs/asl-manzano/wiki) includes installation, usage and developer details.
+* The MAN page (green_manzano.1) includes basic green manzano usage.
+* The doxyfile (Doxyfile) can be used to generate code automatic documentation.
 
 ----------------------------------------------------------------------------
 ### Key components:
- + Custom serialization library, that allows for unusual data types such as a 24 bit int.
+ + Custom serialization library, that allows for unusual data types such as a 24 bit integers and others.
  + Custom auto-generation process for bitmap data structures with a common internal representation.
  + Udp, Tcp and Serial connections. Serial connections uses William Woodall [C++ serial library](https://github.com/wjwwood/serial)
  + Common addressing mechanism for a network of different devices (inclucing multiple stations).
@@ -58,10 +58,16 @@
 ## Manzano Applications
 
 ### Green Manzano 
-Command line tool to use Manzano either interactively or through a script.
+Command line tool to use Manzano either interactively or with a script of instructions.
 
 ### Yellow Manzano 
-Interacts with an [E300](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf) electronics through an udp server. Intended to run on a station's data_processor or another linux device connected serially with the E300.
+Interacts with an [E300](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf). Intended to run on a station's data_processor or another linux device connected serially with the E300, links the E300 with an udp server for remote interaction.
+
+### Red Manzano (under development)
+GUI (Qt) tool to use Manzano interactively. To be published Jan/2017.
+
+### Falcon
+Application to read data from a falcon web service, extract contiguous packets of information and serialize/send packets to external servers.
 
 ----------------------------------------------------------------------------
 ### Author / Maintainer
