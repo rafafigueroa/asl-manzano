@@ -58,7 +58,7 @@
 ## Manzano Applications
 
 ### Green Manzano 
-Command line tool to use Manzano either interactively or with a script of instructions.
+Command line tool to use Manzano either interactively or with a script.
 
 ### Yellow Manzano 
 Interacts with an [E300](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf). Intended to run on a station's data_processor or another linux device connected serially with the E300, links the E300 with an udp server for remote interaction.
