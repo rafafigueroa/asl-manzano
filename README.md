@@ -66,6 +66,8 @@ Interacts with an [E300](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.p
 ### Red Manzano (under development)
 GUI (Qt) tool to use Manzano interactively. To be published Jan/2017.
 
+![Red Manzano beta](https://raw.githubusercontent.com/wiki/usgs/asl-manzano/red_mzn_beta.png)
+
 ### Falcon
 Application to read data from a falcon web service, extract contiguous packets of information and serialize/send packets to external servers.
 
