@@ -6,11 +6,11 @@
 #include <vector>
 #include <utility>
 
-#include "mzn_cmake_config.h"
 #include "commands.h"
 #include "seismic_network.h"
 #include "msg_task.h"
 #include "ui_to_cmd_type.h"
+#include "system_calls.h"
 
 namespace mzn {
 

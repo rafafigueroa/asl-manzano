@@ -22,8 +22,6 @@
 #include "md5.h" // jason holland's (usgs) md5 library
 #include "date.h" // hinnant's date library
 
-#include "mzn_cmake_config.h"
-
 namespace mzn {
 
 

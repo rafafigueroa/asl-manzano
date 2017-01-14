@@ -10,9 +10,8 @@
 #include <string>
 
 #include "mzn_except.h"
-#include "mzn_cmake_config.h"
-
 #include "instruction_interpreter.h"
+#include "system_calls.h"
 
 namespace mzn {
 
