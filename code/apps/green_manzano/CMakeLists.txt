@@ -11,23 +11,49 @@ configure_file("${DIR_green_manzano}/inc/green_manzano_cmake_config.h.in"
 
 message("\n###### green_manzano #######")
 
-add_executable(green_manzano ${SOURCES_green_manzano})
-install(TARGETS green_manzano DESTINATION /usr/local/bin/)
+# ---------------------------------------------------------------- #
+message("\n ***** executable: ***** ")
+message("path: " ${DIR_install_bin})
 
-# ---- TEST ----- #
+add_executable(green_manzano ${SOURCES_green_manzano})
+
+execute_process(COMMAND test -w ${DIR_install_bin}
+                RESULT_VARIABLE install_dir_no_permission)
+
+if (${install_dir_no_permission})
+
+message(" !! no permissions to install on " ${DIR_install_bin})
+message("    use sudo make install for binary on " ${DIR_install_bin})
+message("    use make install for binary here")
+
+else()
+    install(TARGETS green_manzano DESTINATION ${DIR_install_bin}/)
+endif()
+
+# ---------------------------------------------------------------- #
+message("\n ***** config files: ***** ")
+message("path: " ${DIR_install_config_files})
+
+install(FILES ${runtime_config_files}
+        DESTINATION ${DIR_install_config_files})
+
+# GOOGLE TEST
+# ---------------------------------------------------------------- #
 if(FALSE)
 
-include(${DIR_MZN}/test_config.cmake)
+    include(${DIR_MZN}/test_config.cmake)
 
-set(SOURCES_test_user_interpreter ${SOURCES_core}
-                                  ${DIR_green_manzano}/src/user_interpreter.cpp
-                                  ${DIR_green_manzano}/test/test_user_interpreter.cpp)
+    set(SOURCES_test_user_interpreter
+            ${SOURCES_core}
+            ${DIR_green_manzano}/src/user_interpreter.cpp
+            ${DIR_green_manzano}/test/test_user_interpreter.cpp)
 
-add_executable(test_user_interpreter EXCLUDE_FROM_ALL ${SOURCES_test_user_interpreter})
+add_executable(test_user_interpreter EXCLUDE_FROM_ALL
+               ${SOURCES_test_user_interpreter})
+
 target_link_libraries(test_user_interpreter ${GTEST_BOTH_LIBRARIES})
 
 endif()
-
 
 # to create a deb package:
 #set(CPACK_GENERATOR "DEB")

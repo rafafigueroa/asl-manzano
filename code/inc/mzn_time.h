@@ -6,7 +6,6 @@
 
 //! External library include
 #include "date.h"
-#include "mzn_time.h"
 
 namespace mzn {
 
@@ -138,6 +137,7 @@ uint32_t constexpr k_shift_seconds_1970_2000 =
 
 // as in january 1 is 1
 // ---------------------------------------------------------------------- //
+inline
 int julian_day(YearMonthDay const & ymd_data) {
 
     auto ymd_start = date::year{ ymd_data.year() }/1/1;
@@ -155,6 +155,7 @@ int julian_day(YearMonthDay const & ymd_data) {
 
 // as in january 1 is 1
 // ---------------------------------------------------------------------- //
+inline
 int julian_day(int const y, int const m, int const d) {
 
     return julian_day(date::year{y}/m/d);

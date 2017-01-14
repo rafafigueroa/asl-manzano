@@ -248,8 +248,8 @@ void UserInterpreter::run_user_input(std::string & user_input) {
 // -------------------------------------------------------------------------- //
 void UserInterpreter::user_input_loop(std::string const & qrun_fname) {
 
-    std::string const runtime_scripts_path{k_mzn_runtime_scripts_DIR};
-    std::string const qrun_path = runtime_scripts_path + "/" + qrun_fname;
+    auto const runtime_config_path = get_runtime_config_path();
+    std::string const qrun_path = runtime_config_path + "/" + qrun_fname;
 
     std::ifstream qrun_fs(qrun_path);
     //qrun_fs.open(qrun_path);

@@ -18,6 +18,7 @@ namespace mzn {
     Holds digitizers and data_processors
     @author rfigueroa@usgs.gov
  */
+// -------------------------------------------------------------------------- //
 class Station {
 private:
 

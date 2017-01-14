@@ -1,6 +1,7 @@
 // ** SeismicNetwork Object ** //
 // Manzano software
 #include "seismic_network.h"
+#include "system_calls.h"
 #include "json.h"
 
 namespace mzn {
@@ -168,7 +169,8 @@ DataProcessor dp_from_json(JsonRef const dp_json) {
 void SeismicNetwork::setup_from_config_file() {
 
 try {
-    std::string const runtime_config_path{k_mzn_runtime_config_DIR};
+
+    auto const runtime_config_path = get_runtime_config_path();
     std::string const file_path = runtime_config_path + "/config.json";
 
     auto sn_json = read_json(file_path);
@@ -240,15 +242,22 @@ try {
             st.back().dp.push_back( dp_from_json(dp_json) );
 
         } else {
-            std::cout << "\n\nNOTE: " << st_name << " lacks a data processor.";
+            // std::cout << "\n\nNOTE: " << st_name << " lacks a data processor.";
         }
     }
 
 } catch(std::out_of_range const & e) {
+
+    // thrown by json
+    throw WarningException( "SeismicNetwork", "setup_from_file", e.what() );
+
+} catch(std::runtime_error const & e) {
+
+    // thrown by get environmental variable
     throw WarningException( "SeismicNetwork", "setup_from_file", e.what() );
 }
 
-}
+} // <- end of function
 
 // ------------ Get const references to sn targets -------------- //
 // -------------------------------------------------------------------------- //

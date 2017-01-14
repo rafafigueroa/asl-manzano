@@ -40,6 +40,9 @@ include_directories(${DIR_MZN}/libs/json)
 # ----- SERIAL WJWWOOD C++ LIBRARY ----- #
 # on separate file (serial_config.cmake) builds static library
 
+# ----- GLOBAL FUNCTIONS ----- #
+include_directories(${DIR_MZN}/inc)
+
 # ----- MANZANO EXCEPTIONS ----- #
 include_directories(${DIR_MZN}/exceptions/inc)
 include(${DIR_MZN}/exceptions/exceptions.cmake)
@@ -56,3 +59,16 @@ set(k_mzn_runtime_scripts_DIR "${DIR_MZN}/../runtime_scripts")
 
 configure_file("${DIR_MZN}/mzn_cmake_config.h.in"
                "${DIR_MZN}/mzn_cmake_config.h")
+
+# ----- INSTALLATION CONFIGURATION ----- #
+
+# These are the default locations of the static library and the
+# include files. This will require admin permissions (sudo make install)
+set(DIR_install_lib /usr/local/lib)
+set(DIR_install_bin /usr/local/bin)
+set(DIR_install_headers /usr/local/include/manzano)
+set(DIR_install_config_files $ENV{HOME}/.config/manzano)
+
+set(runtime_config_files ${k_mzn_runtime_config_DIR}/test.qrun
+                         ${k_mzn_runtime_config_DIR}/cal_sequences.json
+                         ${k_mzn_runtime_config_DIR}/example_config.json)
