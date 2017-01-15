@@ -80,9 +80,9 @@ get_default_cmd<Action::start, Kind::cal>(std::string const & option,
 
         cmd.waveform.waveform(BmCalWaveform::Waveform::sine);
         cmd.amplitude(-30);
-        cmd.settling_time( Seconds(0) );
+        cmd.settling_time( Minutes(2) );
         cmd.cal_duration( Minutes(2) );
-        cmd.trailer_time( Seconds(0) );
+        cmd.trailer_time( Minutes(1) );
 
     } else if (option == "longstep") {
 

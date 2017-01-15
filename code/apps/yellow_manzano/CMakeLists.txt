@@ -12,7 +12,7 @@ configure_file("${DIR_yellow_manzano}/inc/yellow_manzano_cmake_config.h.in"
 message("\n###### yellow_manzano #######")
 
 add_executable(yellow_manzano ${SOURCES_yellow_manzano})
-install(TARGETS yellow_manzano DESTINATION /usr/bin/)
+install(TARGETS yellow_manzano DESTINATION /usr/local/bin/)
 
 ## serial is built as a library in serial_config.cmake
 add_dependencies(yellow_manzano serial_library)

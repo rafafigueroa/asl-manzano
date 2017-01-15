@@ -6,7 +6,8 @@
     {"amplitude": -6, "settling_time": {"h":0,"m":5}, "cal_duration": {"h":0,"m":10}, "trailer_time": {"h":0,"m":5}, "wave_form": "sine", "frequency": 0.1},
     {"amplitude": -6, "settling_time": {"h":0,"m":5}, "cal_duration": {"h":0,"m":10}, "trailer_time": {"h":0,"m":5}, "wave_form": "sine", "frequency": 1.0},
     {"amplitude": -30, "settling_time": {"h":0,"m":15}, "cal_duration": {"h":0,"m":15}, "trailer_time": {"h":0,"m":15}, "wave_form": "step"},
-    {"amplitude": -24, "settling_time": {"h":0,"m":10}, "cal_duration": {"h":8,"m":0}, "trailer_time": {"h":0,"m":10}, "wave_form": "random", "frequency": 1.25}
+    {"amplitude": -24, "settling_time": {"h":0,"m":10}, "cal_duration": {"h":4,"m":0}, "trailer_time": {"h":0,"m":0}, "wave_form": "random", "frequency": 1.25},
+    {"amplitude": -24, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":4,"m":0}, "trailer_time": {"h":0,"m":10}, "wave_form": "random", "frequency": 1.25}
   ]
 },
 
@@ -73,6 +74,16 @@
     {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":0}, "wave_form": "sine", "frequency": 1.0}
   ]
 },
+
+"TOGETHER_TEST": {
+  "cals": [
+    {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":0}, "wave_form": "step"},
+    {"amplitude": -36, "settling_time": {"h":0,"m":1}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":0}, "wave_form": "sine", "frequency": 1.0},
+    {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":1}, "wave_form": "sine", "frequency": 1.0},
+    {"amplitude": -36, "settling_time": {"h":0,"m":0}, "cal_duration": {"h":0,"m":1}, "trailer_time": {"h":0,"m":0}, "wave_form": "step"}
+  ]
+},
+
 
 
 "STS_2.5_SG": {

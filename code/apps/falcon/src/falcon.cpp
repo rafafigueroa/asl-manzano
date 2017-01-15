@@ -1,6 +1,7 @@
 #include "csv_file.h"
 #include "falcon_data_packet.h"
 #include "tcp_connection.h"
+#include "udp_connection.h"
 
 // -------------------------------------------------------------------------- //
 int main(int argc, char **argv) {
@@ -19,6 +20,8 @@ int main(int argc, char **argv) {
         using M = std::vector<uint8_t>;
         std::vector<M> msgs;
 
+        auto seq = 800;
+
         // ------------------------------------------------------------------ //
         for (int i = 1; i < args.size(); i++) {
 
@@ -33,51 +36,37 @@ int main(int argc, char **argv) {
 
             for (auto const & fdp : falcon_data_packets) {
                 std::cout << "\n" << fdp;
-                auto const raw_input = fdp.to_raw_input_format();
+                auto const raw_input = fdp.to_raw_input_format(seq);
                 msgs.push_back(raw_input);
             }
         }
 
         std::cout << std::endl << "\n";
 
-        // Connect to server and send the information
+        // Connect to the server
+        // ------------------------------------------------------------------ //
         std::string const ip_remote = "136.177.121.21";
-        auto constexpr port_remote = 7891;
-        auto constexpr timeout_duration = std::chrono::seconds(2);
+        auto constexpr port_remote = 7981; //0x2D1F 7981
+        auto constexpr timeout_duration = std::chrono::seconds(5);
 
-        auto constexpr port_host = 4991;
-        mzn::TcpConnection cwb_connection(port_host );
+        auto constexpr port_host = 4998;
+
+        mzn::TcpConnection cwb_connection(port_host);
+
         cwb_connection.setup_socket(timeout_duration,
                                     ip_remote,
                                     port_remote);
 
-        M msg_recv(100);
-        M const msg_send = msgs[0];
-        cwb_connection.send_recv(msg_send, msg_recv);
+        // send each one of them
+        // ------------------------------------------------------------------ //
+        for (auto const & msg : msgs) {
 
-        // print results
-        std::cout << std::endl << "\nreceived:\n";
-        for (auto const & b : msg_recv) {
-            std::cout << "\n\'" << b << "\' " << static_cast<int>(b);
+            cwb_connection.send(msg);
+
+            std::cout << std::endl
+                << "\n**************************************"
+                << "****************************";
         }
-        std::cout << std::endl;
-
-        /* FIRST time, received this:
-
-            49 57 58 48 57 58 51 49 32 50 48 49 55 47 48 49 47 48 52 32 69 100
-            103 101 77 111 109 58 32 112 114 111 99 101 115 115 32 102 105 108
-            101 61 69 68 71 69 77 79 77 47 101 100 103 101 109 111 109 95 50 35
-            49 46 115 101 116 117 112 32 35 84 104 114 101 97 100 115 61 49 52
-            32 35 116 104 114 61 50 56 57 10 68 77 67 76 111 97 100 58 103 111 118
-
-            //ascii with new lines added:
-
-            19:09:312017/01/04
-            EdgeMom: processfile= EDGEMOM/edgemom_2 #1.setup
-                                                    #Threads=14
-                                                    #thr=289
-            DMCLoad:gov
-        */
 
     } catch (std::exception const & e) {
 

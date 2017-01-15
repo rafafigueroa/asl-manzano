@@ -34,26 +34,14 @@ public:
             ConnectionHandler(ip_remote,
                               port_remote,
                               auth_code,
-                              port_host) {}
+                              port_host),
+
+            cancel_keep_alive_(false) {}
 
     ~ConnectionHandlerE300() {
 
         try {
-
-            if ( keep_alive_ftr.valid() ) {
-
-                auto future_wait_result =
-                    keep_alive_ftr.wait_for( std::chrono::seconds(0) );
-
-                if (future_wait_result == std::future_status::timeout) {
-                    keep_alive_ftr.wait();
-
-                } else if (future_wait_result == std::future_status::ready) {
-                    std::cout << std::endl
-                              << "waited for: " << keep_alive_ftr.get();
-                }
-            }
-
+            wait_keep_alive();
         } catch(std::exception const & e) {
             std::cerr << e.what();
         }
@@ -80,8 +68,18 @@ public:
 
     std::future<Seconds> keep_alive_ftr;
 
+    //! the delay allow for returning (cancelling) before first sleep period
     void keep_alive(Seconds const keep_alive_duration,
                     Seconds const keep_alive_delay = Seconds(0) );
+
+    //! waits for future to end (if valid)
+    void wait_keep_alive();
+
+    //! checked on keep alive before every sleep period
+    std::atomic<bool> cancel_keep_alive_;
+
+    //! sets cancel flag and waits
+    void cancel_keep_alive();
 
     //! called as an async thread from keep_alive
     std::chrono::seconds

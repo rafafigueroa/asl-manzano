@@ -17,7 +17,7 @@ struct FalconDataPacket {
     mzn::CmdFieldContainer<int32_t> data;
 
     // to the raw input format
-    std::vector<uint8_t> to_raw_input_format() const;
+    std::vector<uint8_t> to_raw_input_format(int & sequence_number) const;
 };
 
 // -------------------------------------------------------------------------- //

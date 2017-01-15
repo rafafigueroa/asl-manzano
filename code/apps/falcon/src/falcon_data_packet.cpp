@@ -2,7 +2,9 @@
 #include "f1_raw_input.h"
 
 // -------------------------------------------------------------------------- //
-std::vector<uint8_t> FalconDataPacket::to_raw_input_format() const {
+std::vector<uint8_t>
+FalconDataPacket::to_raw_input_format(int & sequence_number) const {
+
     /*
         F1RawInput has the same format of the CWB RawInputServer
         without the data part. F for Falcon.
@@ -43,7 +45,7 @@ std::vector<uint8_t> FalconDataPacket::to_raw_input_format() const {
 
     // 4 string*12 seedname : NNSSSSSCCCLL seed channel name
     std::array<char, 12> constexpr seed_name
-        { {'N','N','s','s','s','s','s','C','C','C','L','L' } };
+        { {'X','X','D','E','V',' ',' ','U','K','I',' ',' ' } };
 
     fri.seed_name(seed_name);
 
@@ -81,7 +83,7 @@ std::vector<uint8_t> FalconDataPacket::to_raw_input_format() const {
     fri.sec( mtp.seconds_since_midnight() );
     // 32 int usec : Of the second
     fri.usec( std::chrono::microseconds(0) );
-    fri.sequence_number(0);
+    fri.sequence_number(sequence_number++);
 
     // done with filling the command, time to serialize
     // --------------------------------------------------------------------- //

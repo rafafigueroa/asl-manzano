@@ -16,7 +16,7 @@ std::string ConnectionHandlerE300::send_recv(std::string const msg_send) {
 
 // -------------------------------------------------------------------------- //
 void ConnectionHandlerE300::check(std::string const & msg,
-                     std::string const expected) const {
+                                  std::string const expected) const {
 
     if (msg.find(expected) == std::string::npos) {
         throw WarningException("ConnectionHandlerE300",
@@ -115,34 +115,67 @@ ConnectionHandlerE300::cmd_status_for(
         std::chrono::seconds const keep_alive_duration,
         std::chrono::seconds const keep_alive_delay) {
 
-    // delay this process
+    // delay this process, keep_alive_delay defaults to zero
     std::this_thread::sleep_for(keep_alive_delay);
-
     // now really lets keep this thing alive
     auto constexpr alive_wait = std::chrono::seconds( std::chrono::minutes(45) );
+    // how many times should this thread sleep t he alive_wait duration
     int const delay_times = keep_alive_duration.count()/alive_wait.count() + 1;
 
-    std::cout << "\ndelay times: " << delay_times << "\n";
-
     for (int i = 0; i < delay_times; i++) {
+
+        // check before sleep, exit if cancel flag is set
+        if (cancel_keep_alive_) return keep_alive_delay;
+
+        // all smooth, time to sleep
         std::this_thread::sleep_for(alive_wait);
         std::cout << std::endl << "keeping e300 alive\n";
         auto msg_recv = send_recv("status");
     }
 
     auto const alive_duration = keep_alive_duration * delay_times;
+
     return alive_duration;
 }
 
 // -------------------------------------------------------------------------- //
-void ConnectionHandlerE300::keep_alive(std::chrono::seconds const keep_alive_duration,
-                          std::chrono::seconds const keep_alive_delay) {
+void
+ConnectionHandlerE300::keep_alive(std::chrono::seconds const keep_alive_duration,
+                                  std::chrono::seconds const keep_alive_delay) {
 
+    // false by contruction, true if exception on previous calibration attempt
+    cancel_keep_alive_ = false;
+
+    // send to another thread
     keep_alive_ftr = std::async(std::launch::async,
                                 &ConnectionHandlerE300::cmd_status_for,
                                 this,
                                 keep_alive_duration,
                                 keep_alive_delay);
+}
+
+// -------------------------------------------------------------------------- //
+void ConnectionHandlerE300::wait_keep_alive() {
+
+    if ( keep_alive_ftr.valid() ) {
+
+        auto future_wait_result =
+            keep_alive_ftr.wait_for( std::chrono::seconds(0) );
+
+        if (future_wait_result != std::future_status::ready) {
+
+            keep_alive_ftr.wait();
+        }
+
+        std::cout << std::endl << "ConnectionHandlerE300 waited for: "
+                  << keep_alive_ftr.get() << std::endl;
+    }
+}
+
+// -------------------------------------------------------------------------- //
+void ConnectionHandlerE300::cancel_keep_alive() {
+    cancel_keep_alive_ = true;
+    wait_keep_alive();
 }
 
 } // << mzn

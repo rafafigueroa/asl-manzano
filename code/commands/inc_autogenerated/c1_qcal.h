@@ -25,7 +25,7 @@ public:
     C1Qcal & operator=(C1Qcal const & rhs) = default;
     std::string const cmd_name = "c1_qcal";
 
-    CmdField<uint32_t> starting_time;
+    CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000> starting_time;
     BmCalWaveform waveform;
     CmdFieldCalAmplitude amplitude;
     CmdFieldDuration<uint16_t> cal_duration;

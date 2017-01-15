@@ -62,6 +62,7 @@ Action UserInterpreter::match_action(std::string const & token) {
     if (token == "get")     return Action::get;
     if (token == "set")     return Action::set;
     if (token == "plan")    return Action::plan;
+    if (token == "auto")    return Action::auto_;
     if (token == "stop")    return Action::stop;
     if (token == "start")   return Action::start;
 
@@ -69,7 +70,7 @@ Action UserInterpreter::match_action(std::string const & token) {
     std::stringstream error_msg;
     error_msg << "mismatch in action token \'" << token << "\' \n"
               << "\nactions: "
-              << "\nshow edit get set plan stop start";
+              << "\nshow edit get set plan auto stop start";
 
     throw WarningException("UserInterpreter",
                             "match_action",
@@ -247,8 +248,8 @@ void UserInterpreter::run_user_input(std::string & user_input) {
 // -------------------------------------------------------------------------- //
 void UserInterpreter::user_input_loop(std::string const & qrun_fname) {
 
-    std::string const runtime_scripts_path{k_mzn_runtime_scripts_DIR};
-    std::string const qrun_path = runtime_scripts_path + "/" + qrun_fname;
+    auto const runtime_config_path = get_runtime_config_path();
+    std::string const qrun_path = runtime_config_path + "/" + qrun_fname;
 
     std::ifstream qrun_fs(qrun_path);
     //qrun_fs.open(qrun_path);

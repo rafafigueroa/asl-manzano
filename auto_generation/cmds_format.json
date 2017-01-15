@@ -995,7 +995,8 @@
   "c1_qcal":{
     "cmd_fields":[
 
-      {"cf_name": "starting_time", "cf_size": 4, "cf_type": "CmdField<uint32_t>"},
+      {"cf_name": "starting_time", "cf_size": 4,
+          "cf_type": "CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000>"},
       {"cf_name": "waveform", "cf_size": 2, "cf_type": "BmCalWaveform"},
       {"cf_name": "amplitude", "cf_size": 2, "cf_type": "CmdFieldCalAmplitude"},
       {"cf_name": "cal_duration", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t>"},

@@ -179,8 +179,7 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
         C1Srvch cmd_srvch;
 
         // dance
-        std::cout << "Dance: attempt digitizer registration" << std::endl;
-        md.send_recv(q.port_config, cmd_rqsrv, cmd_srvch, true);
+        md.send_recv(q.port_config, cmd_rqsrv, cmd_srvch, false);
 
         // DP Response to Q challenge
         C1Srvrsp cmd_srvrsp;
@@ -219,7 +218,8 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
         // Q ack/cerr of DP Response
         C1Cack cmd_cack;
 
-        md.send_recv(q.port_config, cmd_srvrsp, cmd_cack);
+        md.send_recv(q.port_config, cmd_srvrsp, cmd_cack, false);
+
         std::cout << std::endl << "\n** Digitizer REGISTERED! ** " << std::endl;
 
         // setup status
@@ -234,8 +234,9 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
             std::make_unique<C1Cack>( std::move(cmd_cack) );
 
 
-    } catch(Exception const & e) {
+    } catch (Exception const & e) {
 
+        std::cerr << std::endl << "caught @Comm::run<set, reg>";
         q.port_config.registered = false;
 
         // error will trigger if a cerr is sent by the digitizer
@@ -260,7 +261,8 @@ void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
     // Q ack/cerr of DP Response
     C1Cack cmd_cack;
 
-    md.send_recv(q.port_config, cmd_dsrv, cmd_cack);
+    md.send_recv(q.port_config, cmd_dsrv, cmd_cack, false);
+
     std::cout << "\n\n ** deregistered from digitizer ** \n";
 
     // setup status
@@ -277,34 +279,93 @@ void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
+                                         TargetAddress const & ta) {
 
-    // use msg task mechanism for the plan
-    auto msg_tasks =
-        cmd_file_reader_.construct_msg_tasks<Action::start, Kind::cal>(ui, ta);
-
-    std::cout << std::endl << "full cal plan for " << ta << ":\n";
-
-    for (auto const & msg_task : msg_tasks) {
-        std::cout << std::endl << msg_task;
-    }
-
-    // e300 keep alive setup
+    auto & q = sn.q_ref(ta);
     auto & s = sn.s_ref(ta);
 
-    if (s.config.has_e300) {
+    // log this
+    // ---------------------------------------------------------------------- //
+    /*
+    std::ofstream out;
+    out.open("out.txt", std::ofstream::out | std::ofstream::trunc);
+    //save old buffer
+    std::streambuf * cout_buffer = std::cout.rdbuf();
+    //redirect std::cout to out.txt
+    std::cout.rdbuf( out.rdbuf() );
+    */
 
-        using Seconds = Time::Seconds<>;
-        using Hours = Time::Hours<>;
+    // use msg task mechanism for the plan
+    // ---------------------------------------------------------------------- //
+    // with start cal as individual action for when printing individual msg_task
+    // since auto cal is a series of start cal
+    auto const start_cal_ui = UserInstruction(Action::start, Kind::cal);
+    auto msg_tasks =
+        cmd_file_reader_.construct_msg_tasks<Action::start, Kind::cal>(
+            start_cal_ui,
+            ta);
+
+    // the cal times depend on the digitizer time (seconds since epoch)
+    // ---------------------------------------------------------------------- //
+
+    C1Rqstat cmd_rqstat; // Request Status
+    cmd_rqstat.request_bitmap.global_status(true);
+    // setup response
+    C1Stat cmd_stat; // Status
+
+    Comm::run<Action::set, Kind::reg>(ui, ta);
+    md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+    Comm::run<Action::set, Kind::dereg>(ui, ta);
+
+    CxGlobalStatus * gs =
+        dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+    if (gs == nullptr) throw FatalException("Comm", "autocal", "gs nullptr");
+
+    // Q330 manual: "Seconds offset ... when added to a data sequence number
+    // is seconds since January 1 2000"
+    auto const q_data_seq_number = gs -> data_sequence_number.data();
+    auto const q_seconds_offset = gs -> seconds_offset.data();
+    auto const q_sec_since_epoch = q_data_seq_number + q_seconds_offset;
+
+    CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000> q_now_time;
+    q_now_time.data(q_sec_since_epoch);
+
+    std::cout << std::endl << "q_now_seq_num: " << q_sec_since_epoch;
+    std::cout << std::endl << "q_now_time: " << q_now_time;
+    std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
+
+    for (auto & msg_task : msg_tasks) {
+        auto * cal = dynamic_cast<C1Qcal *>( msg_task.cmd_send.get() );
+        if (cal == nullptr) throw FatalException("Comm",
+                                                 "autocal",
+                                                 "cal nullptr");
+
+        // settling_time is a duration, named following manual
+        cal->starting_time( msg_task.exec_time() + cal->settling_time() );
+    }
+
+    // stream full sequence
+    // ---------------------------------------------------------------------- //
+    std::cout << std::endl << "auto cal sequence for " << ta << ":\n";
+    for (auto const & msg_task : msg_tasks) msg_task.stream<C1Qcal>(std::cout);
+
+    // e300 keep alive setup
+    // ---------------------------------------------------------------------- //
+
+    if (s.config.has_e300) {
 
         // plan cal might have been called before digitizer registration
         // where the e300 registration is done. This makes sure the e300
         // gets registered before proceeding. Also this is not caught here,
         // so if e300 registration fails, calibration fails, as it should.
+
         s.port_e300().reg();
 
         // connect external calibration signal from e300
+
         s.port_e300().cal_connect();
 
         // if the calibration plan takes more than an hour, the e300
@@ -314,7 +375,7 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         bool need_to_be_kept_alive = false;
 
         for (auto const & msg_task : msg_tasks) {
-            if ( msg_task.run_duration() >= Hours(1) ) {
+            if ( msg_task.run_duration() >= std::chrono::hours(1) ) {
                 need_to_be_kept_alive = true;
                 break;
             }
@@ -324,91 +385,103 @@ void Comm::run<Action::plan, Kind::cal>(UserInstruction const & ui,
         // TODO: use a vector of futures on keep_alive, to have different
         // keep alive periods if needed
         // right now it could do one long calibration like that
+        // keeps alive on a separate thread
         if (need_to_be_kept_alive) {
 
-            Seconds total_plan_run_duration;
+            auto total_plan_run_duration = std::chrono::seconds(0);
+
             for (auto const & msg_task : msg_tasks) {
                 total_plan_run_duration += msg_task.run_duration();
             }
-            s.port_e300().keep_alive(total_plan_run_duration);
+
+            // give some time for registration and task creation
+            auto constexpr keep_alive_delay = std::chrono::seconds(10);
+
+            // sets cancel_keep_alive to false
+            // but it can be set to true during the keep_alive_delay
+            s.port_e300().keep_alive(total_plan_run_duration,
+                                     keep_alive_delay);
         }
     }
 
-    // msg_task_manager_.add( std::move(msg_tasks) );
 
-    auto & q = sn.q_ref(ta);
+    // ---------------------------------------------------------------------- //
+    try {
 
-    std::chrono::seconds const wiggle_seconds(30);
+        // can't use delay since delay is meant for independently sent cals
+        for (auto & msg_task : msg_tasks) {
 
-    // can't use delay since delay is meant for independently sent cals
-    for (auto & msg_task : msg_tasks) {
+            std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
 
-        std::cout << "\nat: " << Time::sys_time_of_day() << " UTC \n";
-        std::cout << "\nnext cal msg task:\n" << msg_task << std::endl;
+            Comm::run<Action::set, Kind::reg>(ui, ta);
 
-        std::cout << std::endl << "\nregister before each cal\n";
-        Comm::run<Action::set, Kind::reg>(ui, ta);
+            msg_task.exec_time( std::chrono::system_clock::now() );
+            msg_task.end_time( msg_task.exec_time() + msg_task.run_duration() );
 
-        std::cout << std::endl << "\nsending cal message\n";
-        md.send_recv( q.port_config,
-                      *(msg_task.cmd_send.get()),
-                      *(msg_task.cmd_recv.get()) );
+            std::cout << "\nnext cal:\n";
+            msg_task.stream<C1Qcal>(std::cout);
 
-        // no throw so far, received c1_cack
-        msg_task.done = true;
+            md.send_recv( q.port_config,
+                          *(msg_task.cmd_send.get()),
+                          *(msg_task.cmd_recv.get()) );
 
-        std::cout << std::endl << "\nde-register after each cal\n";
+            // no throw so far, received c1_cack
+            msg_task.done = true;
+
+            Comm::run<Action::set, Kind::dereg>(ui, ta);
+
+            // add some wiggle time in between
+            auto constexpr wiggle_duration = std::chrono::seconds(20);
+            // sleep on this thread, each msg task has the run_duration
+            // already calculated.
+            auto const sleep_duration = msg_task.run_duration() +
+                                        wiggle_duration;
+
+            CmdFieldTime<> sleep_until_time;
+            sleep_until_time(std::chrono::system_clock::now() + sleep_duration);
+
+            std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
+
+            std::cout << std::endl << "sleep for: " << sleep_duration
+                      << " until: " << sleep_until_time << std::endl;
+
+            std::this_thread::sleep_for(sleep_duration);
+        }
+
+        std::cout << std::endl << " ### now: "
+                  << Time::sys_time_of_day() << " ###\n";
+
+        std::cout << std::endl << "\nautocal success\n";
+
+        // print out what was done
+        for (auto & msg_task : msg_tasks) {
+            std::cout << std::endl;
+            msg_task.stream<C1Qcal>(std::cout);
+        }
+
+        // all done successfully, get the future from keep alive
+        if (s.config.has_e300) s.port_e300().wait_keep_alive();
+
+    } catch (Exception const & e) {
+
+        //std::cout.rdbuf(cout_buffer);
+
+        // cancel keep alive thread and rethrow exception
+        std::cerr << std::endl << "caught @Comm::run<plan, cal>";
+        std::cerr << std::endl << "cancelling plan cal"
+                  << "\n deregistering: \n";
         Comm::run<Action::set, Kind::dereg>(ui, ta);
-
-        // sleep on this thread, each msg task has the run_duration
-        // already calculated.
-        auto const sleep_time = msg_task.run_duration() + wiggle_seconds;
-        std::cout << "\nsleep for: " << sleep_time;
-
-        std::this_thread::sleep_for(sleep_time);
+        std::cerr << "\n cancelling keep alive for e300: \n";
+        // ok to set even if keep_alive(...)  was not called here
+        if (s.config.has_e300) s.port_e300().cancel_keep_alive();
+        std::cerr << std::endl << "rethrow";
+        throw e;
     }
 
-    std::cout << std::endl << "\nautocal success\n";
-
-    // print out what was done
-    for (auto & msg_task : msg_tasks) {
-
-        std::cout << "\n-----------------------------------------------------"
-                  << "-------------"
-                  << std::endl << msg_task;
-
-        auto const & cal =
-            dynamic_cast<C1Qcal const &>( *(msg_task.cmd_send.get()) );
-
-        std::cout << "\ncal_duration: " << cal.cal_duration;
-        std::cout << " amp: " << cal.amplitude;
-        std::cout << cal.waveform.waveform();
-
-
-        // to show the actual frequency, calculate from internal representation
-        // cmd_file_reader does the reverse operation when the cal comes from
-        // a json, q330 manual comments are repeated here:
-
-        /* from the manual
-        The Frequency Divider is used to reduce the frequency
-        of a sine or noise waveform.
-        A value of 1 generates a 1Hz sine or update a noise waveform at 125Hz.
-        A value of 20 generates a 0.05Hz sine or
-        update a noise waveform at 6.25Hz.
-        Max. value is 255.
-        */
-
-        // in the case of pulse calibration, infinite value is ok
-        double frequency;
-        if (cal.waveform.waveform() == BmCalWaveform::Waveform::sine) {
-            frequency = 1.0 / static_cast<double>( cal.frequency_divider() );
-        } else {
-            frequency = 125.0 / static_cast<double>( cal.frequency_divider() );
-        }
-        std::cout << " f: " << frequency;
-    }
+    //std::cout.rdbuf(cout_buffer);
 }
-
 
 // -------------------------------------------------------------------------- //
 template<>

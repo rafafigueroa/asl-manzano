@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "station.h"
-#include "mzn_cmake_config.h"
 #include "target_address.h"
 #include "mzn_except.h"
 

@@ -72,6 +72,7 @@ public:
 
 private:
 
+
     //! modified inside a lock guard in remote_port
     bool connected_{false};
 
@@ -82,6 +83,10 @@ private:
     std::mutex uc_mutex_;
 
 public:
+
+    //! connection timeout
+    static
+    std::chrono::seconds constexpr timeout_duration = std::chrono::seconds(2);
 
     int sequence_number() const {return sequence_number_; }
     int acknowledge_number() const {return acknowledge_number_;}
