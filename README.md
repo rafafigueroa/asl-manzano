@@ -64,9 +64,9 @@ Command line tool to use Manzano either interactively or with a script.
 Interacts with an [E300](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf). Intended to run on a station's data_processor or another linux device connected serially with the E300, links the E300 with an udp server for remote interaction.
 
 ### Red Manzano (under development)
-GUI (Qt) tool to use Manzano interactively. To be published Jan/2017.
+GUI (Qt) tool to use Manzano interactively.
 
-![Red Manzano beta](https://raw.githubusercontent.com/wiki/usgs/asl-manzano/red_mzn_beta.png)
+![Red Manzano beta](https://raw.githubusercontent.com/wiki/usgs/asl-manzano/red_mzn_close.png)
 
 ### Falcon
 Application to read data from a falcon web service, extract contiguous packets of information and serialize/send packets to external servers.
