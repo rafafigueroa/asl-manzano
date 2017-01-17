@@ -43,7 +43,7 @@
  ├── global
  ├── ping
  ├── dev
- └── stat [:] [:boom] [:gps] [:gpssat] [:power] [:dataport] [:pll]
+ └── stat [] [:boom] [:gps] [:gpssat] [:power] [:dataport] [:pll]
 
  set
  ├── ctrl [:save] [:reboot] [:resync] [:gps_on] [:gps_off] [:gps_cold_start]
