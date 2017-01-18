@@ -1,7 +1,8 @@
 **Manzano**
 =======================
-----------------------------------------------------------------------------
-* The [Manzano Wiki](https://github.com/usgs/asl-manzano/wiki) includes installation, usage and developer details.
+
+
+* The [**Manzano Wiki**](https://github.com/usgs/asl-manzano/wiki) includes installation, usage and developer details.
 * The MAN page (green_manzano.1) includes basic green manzano usage.
 * The doxyfile (Doxyfile) can be used to generate code automatic documentation.
 
