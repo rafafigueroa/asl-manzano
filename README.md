@@ -1,16 +1,15 @@
 **Manzano**
 =======================
+----------------------------------------------------------------------------
+* The [Manzano Wiki](https://github.com/usgs/asl-manzano/wiki) includes installation, usage and developer details.
+* The MAN page (green_manzano.1) includes basic green manzano usage.
+* The doxyfile (Doxyfile) can be used to generate code automatic documentation.
 
 ### Manzano is a library to communicate with hardware used in seismological stations. Currently:
 
  + [Q330 Digitizer](http://www.kinemetrics.com/uploads/PDFs/q330.pdf)
  + [E300 STS1 sensor electronics](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf)
  + [Falcon facilities monitoring system](http://rletech.com/our-products/facility-monitoring-systems/server-room-facility-monitoring/fms/)
-
-----------------------------------------------------------------------------
-* The [Manzano Wiki](https://github.com/usgs/asl-manzano/wiki) includes installation, usage and developer details.
-* The MAN page (green_manzano.1) includes basic green manzano usage.
-* The doxyfile (Doxyfile) can be used to generate code automatic documentation.
 
 ----------------------------------------------------------------------------
 ### Key components:
