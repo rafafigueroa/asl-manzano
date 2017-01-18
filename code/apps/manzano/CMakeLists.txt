@@ -12,6 +12,16 @@ configure_file("${DIR_manzano}/inc/manzano_cmake_config.h.in"
 message("\n###### manzano #######")
 
 # ---------------------------------------------------------------- #
+message("\n ***** config files: ***** ")
+message("path: " ${DIR_install_config_files})
+
+file(MAKE_DIRECTORY ${DIR_install_config_files}
+     USE_SOURCE_PERMISSIONS)
+
+install(FILES ${runtime_config_files}
+        DESTINATION ${DIR_install_config_files})
+
+# ---------------------------------------------------------------- #
 message("\n ***** library: ***** ")
 message("path: " ${DIR_install_lib})
 
@@ -37,13 +47,6 @@ foreach(dir ${manzano_include_dirs})
             DESTINATION ${DIR_install_lib})
 
 endforeach()
-
-# ---------------------------------------------------------------- #
-message("\n ***** config files: ***** ")
-message("path: " ${DIR_install_config_files})
-
-install(FILES ${runtime_files}
-        DESTINATION ${DIR_install_config_files})
 
 message("\n ******************************** ")
 # ---------------------------------------------------------------- #

@@ -15,6 +15,14 @@ message("\n###### green_manzano #######")
 message("\n ***** config files: ***** ")
 message("path: " ${DIR_install_config_files})
 
+file(MAKE_DIRECTORY ${DIR_install_config_files}
+     USE_SOURCE_PERMISSIONS)
+
+# this works at install time but still with root permissions
+# with sudo make install
+# install(DIRECTORY
+#        DESTINATION ${DIR_install_config_files} USE_SOURCE_PERMISSIONS)
+
 install(FILES ${runtime_config_files}
         DESTINATION ${DIR_install_config_files})
 
@@ -28,7 +36,8 @@ add_executable(green_manzano ${SOURCES_green_manzano})
 #                RESULT_VARIABLE install_dir_no_permission)
 #if (${install_dir_no_permission})
 
-install(TARGETS green_manzano DESTINATION ${DIR_install_bin}/)
+install(TARGETS green_manzano
+        DESTINATION ${DIR_install_bin}/)
 
 # GOOGLE TEST
 # ---------------------------------------------------------------- #

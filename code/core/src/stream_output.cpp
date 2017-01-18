@@ -215,7 +215,7 @@ void StreamOutput::show<Kind::command>(TargetAddress const & ta) const {
 
                 // this command can be ran without setting an option
                 if ( InstructionMap::has_empty_option(action, kinds[i]) ) {
-                    os << " [:]";
+                    os << " []";
                 }
 
                 for (int j = 0; j < m; j++) {

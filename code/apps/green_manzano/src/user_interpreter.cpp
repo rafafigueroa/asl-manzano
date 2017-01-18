@@ -248,6 +248,7 @@ void UserInterpreter::run_user_input(std::string & user_input) {
 // -------------------------------------------------------------------------- //
 void UserInterpreter::user_input_loop(std::string const & qrun_fname) {
 
+
     auto const runtime_config_path = get_runtime_config_path();
     std::string const qrun_path = runtime_config_path + "/" + qrun_fname;
 
