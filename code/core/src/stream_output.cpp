@@ -154,7 +154,7 @@ void StreamOutput::show<Kind::config>(TargetAddress const & ta) const {
 
     os << "\nConfig:\n";
     switch (scope) {
-        case Scope::seismic_network: os << sn_.config;            break;
+        case Scope::seismic_network: os << sn_.config;                  break;
         case Scope::station:         os << sn_.st_const_ref(ta).config; break;
         case Scope::digitizer:       os << sn_.q_const_ref(ta).config;  break;
         case Scope::data_processor:  os << sn_.dp_const_ref(ta).config; break;
@@ -172,7 +172,7 @@ void StreamOutput::show<Kind::status>(TargetAddress const & ta) const {
 
     os << "\nStatus:\n";
     switch (scope) {
-        case Scope::seismic_network: os << sn_.status;            break;
+        case Scope::seismic_network: os << sn_.status;                  break;
         case Scope::station:         os << sn_.st_const_ref(ta).status; break;
         case Scope::digitizer:       os << sn_.q_const_ref(ta).status;  break;
         case Scope::data_processor:  os << sn_.dp_const_ref(ta).status; break;

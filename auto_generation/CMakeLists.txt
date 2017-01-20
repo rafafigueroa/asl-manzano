@@ -25,7 +25,7 @@ add_executable(create_tcrc ${SOURCES_AG_TCRC})
 set(SOURCES_AG_CALS ${DIR_AG}/src/main_create_cals.cpp)
 add_executable(create_cals ${SOURCES_AG_CALS})
 
-set_target_properties(create_cmds create_bms create_tcrc create_cals create_testing_bms
-                      PROPERTIES
-                      RUNTIME_OUTPUT_DIRECTORY ${DIR_AG}/bin)
+# set_target_properties(create_cmds create_bms create_tcrc create_cals create_testing_bms
+#                      PROPERTIES
+#                      RUNTIME_OUTPUT_DIRECTORY ${DIR_AG}/bin)
 

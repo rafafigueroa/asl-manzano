@@ -199,7 +199,7 @@ InstructionMap::filter_options(Action const action,
 
             switch (kind) {
                 case Kind::stat: return VS{"boom", "gps", "gpssat", "power",
-                                           "dataport", "pll"};
+                                           "dataport", "pll", "thread"};
                 default: return VS{};
             }
         }
@@ -266,7 +266,7 @@ using IM = InstructionMap;
 // -------------------------------------------------------------------------- //
 IM::KindOptionMap const InstructionMap::q_ko_map{
     {Kind::stat,
-        IM::VO{"boom", "gps", "gpssat", "power", "dataport", "pll"}},
+        IM::VO{"boom", "gps", "gpssat", "power", "thread", "dataport", "pll"}},
 };
 
 // -------------------------------------------------------------------------- //

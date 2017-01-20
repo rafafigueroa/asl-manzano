@@ -41,6 +41,7 @@ get_default_cmd<Action::get, Kind::stat>(std::string const & option,
     if (option == "gps") cmd.request_bitmap.gps_status(true); else
     if (option == "gpssat") cmd.request_bitmap.gps_satellites(true); else
     if (option == "power") cmd.request_bitmap.power_supply_status(true); else
+    if (option == "thread") cmd.request_bitmap.thread_status(true); else
 
     if (option == "dataport") {
         cmd.request_bitmap.data_port_1_status(true);
