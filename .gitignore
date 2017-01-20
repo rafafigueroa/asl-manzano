@@ -12,6 +12,7 @@ falcon_dirs.conf
 # binary and build directories
 *bin/
 *build/
+*lib/
 
 # Compiled Object files
 *.slo

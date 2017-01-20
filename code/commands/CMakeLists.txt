@@ -6,7 +6,7 @@ include(${DIR_MZN}/test_config.cmake)
 
 message("\n###### commands #######")
 
-add_library(commands ${SOURCES_COMMANDS})
+add_library(commands ${SOURCES_commands})
 
 set_target_properties(commands
                       PROPERTIES
