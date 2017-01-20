@@ -10,7 +10,7 @@ add_library(core ${SOURCES_core})
 
 set_target_properties(core
                       PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_CORE}/bin)
+                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_CORE}/lib)
 
 # ---- TEST ----- #
 # set(SOURCES_test_core ${DIR_CORE}/test/test_core.cpp

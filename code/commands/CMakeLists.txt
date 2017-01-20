@@ -6,11 +6,11 @@ include(${DIR_MZN}/test_config.cmake)
 
 message("\n###### commands #######")
 
-add_library(commands ${SOURCES_COMMANDS})
+add_library(commands ${SOURCES_commands})
 
 set_target_properties(commands
                       PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_COMMANDS}/bin)
+                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_COMMANDS}/lib)
 
 # ---- TEST ----- #
 add_executable(test_commands ${DIR_COMMANDS}/test/test_commands.cpp)
