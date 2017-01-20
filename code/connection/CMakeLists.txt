@@ -20,7 +20,7 @@ add_library(connection ${SOURCES_connection})
 
 set_target_properties(connection
                       PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_connection}/bin)
+                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_connection}/lib)
 
 # ----- add serial test linking with connection library ---- #
 if(UNIX AND NOT APPLE)
