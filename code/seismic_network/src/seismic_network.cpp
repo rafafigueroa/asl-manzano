@@ -95,7 +95,7 @@ ch_e300_ptr_from_json(JsonRef const connection_handler_json) {
         std::strtoul(auth_code.c_str(), nullptr, 16),
         port_host);
 
-    return std::move(ch_ptr);
+    return ch_ptr;
 }
 
 // -------------------------------------------------------------------------- //
@@ -114,7 +114,7 @@ Digitizer q_from_json(JsonRef const q_json) {
         ch_from_json(connection_handler_config_json)
     );
 
-    return std::move(q);
+    return q;
 }
 
 // -------------------------------------------------------------------------- //
@@ -136,7 +136,7 @@ Sensor s_from_json(JsonRef const s_json) {
             ch_e300_ptr_from_json(connection_handler_e300_json)
         );
 
-        return std::move(s);
+        return s;
     }
 
     // sensor without e300
@@ -146,7 +146,7 @@ Sensor s_from_json(JsonRef const s_json) {
         cals
     );
 
-    return std::move(s);
+    return s;
 }
 
 // -------------------------------------------------------------------------- //
@@ -159,7 +159,7 @@ DataProcessor dp_from_json(JsonRef const dp_json) {
 
     DataProcessor dp(user, pw, ip);
 
-    return std::move(dp);
+    return dp;
 }
 // -------------------------------------------------------------------------- //
 void SeismicNetwork::setup_from_config_file() {
