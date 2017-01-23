@@ -4,6 +4,7 @@ runtime_config/falcon.conf
 
 # config file with user directory
 code/mzn_cmake_config.h
+*_cmake_config.h
 falcon_dirs.conf
 
 # falcon data directory

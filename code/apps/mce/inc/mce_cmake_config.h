@@ -1,2 +1,2 @@
-#define k_green_manzano_VERSION_MAJOR 0
-#define k_green_manzano_VERSION_MINOR 9
+#define k_mce_VERSION_MAJOR 0
+#define k_mce_VERSION_MINOR 1

@@ -4,7 +4,7 @@ project(mce)
 include(mce.cmake)
 
 set(k_mce_VERSION_MAJOR 0)
-set(k_mce_VERSION_MINOR 9)
+set(k_mce_VERSION_MINOR 1)
 
 configure_file("${DIR_mce}/inc/mce_cmake_config.h.in"
                "${DIR_mce}/inc/mce_cmake_config.h")
@@ -45,15 +45,16 @@ if(FALSE)
 
     include(${DIR_MZN}/test_config.cmake)
 
-    set(SOURCES_test_user_interpreter
+    set(SOURCES_test_mce
             ${SOURCES_core}
-            ${DIR_mce}/src/user_interpreter.cpp
-            ${DIR_mce}/test/test_user_interpreter.cpp)
+            ${DIR_mce}/src/mce.cpp
+            ${DIR_green_manzano}/src/user_interpreter.cpp
+            ${DIR_mce}/test/test_mce.cpp)
 
-    add_executable(test_user_interpreter EXCLUDE_FROM_ALL
-                   ${SOURCES_test_user_interpreter})
+    add_executable(test_mce EXCLUDE_FROM_ALL
+                   ${SOURCES_test_mce})
 
-    target_link_libraries(test_user_interpreter ${GTEST_BOTH_LIBRARIES})
+    target_link_libraries(test_mce ${GTEST_BOTH_LIBRARIES})
 
 endif()
 

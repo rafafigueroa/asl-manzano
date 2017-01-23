@@ -11,6 +11,7 @@
 
 #include "mzn_except.h"
 #include "system_calls.h"
+#include "user_interpreter.h"
 
 namespace mzn {
 
