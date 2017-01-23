@@ -1,7 +1,7 @@
 // ** command line interface ** //
 // Manzano Software //
-#ifndef _MZN_MCE_H_
-#define _MZN_MCE_H_
+#ifndef _MZN_MCE_CLI_H_
+#define _MZN_MCE_CLI_H_
 
 #include <iostream>
 #include <fstream>
@@ -15,13 +15,22 @@
 
 namespace mzn {
 
-class Mce {
+class MceCli {
 
 public:
 
     explicit
-    Mce() = default;
-    ~Mce() = default;
+    MceCli() : sn{}, stream_output(sn) {};
+
+    SeismicNetwork sn;
+    StreamOutput stream_output;
+
+    ~MceCli() = default;
+
+    //! mce cli starts here
+    void user_input_loop();
+
+    void show_prompt();
 };
 
 } // end namespace

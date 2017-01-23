@@ -18,4 +18,5 @@ include_directories(${DIR_mce}/inc)
 
 set(SOURCES_mce ${SOURCES_core}
                 ${DIR_green_manzano}/src/user_interpreter.cpp
+                ${DIR_mce}/src/mce_cli.cpp
                 ${DIR_mce}/src/mce.cpp)

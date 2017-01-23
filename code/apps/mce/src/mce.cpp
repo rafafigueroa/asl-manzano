@@ -8,7 +8,7 @@
 #include "mzn_cmake_config.h"
 #include "mce_cmake_config.h"
 
-#include "mce.h"
+#include "mce_cli.h"
 
 int main(int argc, char **argv) {
 
@@ -23,15 +23,34 @@ int main(int argc, char **argv) {
 
     try {
 
-        std::vector<std::string> args(argv, argv + argc);
+        try {
 
-        mzn::Mce mce;
+            auto const rcp = mzn::get_runtime_config_path();
+
+        } catch(mzn::FatalException & e) {
+
+            std::cout << std::endl << "No runtime configuration files found";
+            std::cout << e.what();
+            std::cout << std::endl << "Create empty config file? (y/n): ";
+
+            std::string response;
+            std::cin >> response;
+
+            if (response == "y") std::cout << "\ncreating empty config file";
+
+
+            return EXIT_SUCCESS;
+        }
+
+        std::vector<std::string> args(argv, argv + argc);
+        mzn::MceCli mce_cli;
 
         if (args.size() > 1) {
             // expects the file name
             std::cout << "arg" << args[1];
         } else {
             // interactive
+            mce_cli.user_input_loop();
         }
 
     } catch(mzn::FatalException & e) {

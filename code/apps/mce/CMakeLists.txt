@@ -15,8 +15,7 @@ message("\n###### mce #######")
 message("\n ***** config files: ***** ")
 message("path: " ${DIR_install_config_files})
 
-file(MAKE_DIRECTORY ${DIR_install_config_files}
-     USE_SOURCE_PERMISSIONS)
+file(MAKE_DIRECTORY ${DIR_install_config_files})
 
 # this works at install time but still with root permissions
 # with sudo make install
@@ -48,6 +47,7 @@ if(FALSE)
     set(SOURCES_test_mce
             ${SOURCES_core}
             ${DIR_mce}/src/mce.cpp
+            ${DIR_mce}/src/mce_cli.cpp
             ${DIR_green_manzano}/src/user_interpreter.cpp
             ${DIR_mce}/test/test_mce.cpp)
 

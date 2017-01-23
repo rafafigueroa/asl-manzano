@@ -40,7 +40,7 @@ std::string get_runtime_config_path() {
 
     std::stringstream ss;
     ss << "Config path not found at: \n    "
-       << config_home_path << " or " << config_src_path;
+       << config_home_path << " or\n    " << config_src_path;
 
     throw FatalException( "Manzano",
                           "get_runtime_config_path",
