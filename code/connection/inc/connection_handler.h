@@ -30,9 +30,9 @@ public:
 
     // ---------------------------------------------------------------------- //
     std::string const ip_remote;
-    int const port_remote;
-    uint64_t const auth_code;
-    int const protocol_version;
+    int const port_remote = 0;
+    uint64_t const auth_code = 0;
+    int const protocol_version = 0;
 
     // ---------------------------------------------------------------------- //
     ConnectionHandler(std::string const ip_remote,

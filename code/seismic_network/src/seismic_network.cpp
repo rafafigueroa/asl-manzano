@@ -76,7 +76,7 @@ ch_from_json(JsonRef const connection_handler_json) {
         port_host,
         protocol_version);
 
-    return std::move(connection_handler);
+    return connection_handler;
 }
 
 // -------------------------------------------------------------------------- //
@@ -108,14 +108,10 @@ Digitizer q_from_json(JsonRef const q_json) {
         std::strtoul(serial_number_string.c_str(), nullptr, 16);
 
     auto connection_handler_config_json  = q_json["port_config"];
-    auto connection_handler_control_json = q_json["port_control"];
-    auto connection_handler_data_json    = q_json["port_data"];
 
     Digitizer q(
         serial_number,
-        ch_from_json(connection_handler_config_json),
-        ch_from_json(connection_handler_control_json),
-        ch_from_json(connection_handler_data_json)
+        ch_from_json(connection_handler_config_json)
     );
 
     return std::move(q);
