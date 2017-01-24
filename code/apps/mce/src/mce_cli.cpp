@@ -29,6 +29,7 @@ void MceCli::user_input_loop() {
         std::cout << std::endl << "---------------------------------------------\n";
         std::cout << "\n » ";
 
+        // ----------------------------------------------------------------- //
         getline(std::cin, user_input);
 
         try {
@@ -74,6 +75,7 @@ void MceCli::create_empty_config_file() {
     config_fs.open(config_home_path + "/config.json",
                    std::ofstream::out | std::ofstream::trunc);
 
+    // empty json object
     config_fs << "{\n}";
 }
 
