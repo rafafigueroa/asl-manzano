@@ -12,6 +12,7 @@
 #include "mzn_except.h"
 #include "system_calls.h"
 #include "user_interpreter.h"
+#include "instruction_interpreter.h"
 
 namespace mzn {
 
@@ -20,17 +21,35 @@ class MceCli {
 public:
 
     explicit
-    MceCli() : sn{}, stream_output(sn) {};
+    MceCli() : ta_{} {
 
-    SeismicNetwork sn;
-    StreamOutput stream_output;
+        try {
+
+            get_runtime_config_path();
+
+        } catch(mzn::FatalException & e) {
+
+            std::cout << std::endl << "No runtime configuration files found";
+            std::cout << std::endl << "Create empty config file? (y/n): ";
+
+            std::string response;
+            getline(std::cin, response);
+
+            if (response == "y") create_empty_config_file(); else throw e;
+        }
+    };
 
     ~MceCli() = default;
 
     //! mce cli starts here
     void user_input_loop();
 
-    void show_prompt();
+    void create_empty_config_file();
+
+private:
+
+    TargetAddress ta_;
+
 };
 
 } // end namespace

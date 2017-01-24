@@ -13,7 +13,21 @@ void MceCli::user_input_loop() {
 
     while (true) {
 
-        show_prompt();
+        // rebuild
+        // ----------------------------------------------------------------- //
+        InstructionInterpreter ii(ta_);
+
+        // check ta_ again, this time without catching
+        // ----------------------------------------------------------------- //
+        // ta_.sn_child = Target(Scope::station, 0);
+        ii.check_ta_in_sn(ta_);
+
+        // show prompt
+        // ----------------------------------------------------------------- //
+        std::cout << std::endl << "\n---------------------------------------------";
+        ii.cm.stream_output.show<Kind::target>(ta_);
+        std::cout << std::endl << "---------------------------------------------\n";
+        std::cout << "\n » ";
 
         getline(std::cin, user_input);
 
@@ -28,11 +42,6 @@ void MceCli::user_input_loop() {
 
                 std::cout << std::endl << "\nbye" << std::endl;
                 break;
-            }
-
-            if (user_input == "help") {
-                stream_output.show_help();
-                continue;
             }
 
             std::cout << "\n" << user_input;
@@ -54,14 +63,18 @@ void MceCli::user_input_loop() {
 }
 
 // -------------------------------------------------------------------------- //
-void MceCli::show_prompt() {
+void MceCli::create_empty_config_file() {
 
-    auto const ta = TargetAddress{};
+    auto const home_path = get_environmental_variable("HOME");
 
-    std::cout << std::endl << "\n---------------------------------------------";
-    stream_output.show<Kind::target>(ta);
-    std::cout << std::endl << "---------------------------------------------\n";
-    std::cout << "\n » ";
+    auto const config_home_path = home_path + std::string("/.config/manzano");
+
+    std::ofstream config_fs;
+
+    config_fs.open(config_home_path + "/config.json",
+                   std::ofstream::out | std::ofstream::trunc);
+
+    config_fs << "{\n}";
 }
 
 } // end namespace

@@ -3,11 +3,23 @@
 
 namespace mzn {
 
+// ta defaults to st0q0
 // -------------------------------------------------------------------------- //
-InstructionInterpreter::InstructionInterpreter() :
-            current_ta_ ( Target(Scope::station, 0),
-                          Target(Scope::digitizer,  0) ),
-        cm{} {}
+InstructionInterpreter::InstructionInterpreter(TargetAddress const & ta) :
+        current_ta_(ta),
+        cm{} {
+
+    try {
+
+        check_ta_in_sn(current_ta_);
+
+    } catch(WarningException const & e) {
+
+        std::cerr << "\nta: " << ta << "\nNot present, configuration likely broken";
+        std::cerr << e.what();
+        current_ta_ = TargetAddress{};
+    }
+}
 
 // -------------------------------------------------------------------------- //
 template<Action action>
@@ -37,7 +49,6 @@ void InstructionInterpreter::match(UserInstruction const & ui,
         default:
             throw std::logic_error{"at InstructionInterpreter::run_instruction"};
     }
-
 }
 
 // -------------------------------------------------------------------------- //
@@ -155,17 +166,27 @@ InstructionInterpreter::current_ta_remove_one_target() {
 void
 InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
 
-
     std::size_t sn_child_index = 0;
     std::size_t st_child_index = 0;
+
+    auto throw_no_ta_in_sn = [&ta, this]() {
+        std::stringstream ss;
+        ss << ta << " does not exist on the seismic network";
+
+        // stream current seismic network
+        this -> cm.stream_output.show<Kind::target>(TargetAddress{});
+
+        throw WarningException("InstructionInterpreter",
+                               "check_ta_in_sn",
+                               ss.str() );
+    };
 
     // does the station exist?
     if ( ta.sn_child.scope == Scope::station and
          ta.sn_child.index >= cm.sn.st.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "station does not exist");
+        throw_no_ta_in_sn();
+
     } else {
         sn_child_index = ta.sn_child.index;
     }
@@ -174,9 +195,8 @@ InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
     if ( ta.st_child.scope == Scope::digitizer and
          ta.st_child.index >= cm.sn.st[sn_child_index].q.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "digitizer does not exist");
+        throw_no_ta_in_sn();
+
     } else {
         st_child_index = ta.st_child.index;
     }
@@ -185,9 +205,8 @@ InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
     if ( ta.st_child.scope == Scope::data_processor and
          ta.st_child.index >= cm.sn.st[sn_child_index].dp.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "data processor does not exist");
+        throw_no_ta_in_sn();
+
     } else {
         st_child_index = ta.st_child.index;
     }
@@ -197,9 +216,7 @@ InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
          ta.q_child.index >=
          cm.sn.st[sn_child_index].q[st_child_index].s.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "sensor does not exist");
+        throw_no_ta_in_sn();
     }
 }
 
