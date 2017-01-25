@@ -25,30 +25,35 @@ void MceCli::user_input_loop() {
 
         // show prompt
         // ----------------------------------------------------------------- //
-        std::cout << std::endl << "\n---------------------------------------------";
+        std::cout << "\n";
         ii.cm.stream_output.show<Kind::target>(ta_);
-        std::cout << std::endl << "---------------------------------------------\n";
-        std::cout << "\n » ";
+        std::cout << "\n---------------------------------------------";
+        ii.cm.stream_output.show_prompt(ta_);
+        // std::cout << std::endl << " » ";
 
         // ----------------------------------------------------------------- //
         getline(std::cin, user_input);
 
+
         try {
 
-            if (user_input == "") continue;
-
+            //! stream raw json format
             if (user_input == "raw") {
                 auto const json = json_from_ta(ii.cm.sn, ta_);
-                std::cout << json;
+                std::cout << json.dump(4) << std::endl;
+                continue;
             }
+
+            //! user hit enter
+            if (user_input == "") continue;
 
             //! quit program normally
-            if (user_input == "quit") {
-                std::cout << std::endl << "\nbye" << std::endl;
-                break;
-            }
+            if (user_input == "quit") break;
 
-            std::cout << "\n" << user_input;
+            //! only thing left is a target address
+            auto const ta = UserInterpreter::match_target_address(user_input);
+            ii.check_ta_in_sn(ta);
+            ta_ = ta;
 
         } catch (FatalException const & e) {
 
@@ -63,7 +68,10 @@ void MceCli::user_input_loop() {
                       << "caught error @Mce::user_input_loop()"
                       << std::endl << e.what();
         }
+
     }
+
+    std::cout << std::endl << "\nbye" << std::endl;
 }
 
 // -------------------------------------------------------------------------- //

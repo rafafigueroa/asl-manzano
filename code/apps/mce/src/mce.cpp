@@ -34,13 +34,13 @@ int main(int argc, char **argv) {
             mce_cli.user_input_loop();
         }
 
-    } catch(mzn::Exception & e) {
+    } catch(mzn::Exception const & e) {
 
         std::cerr << "\nError, closing program";
         std::cerr << std::endl << e.what();
         return EXIT_FAILURE;
 
-    } catch(std::exception & e) {
+    } catch(std::exception const & e) {
 
         std::cerr << "\nunexpected error, closing program";
         std::cerr << std::endl << e.what();

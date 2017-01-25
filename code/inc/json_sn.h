@@ -59,6 +59,97 @@ public:
     }
 };
 
+
+/*!
+    "sensor":
+        [
+          {
+            "input": "A",
+            "model": "STS2",
+            "cals": "TIMED_SEND_TEST"
+          },
+
+          {
+            "input": "B",
+            "model": "STS1",
+            "cals": "STS_1_E300",
+            "port_e300": {"ip_remote":"x.x.x.x", "port_remote":5009,
+                          "auth_code":"x", "port_host":2009,
+                          "protocol_version": 0}
+          }
+
+        ]
+ */
+// -------------------------------------------------------------------------- //
+inline
+Json json_from_s(Sensor const & s) {
+
+    std::stringstream ss_input;
+    ss_input << s.config.input;
+
+    Json json = { {"input", ss_input.str()},
+                  {"model", s.config.model},
+                  {"cals",  s.config.cals} };
+    return json;
+}
+
+/*!
+    "port_config": {"ip_remote":"x.x.x.x", "port_remote":5000,
+                        "auth_code":"x", "port_host":2000,
+                        "protocol_version": 2},
+ */
+// -------------------------------------------------------------------------- //
+inline
+Json json_from_ch(ConnectionHandler const & ch) {
+
+    Json json = { {"ip_remote",   ch.ip_remote},
+                  {"port_remote", ch.port_remote},
+                  {"auth_code", ch.auth_code},
+                  {"port_host",   ch.uc.port_host()},
+                  {"protocol_version", ch.protocol_version} };
+    return json;
+}
+
+/*!
+"digitizer":
+    [
+      {
+        "serial_number": "01ABC",
+
+        "port_config": {"ip_remote":"x.x.x.x", "port_remote":5000,
+                        "auth_code":"x", "port_host":2000,
+                        "protocol_version": 2},
+
+        "sensor":
+        [
+          {
+            "input": "A",
+            "model": "STS2",
+            "cals": "TIMED_SEND_TEST"
+          },
+
+          {
+            "input": "B",
+            "model": "STS1",
+            "cals": "STS_1_E300",
+            "port_e300": {"ip_remote":"x.x.x.x", "port_remote":5009,
+                          "auth_code":"x", "port_host":2009,
+                          "protocol_version": 0}
+          }
+
+        ]
+      }
+    ],
+ */
+// -------------------------------------------------------------------------- //
+inline
+Json json_from_q(Digitizer const & q) {
+
+    Json json = { {"serial_number", q.config.serial_number},
+                  {"port_config", json_from_ch(q.port_config)},
+                  {"sensor",  json_from_s(q.s[0])} };
+    return json;
+}
 // -------------------------------------------------------------------------- //
 inline
 ConnectionHandler
@@ -79,6 +170,8 @@ ch_from_json(JsonRef const connection_handler_json) {
 
     return connection_handler;
 }
+
+
 
 // -------------------------------------------------------------------------- //
 inline
@@ -117,6 +210,7 @@ Digitizer q_from_json(JsonRef const q_json) {
 
     return q;
 }
+
 
 // -------------------------------------------------------------------------- //
 inline
@@ -183,25 +277,34 @@ Json json_from_ta(SeismicNetwork const & sn, TargetAddress const & ta) {
 
     switch (scope) {
 
-        case Scope::seismic_network: {
+        case Scope::data_processor: {
             auto const & dp = sn.dp_const_ref(ta);
-            auto const json = json_from_dp(dp);
-            return json;
+            return json_from_dp(dp);;
+        }
+
+        case Scope::sensor: {
+            auto const & s = sn.s_const_ref(ta);
+            return json_from_s(s);
+        }
+
+        case Scope::digitizer: {
+            auto const & q = sn.q_const_ref(ta);
+            return json_from_q(q);
         }
 
         /*
+
+        case Scope::seismic_network: {
+
         case Scope::station: {
             auto const & st = sn.st_const_ref(ta);
             auto const json = json_from_st(st);
             return json;
         }
 
-        case Scope::digitizer:       return q_ref(ta);
-        case Scope::data_processor:  return dp_ref(ta);
-        case Scope::sensor:          return s_ref(ta);
         */
 
-        default: throw std::logic_error{"@SeismicNetwork::target_ref"};
+        default: throw std::logic_error{"@JsonSn::json_from_ta"};
     }
 }
 
