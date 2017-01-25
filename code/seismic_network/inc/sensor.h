@@ -65,7 +65,17 @@ public:
     std::unique_ptr<ConnectionHandlerE300> port_e300_ptr_;
 
     //! internal access to e300 connection handler when there is one
-    ConnectionHandlerE300 & port_e300() {
+    ConnectionHandlerE300 & port_e300_ref() {
+        if (config.has_e300) {
+            return *( port_e300_ptr_.get() );
+        } else {
+            throw std::logic_error{"Sensor::port_e300"};
+        }
+    }
+
+    //! internal access to e300 connection handler when there is one
+    //! TODO: test this
+    ConnectionHandlerE300 const & port_e300_const_ref() const {
         if (config.has_e300) {
             return *( port_e300_ptr_.get() );
         } else {

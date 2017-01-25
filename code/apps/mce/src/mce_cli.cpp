@@ -51,7 +51,9 @@ void MceCli::user_input_loop() {
             if (user_input == "quit") break;
 
             //! only thing left is a target address
-            auto const ta = UserInterpreter::match_target_address(user_input);
+            auto ta = UserInterpreter::match_target_address(user_input);
+
+            ta.add_targets_from_ta(ta_);
             ii.check_ta_in_sn(ta);
             ta_ = ta;
 

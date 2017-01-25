@@ -59,45 +59,6 @@ public:
     }
 };
 
-
-/*!
-    "sensor":
-        [
-          {
-            "input": "A",
-            "model": "STS2",
-            "cals": "TIMED_SEND_TEST"
-          },
-
-          {
-            "input": "B",
-            "model": "STS1",
-            "cals": "STS_1_E300",
-            "port_e300": {"ip_remote":"x.x.x.x", "port_remote":5009,
-                          "auth_code":"x", "port_host":2009,
-                          "protocol_version": 0}
-          }
-
-        ]
- */
-// -------------------------------------------------------------------------- //
-inline
-Json json_from_s(Sensor const & s) {
-
-    std::stringstream ss_input;
-    ss_input << s.config.input;
-
-    Json json = { {"input", ss_input.str()},
-                  {"model", s.config.model},
-                  {"cals",  s.config.cals} };
-    return json;
-}
-
-/*!
-    "port_config": {"ip_remote":"x.x.x.x", "port_remote":5000,
-                        "auth_code":"x", "port_host":2000,
-                        "protocol_version": 2},
- */
 // -------------------------------------------------------------------------- //
 inline
 Json json_from_ch(ConnectionHandler const & ch) {
@@ -110,46 +71,86 @@ Json json_from_ch(ConnectionHandler const & ch) {
     return json;
 }
 
-/*!
-"digitizer":
-    [
-      {
-        "serial_number": "01ABC",
 
-        "port_config": {"ip_remote":"x.x.x.x", "port_remote":5000,
-                        "auth_code":"x", "port_host":2000,
-                        "protocol_version": 2},
+// -------------------------------------------------------------------------- //
+inline
+Json json_from_s(Sensor const & s) {
 
-        "sensor":
-        [
-          {
-            "input": "A",
-            "model": "STS2",
-            "cals": "TIMED_SEND_TEST"
-          },
+    std::stringstream ss_input;
+    ss_input << s.config.input;
 
-          {
-            "input": "B",
-            "model": "STS1",
-            "cals": "STS_1_E300",
-            "port_e300": {"ip_remote":"x.x.x.x", "port_remote":5009,
-                          "auth_code":"x", "port_host":2009,
-                          "protocol_version": 0}
-          }
+    Json json = { {"input", ss_input.str()},
+                  {"model", s.config.model},
+                  {"cals",  s.config.cals} };
 
-        ]
-      }
-    ],
- */
+    if (s.config.has_e300) {
+        json["port_e300"] = json_from_ch( s.port_e300_const_ref() );
+    }
+
+    return json;
+}
+
 // -------------------------------------------------------------------------- //
 inline
 Json json_from_q(Digitizer const & q) {
 
-    Json json = { {"serial_number", q.config.serial_number},
-                  {"port_config", json_from_ch(q.port_config)},
-                  {"sensor",  json_from_s(q.s[0])} };
+    std::stringstream ss;
+    ss << std::hex << std::uppercase << q.config.serial_number;
+
+    Json json = { {"serial_number", ss.str()},
+                  {"port_config", json_from_ch(q.port_config)} };
+
+    // sensor configuration, start with empty array
+    json["sensor"] = Json::array();
+
+    for (auto i = 0; i < q.s.size(); i++) {
+        json["sensor"][i] = json_from_s(q.s[i]);
+    }
+
     return json;
 }
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_from_dp(DataProcessor const & dp) {
+
+    Json json = { {"user", dp.config.user},
+                  {"pw", dp.config.pw},
+                  {"ip", dp.config.ip} };
+
+    return json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_from_st(Station const & st) {
+
+    Json json;    // sensor configuration, start with empty array
+
+    for (auto i = 0; i < st.q.size(); i++) {
+        json["digitizer"][i] = json_from_q(st.q[i]);
+    }
+
+    for (auto i = 0; i < st.dp.size(); i++) {
+        json["data_processor"][i] = json_from_dp(st.dp[i]);
+    }
+
+    return json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_from_sn(SeismicNetwork const & sn) {
+
+    Json json;    // sensor configuration, snart with empty array
+
+    for (auto const & st : sn.st) {
+        json[st.config.station_name] = json_from_st(st);
+    }
+
+    return json;
+}
+
 // -------------------------------------------------------------------------- //
 inline
 ConnectionHandler
@@ -257,18 +258,6 @@ DataProcessor dp_from_json(JsonRef const dp_json) {
     return dp;
 }
 
-//! "data_processor":{"ip":"x.x.x.x", "user":"x", "pw":"x"}
-// -------------------------------------------------------------------------- //
-inline
-Json json_from_dp(DataProcessor const & dp) {
-
-    Json json;
-    json["data_processor"] = { {"user", dp.config.user},
-                               {"pw", dp.config.pw},
-                               {"ip", dp.config.ip} };
-    return json;
-}
-
 // -------------------------------------------------------------------------- //
 inline
 Json json_from_ta(SeismicNetwork const & sn, TargetAddress const & ta) {
@@ -288,21 +277,17 @@ Json json_from_ta(SeismicNetwork const & sn, TargetAddress const & ta) {
         }
 
         case Scope::digitizer: {
-            auto const & q = sn.q_const_ref(ta);
-            return json_from_q(q);
+            auto const & q = sn.q_const_ref(ta); return json_from_q(q);
         }
-
-        /*
-
-        case Scope::seismic_network: {
 
         case Scope::station: {
             auto const & st = sn.st_const_ref(ta);
-            auto const json = json_from_st(st);
-            return json;
+            return json_from_st(st);
         }
 
-        */
+        case Scope::seismic_network: {
+            return json_from_sn(sn);
+        }
 
         default: throw std::logic_error{"@JsonSn::json_from_ta"};
     }
