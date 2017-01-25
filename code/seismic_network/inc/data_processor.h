@@ -16,28 +16,28 @@ namespace mzn {
 /*!
     @author rfigueroa@usgs.gov
  */
-
 class DataProcessor {
 
 private:
+
     struct Config {
+
         friend class DataProcessor;
 
         Config(std::string const in_user,
                std::string const in_pw,
                std::string const in_ip) :
-            user_(in_user),
-            pw_(in_pw),
+            user(in_user),
+            pw(in_pw),
             ip(in_ip) {}
 
         ~Config() = default;
 
 
-        private:
-        std::string user_;
-        std::string pw_;
         public:
-        std::string ip;
+            std::string user;
+            std::string pw;
+            std::string ip;
     };
 
     struct Status {
@@ -60,15 +60,11 @@ public:
     //! time that this dp has been without rebooting
     std::string uptime();
 
-    //! user/pw can be set
-    void set_user(std::string user) {config.user_ = user; };
-    void set_pw(std::string pw) {config.pw_ = pw; };
+    friend std::ostream & operator<<(std::ostream & os,
+                                     Config const & c);
 
-friend std::ostream & operator<<(std::ostream & os,
-                                 Config const & c);
-
-friend std::ostream & operator<<(std::ostream & os,
-                                 Status const & c);
+    friend std::ostream & operator<<(std::ostream & os,
+                                     Status const & c);
 };
 
 inline

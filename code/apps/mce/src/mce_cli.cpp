@@ -1,6 +1,7 @@
 // ** command line interface ** //
 // Manzano Software //
 #include "mce_cli.h"
+#include "json_sn.h"
 
 namespace mzn {
 
@@ -34,13 +35,15 @@ void MceCli::user_input_loop() {
 
         try {
 
-            if (user_input == "") {
-                continue;
+            if (user_input == "") continue;
+
+            if (user_input == "raw") {
+                auto const json = json_from_ta(ii.cm.sn, ta_);
+                std::cout << json;
             }
 
             //! quit program normally
             if (user_input == "quit") {
-
                 std::cout << std::endl << "\nbye" << std::endl;
                 break;
             }
