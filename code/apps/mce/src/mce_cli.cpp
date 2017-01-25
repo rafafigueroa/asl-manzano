@@ -14,7 +14,7 @@ void MceCli::user_input_loop() {
 
     while (true) {
 
-        // rebuild
+        // rebuild TODO change sn contructor, total rebuild not needed
         // ----------------------------------------------------------------- //
         InstructionInterpreter ii(ta_);
 
@@ -34,7 +34,6 @@ void MceCli::user_input_loop() {
         // ----------------------------------------------------------------- //
         getline(std::cin, user_input);
 
-
         try {
 
             //! stream raw json format
@@ -47,8 +46,18 @@ void MceCli::user_input_loop() {
             //! user hit enter
             if (user_input == "") continue;
 
-            //! quit program normally
-            if (user_input == "quit") break;
+            if (user_input == "save") {
+                save_to_config_file(ii.cm.sn);
+                continue;
+            }
+
+            if (user_input == "quit") {
+                save_to_config_file(ii.cm.sn);
+                break;
+            }
+
+            //! quit program without saving
+            if (user_input == "cancel") break;
 
             //! only thing left is a target address
             auto ta = UserInterpreter::match_target_address(user_input);
@@ -77,11 +86,22 @@ void MceCli::user_input_loop() {
 }
 
 // -------------------------------------------------------------------------- //
+void MceCli::save_to_config_file(SeismicNetwork const & sn) {
+
+    std::ofstream config_fs;
+
+    config_fs.open(config_home_path + "/config.json",
+                   std::ofstream::out | std::ofstream::trunc);
+
+    std::cout << std::endl << "saving to file\n";
+
+    auto const json = json_from_ta(sn, TargetAddress{});
+
+    config_fs << json.dump(4) << std::endl;
+}
+
+// -------------------------------------------------------------------------- //
 void MceCli::create_empty_config_file() {
-
-    auto const home_path = get_environmental_variable("HOME");
-
-    auto const config_home_path = home_path + std::string("/.config/manzano");
 
     std::ofstream config_fs;
 

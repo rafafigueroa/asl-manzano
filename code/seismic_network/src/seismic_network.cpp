@@ -25,6 +25,12 @@ try {
     // reset the auto-loaded seismic network
     st.clear();
 
+    for (auto const & st_json : sn_json["station"]) {
+        st.push_back( st_from_json(st_json) );
+    }
+
+    /*
+
     // TODO: replace reference to input json file with above
 
     // if our json file is formatted correctly then each key is a station name
@@ -92,6 +98,7 @@ try {
             // std::cout << "\n\nNOTE: " << st_name << " lacks a data processor.";
         }
     }
+    */
 
 } catch(std::out_of_range const & e) {
 

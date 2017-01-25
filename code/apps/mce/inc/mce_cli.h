@@ -37,7 +37,12 @@ public:
 
             if (response == "y") create_empty_config_file(); else throw e;
         }
+
+        auto const home_path = get_environmental_variable("HOME");
+        config_home_path = home_path + std::string("/.config/manzano");
     };
+
+    std::string config_home_path;
 
     ~MceCli() = default;
 
@@ -45,6 +50,8 @@ public:
     void user_input_loop();
 
     void create_empty_config_file();
+
+    void save_to_config_file(SeismicNetwork const & sn);
 
 private:
 
