@@ -51,10 +51,9 @@ public:
 
     void save_to_config_file(SeismicNetwork const & sn) const;
 
-    static
     void add_to_config(SeismicNetwork & sn,
                        std::string const & user_input,
-                       TargetAddress const & ta);
+                       TargetAddress const & ta) const;
 
 private:
 

@@ -231,6 +231,8 @@ Json json_from_s(Sensor const & s) {
 
     if (s.config.has_e300) {
         s_json["port_e300"] = json_from_ch( s.port_e300_const_ref() );
+    } else {
+        s_json["port_e300"] = Json::object();
     }
 
     return s_json;
@@ -370,7 +372,7 @@ Sensor s_from_json(JsonRef const s_json) {
     std::string const model = s_json["model"];
     std::string const cals  = s_json["cals"];
 
-    if ( s_json.json.find("port_e300") != s_json.json.end() ) {
+    if ( not s_json["port_e300"].empty() ) {
 
         auto ch_e300_json = s_json["port_e300"];
 

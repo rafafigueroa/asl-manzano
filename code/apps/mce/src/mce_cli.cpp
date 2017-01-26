@@ -106,6 +106,8 @@ void MceCli::save_to_config_file(SeismicNetwork const & sn) const {
     auto const json = json_from_ta(sn, TargetAddress{});
 
     config_fs << json.dump(4) << std::endl;
+
+
 }
 
 // -------------------------------------------------------------------------- //
@@ -128,18 +130,55 @@ void MceCli::create_empty_config_file() {
 // -------------------------------------------------------------------------- //
 void MceCli::add_to_config(SeismicNetwork & sn,
                            std::string const & user_input,
-                           TargetAddress const & ta) {
+                           TargetAddress const & ta) const {
 
     std::size_t scope_pos = 1;
 
-    auto scope = UserInterpreter::match_scope(user_input,
-                                              scope_pos);
+    auto child_scope = UserInterpreter::match_scope(user_input, scope_pos);
 
-    std::cout <<  "\nAdding a " << scope << " to " << ta << "\n";
+    std::cout <<  "\nAdding a " << child_scope << " to " << ta << "\n";
 
-    auto const json = json_child_from_ta(sn, ta, scope);
+    auto child_json = json_child_from_ta(sn, ta, child_scope);
 
-    std::cout << std::endl << json.dump(4) << "\n";
+    std::cout << std::endl << child_json.dump(4);
+
+    std::cout << std::endl << "Looks good? (y/n): ";
+    std::string response;
+    std::getline(std::cin, response);
+
+    if (response != "y") {std::cout << "OK, no changes"; return;}
+
+    // it's on
+    // --------------------------------------------------------------------- //
+    switch (child_scope) {
+
+        case Scope::data_processor: {
+            auto & st = sn.st_ref(ta);
+            st.dp.push_back( dp_from_json(child_json) );
+            break;
+        }
+
+        case Scope::sensor: {
+            auto & q = sn.q_ref(ta);
+            q.s.push_back( s_from_json(child_json) );
+            break;
+        }
+
+        case Scope::digitizer: {
+            auto & st = sn.st_ref(ta);
+            st.q.push_back( q_from_json(child_json) );
+            break;
+        }
+
+        case Scope::station: {
+            sn.st.push_back( st_from_json(child_json) );
+            break;
+        }
+
+        default: throw std::logic_error{"@MceCli::add_to_config"};
+    }
+
+    save_to_config_file(sn);
 }
 
 } // end namespace
