@@ -6,11 +6,43 @@
 #include <exception>
 #include <cstdlib>
 #include <limits>
+#include <type_traits>
 #include "mzn_cmake_config.h"
 #include "mzn_except.h"
 #include "json.h"
+#include "string_utilities.h"
 
 namespace mzn {
+
+// -------------------------------------------------------------------------- //
+inline
+void ip_format_check(std::string const & ip) {
+
+    try {
+
+        // TODO: update for ipv6
+        auto const ip_tokens = get_tokens(ip, '.');
+
+        if (ip_tokens.size() != 4) throw WarningException("JsonSn",
+                                                          "ip_format_check",
+                                                          "not 4 byte format");
+
+        for (int i = 0; i < ip_tokens.size(); i++) {
+            int const ipb =  std::stoi(ip_tokens[i]);
+            if (ipb < 0 or ipb > 255) {
+                throw WarningException("JsonSn",
+                                       "ip_format_check",
+                                       "bad byte: " + ip_tokens[i]);
+            }
+        }
+
+    } catch (std::exception const & e) {
+        std::stringstream ss;
+        ss << "\nip format #.#.#.# incorrect for ip input: " << ip;
+        ss << "\n" << e.what();
+        throw WarningException( "JsonSn", "ip_format_check", ss.str() );
+    }
+}
 
 // -------------------------------------------------------------------------- //
 inline
@@ -51,15 +83,10 @@ void ask(Json & json,
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
 
     if ( std::cin.fail() ) {
-
         std::cin.clear();
-
         std::stringstream ss;
         ss << "error with user response for key " << key;
-
-        throw WarningException( "JsonSn",
-                                "ask",
-                                ss.str() );
+        throw WarningException( "JsonSn", "ask", ss.str() );
     }
 
     json[key] = value;
@@ -77,23 +104,24 @@ void ask(Json & json,
     std::cout << "[" << original_json[key] << "]";
     std::cout << ": ";
 
-    T value;
-    std::cin >> value;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+    std::string input;
+    std::getline(std::cin, input);
 
     if ( std::cin.fail() ) {
-
         std::cin.clear();
-
         std::stringstream ss;
         ss << "error with user response for key " << key;
-
-        throw WarningException( "JsonSn",
-                                "ask",
-                                ss.str() );
+        throw WarningException( "JsonSn", "ask", ss.str() );
     }
 
-    json[key] = value;
+    if (input == "") {
+        json[key] = original_json[key];
+        return;
+    }
+
+    if (std::is_same<T, std::string>::value) json[key] = input;
+    else if (std::is_same<T, int>::value) json[key] = std::stoi(input);
+    else throw std::logic_error("@JsonSn, ask, wrong type");
 }
 
 // -------------------------------------------------------------------------- //
@@ -103,6 +131,9 @@ Json json_change_ch(Json const & original_json) {
 
     Json ch_json;
     ask<std::string>( ch_json, original_json, "ip_remote",  "#.#.#.#");
+
+    ip_format_check(ch_json["ip_remote"]);
+
     ask<int>(         ch_json, original_json, "port_remote", ">5000");
     ask<std::string>( ch_json, original_json, "auth_code", "");
     ask<int>(         ch_json, original_json, "port_host", ">2000");
@@ -125,7 +156,7 @@ Json json_change_s(Json const & original_json) {
     std::getline(std::cin, response);
 
     if (response == "y") {
-        json_change_ch(original_json["port_e300"]);
+        s_json["port_e300"] = json_change_ch(original_json["port_e300"]);
     } else {
         s_json["port_e300"] = Json::object();
     }
@@ -140,9 +171,10 @@ Json json_change_q(Json const & original_json) {
     Json q_json;
     ask<std::string>(q_json, original_json, "serial_number", "012345ABCDEF");
 
-    json_change_ch(original_json["port_config"]);
-    q_json["sensor"] = Json::array();
-return q_json;
+    q_json["port_config"] = json_change_ch(original_json["port_config"]);
+    q_json["sensor"] = original_json["sensor"];
+
+    return q_json;
 }
 
 // -------------------------------------------------------------------------- //
@@ -154,6 +186,8 @@ Json json_change_dp(Json const & original_json) {
     ask<std::string>(dp_json, original_json, "pw", "");
     ask<std::string>(dp_json, original_json, "ip", "#.#.#.#");
 
+    ip_format_check(dp_json["ip"]);
+
     return dp_json;
 }
 
@@ -163,8 +197,9 @@ Json json_change_st(Json const & original_json) {
 
     Json st_json;
     ask<std::string>(st_json, original_json, "station_name", "ABCDF");
-    st_json["digitizer"] = Json::array();
-    st_json["data_processor"] = Json::array();
+    st_json["digitizer"] = original_json["digitizer"];
+    st_json["data_processor"] = original_json["data_processor"];
+
     return st_json;
 }
 
@@ -175,10 +210,13 @@ Json json_add_ch() {
 
     Json ch_json;
     ask<std::string>( ch_json, "ip_remote",  "#.#.#.#");
+    ip_format_check(ch_json["ip_remote"]);
+
     ask<int>(         ch_json, "port_remote", ">5000");
     ask<std::string>( ch_json, "auth_code", "");
     ask<int>(         ch_json, "port_host", ">2000");
     ask<int>(         ch_json, "protocol_version", "2");
+
 
     return ch_json;
 }
@@ -192,8 +230,7 @@ Json json_add_s() {
     ask<std::string>(s_json, "model", "STS2, STS1, etc");
     ask<std::string>(s_json, "cals", "STS2, STS2_HF_TEST, etc");
 
-    std::cout << std::endl << "Has E300? (y/n): ";
-    std::string response;
+    std::cout << std::endl << "Has E300? (y/n): "; std::string response;
     std::getline(std::cin, response);
 
     if (response == "y") {
@@ -227,6 +264,8 @@ Json json_add_dp() {
     ask<std::string>(dp_json, "pw", "");
     ask<std::string>(dp_json, "ip", "#.#.#.#");
 
+    ip_format_check(dp_json["ip"]);
+
     return dp_json;
 }
 
@@ -238,6 +277,7 @@ Json json_add_st() {
     ask<std::string>(st_json, "station_name", "ABCDF");
     st_json["digitizer"] = Json::array();
     st_json["data_processor"] = Json::array();
+
     return st_json;
 }
 
@@ -531,10 +571,10 @@ Json json_from_ta(SeismicNetwork const & sn, TargetAddress const & ta) {
 // -------------------------------------------------------------------------- //
 inline
 Json json_add_child_from_ta(SeismicNetwork const & sn,
-                            TargetAddress const & ta,
+                            TargetAddress const & parent_ta,
                             Scope const & child_scope) {
 
-    auto const parent_scope = ta.scope();
+    auto const parent_scope = parent_ta.scope();
 
     switch (parent_scope) {
 
