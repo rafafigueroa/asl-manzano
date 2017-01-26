@@ -59,8 +59,8 @@ public:
                        std::string const & user_input,
                        TargetAddress & ta) const;
 
-    void remove_from_config(SeismicNetwork & sn,
-                            TargetAddress & ta) const;
+    void remove_from_config(SeismicNetwork & sn, TargetAddress & ta) const;
+    void change_config(SeismicNetwork & sn, TargetAddress const & ta) const;
 
 private:
 

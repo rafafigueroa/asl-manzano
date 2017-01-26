@@ -38,7 +38,9 @@ Json read_json(std::string const & filename) {
 
 // -------------------------------------------------------------------------- //
 template <typename T>
-void ask(Json & json, std::string const & key, std::string const & hint = "") {
+void ask(Json & json,
+         std::string const & key,
+         std::string const & hint) {
 
     std::cout << "\n" << key;
     if (hint != "") std::cout << " (" << hint << ")";
@@ -64,16 +66,119 @@ void ask(Json & json, std::string const & key, std::string const & hint = "") {
 }
 
 // -------------------------------------------------------------------------- //
+template <typename T>
+void ask(Json & json,
+         Json const & original_json,
+         std::string const & key,
+         std::string const & hint) {
+
+    std::cout << "\n" << key;
+    if (hint != "") std::cout << " (" << hint << ")";
+    std::cout << "[" << original_json[key] << "]";
+    std::cout << ": ";
+
+    T value;
+    std::cin >> value;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+
+    if ( std::cin.fail() ) {
+
+        std::cin.clear();
+
+        std::stringstream ss;
+        ss << "error with user response for key " << key;
+
+        throw WarningException( "JsonSn",
+                                "ask",
+                                ss.str() );
+    }
+
+    json[key] = value;
+}
+
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_ch(Json const & original_json) {
+
+    Json ch_json;
+    ask<std::string>( ch_json, original_json, "ip_remote",  "#.#.#.#");
+    ask<int>(         ch_json, original_json, "port_remote", ">5000");
+    ask<std::string>( ch_json, original_json, "auth_code", "");
+    ask<int>(         ch_json, original_json, "port_host", ">2000");
+    ask<int>(         ch_json, original_json, "protocol_version", "2");
+
+    return ch_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_s(Json const & original_json) {
+
+    Json s_json;
+    ask<std::string>(s_json, original_json, "input", "A or B");
+    ask<std::string>(s_json, original_json, "model", "STS2, STS1, etc");
+    ask<std::string>(s_json, original_json, "cals", "STS2, STS2_HF_TEST, etc");
+
+    std::cout << std::endl << "Has E300? (y/n): ";
+    std::string response;
+    std::getline(std::cin, response);
+
+    if (response == "y") {
+        json_change_ch(original_json["port_e300"]);
+    } else {
+        s_json["port_e300"] = Json::object();
+    }
+
+    return s_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_q(Json const & original_json) {
+
+    Json q_json;
+    ask<std::string>(q_json, original_json, "serial_number", "012345ABCDEF");
+
+    json_change_ch(original_json["port_config"]);
+    q_json["sensor"] = Json::array();
+return q_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_dp(Json const & original_json) {
+
+    Json dp_json;
+    ask<std::string>(dp_json, original_json, "user", "rafa");
+    ask<std::string>(dp_json, original_json, "pw", "");
+    ask<std::string>(dp_json, original_json, "ip", "#.#.#.#");
+
+    return dp_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_st(Json const & original_json) {
+
+    Json st_json;
+    ask<std::string>(st_json, original_json, "station_name", "ABCDF");
+    st_json["digitizer"] = Json::array();
+    st_json["data_processor"] = Json::array();
+    return st_json;
+}
+
+// -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
 inline
 Json json_add_ch() {
 
     Json ch_json;
-    ask<std::string>( ch_json, "ip_remote",  "x.x.x.x");
-    ask<int>(         ch_json, "port_remote");
-    ask<std::string>( ch_json, "auth_code");
-    ask<int>(         ch_json, "port_host");
-    ask<int>(         ch_json, "protocol_version");
+    ask<std::string>( ch_json, "ip_remote",  "#.#.#.#");
+    ask<int>(         ch_json, "port_remote", ">5000");
+    ask<std::string>( ch_json, "auth_code", "");
+    ask<int>(         ch_json, "port_host", ">2000");
+    ask<int>(         ch_json, "protocol_version", "2");
 
     return ch_json;
 }
@@ -84,8 +189,8 @@ Json json_add_s() {
 
     Json s_json;
     ask<std::string>(s_json, "input", "A or B");
-    ask<std::string>(s_json, "model");
-    ask<std::string>(s_json, "cals");
+    ask<std::string>(s_json, "model", "STS2, STS1, etc");
+    ask<std::string>(s_json, "cals", "STS2, STS2_HF_TEST, etc");
 
     std::cout << std::endl << "Has E300? (y/n): ";
     std::string response;
@@ -105,7 +210,7 @@ inline
 Json json_add_q() {
 
     Json q_json;
-    ask<std::string>(q_json, "serial_number");
+    ask<std::string>(q_json, "serial_number", "012345ABCDEF");
 
     q_json["port_config"] =  json_add_ch();
     q_json["sensor"] = Json::array();
@@ -118,9 +223,9 @@ inline
 Json json_add_dp() {
 
     Json dp_json;
-    ask<std::string>(dp_json, "user");
-    ask<std::string>(dp_json, "pw");
-    ask<std::string>(dp_json, "ip");
+    ask<std::string>(dp_json, "user", "rafa");
+    ask<std::string>(dp_json, "pw", "");
+    ask<std::string>(dp_json, "ip", "#.#.#.#");
 
     return dp_json;
 }
@@ -134,70 +239,6 @@ Json json_add_st() {
     st_json["digitizer"] = Json::array();
     st_json["data_processor"] = Json::array();
     return st_json;
-}
-
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-inline
-Json json_empty_ch() {
-
-    Json ch_json = { {"ip_remote",        ""},
-                     {"port_remote",      0},
-                     {"auth_code",        ""},
-                     {"port_host",        0},
-                     {"protocol_version", 0} };
-    return ch_json;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-Json json_empty_s() {
-
-    Json s_json = { {"input", ""},
-                    {"model", ""},
-                    {"cals",  ""},
-                    {"port_e300", {} } };
-    return s_json;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-Json json_empty_q() {
-
-    Json q_json = { {"serial_number", ""},
-                    {"port_config",   json_empty_ch()} };
-
-    q_json["sensor"] = Json::array();
-    return q_json;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-Json json_empty_dp() {
-
-    Json dp_json = { {"user", ""},
-                     {"pw",   ""},
-                     {"ip",   ""} };
-    return dp_json;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-Json json_empty_st() {
-
-    Json st_json = { {"station_name", ""} };
-    st_json["digitizer"] = Json::array();
-    st_json["data_processor"] = Json::array();
-    return st_json;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-Json json_empty_sn() {
-
-    Json sn_json;
-    sn_json["station"] = Json::array();
-    return sn_json;
 }
 
 // -------------------------------------------------------------------------- //
@@ -489,9 +530,9 @@ Json json_from_ta(SeismicNetwork const & sn, TargetAddress const & ta) {
 
 // -------------------------------------------------------------------------- //
 inline
-Json json_child_from_ta(SeismicNetwork const & sn,
-                        TargetAddress const & ta,
-                        Scope const & child_scope) {
+Json json_add_child_from_ta(SeismicNetwork const & sn,
+                            TargetAddress const & ta,
+                            Scope const & child_scope) {
 
     auto const parent_scope = ta.scope();
 
