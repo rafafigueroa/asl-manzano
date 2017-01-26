@@ -44,6 +44,7 @@ struct TargetAddress {
     //! called from green_manzano (user_interpreter::run_user_input)
     //! when this ta is not complete, it can add parents from other ta
     //! in this case the current_ta_ from InstructionInterpreter
+    // for use with an incomplete ta, where from_ta completes
     //! @throws warning if fails
     // --------------------------------------------------------------------- //
     void add_targets_from_ta(TargetAddress const & from_ta);
@@ -92,7 +93,7 @@ struct TargetAddress {
     // --------------------------------------------------------------------- //
     Target target() const;
 
-    //! removes the target at the end of the address
+    //! removes the target at the end of the address, from st0q0 to st0
     // --------------------------------------------------------------------- //
     void remove_one_target();
 

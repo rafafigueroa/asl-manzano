@@ -13,8 +13,8 @@ std::string DataProcessor::uptime() {
 
 
     std::string sys_cmd = spass + " " +
-                          config.pw_ + " " + sso + " " +
-                          config.user_ + "@" + config.ip + " " +
+                          config.pw + " " + sso + " " +
+                          config.user + "@" + config.ip + " " +
                           ss_cmd +" > .LOCALTIME.tmp";  // + :port
 
     std::cout << "sys cmd ssh: " << sys_cmd.c_str();

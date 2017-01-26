@@ -84,9 +84,9 @@ void Comm::run<Action::start, Kind::cal>(UserInstruction const & ui,
 
     // --------- E300 registration ----------- //
     if (s.config.has_e300) {
-        s.port_e300().reg();
+        s.port_e300_ref().reg();
         std::cout << std::endl << "\n** E300 REGISTERED! ** " << std::endl;
-        s.port_e300().cal_connect();
+        s.port_e300_ref().cal_connect();
     }
 
     // qcal, C1Qcal, C1Cack, no default option
@@ -362,11 +362,11 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         // gets registered before proceeding. Also this is not caught here,
         // so if e300 registration fails, calibration fails, as it should.
 
-        s.port_e300().reg();
+        s.port_e300_ref().reg();
 
         // connect external calibration signal from e300
 
-        s.port_e300().cal_connect();
+        s.port_e300_ref().cal_connect();
 
         // if the calibration plan takes more than an hour, the e300
         // needs to be kept awake or it will go back to "safe" mode
@@ -399,7 +399,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
             // sets cancel_keep_alive to false
             // but it can be set to true during the keep_alive_delay
-            s.port_e300().keep_alive(total_plan_run_duration,
+            s.port_e300_ref().keep_alive(total_plan_run_duration,
                                      keep_alive_delay);
         }
     }
@@ -462,7 +462,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         }
 
         // all done successfully, get the future from keep alive
-        if (s.config.has_e300) s.port_e300().wait_keep_alive();
+        if (s.config.has_e300) s.port_e300_ref().wait_keep_alive();
 
     } catch (Exception const & e) {
 
@@ -475,7 +475,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         Comm::run<Action::set, Kind::dereg>(ui, ta);
         std::cerr << "\n cancelling keep alive for e300: \n";
         // ok to set even if keep_alive(...)  was not called here
-        if (s.config.has_e300) s.port_e300().cancel_keep_alive();
+        if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
         std::cerr << std::endl << "rethrow";
         throw e;
     }

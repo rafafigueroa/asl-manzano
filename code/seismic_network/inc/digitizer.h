@@ -76,6 +76,7 @@ public:
             config(rhs.config),
             status(rhs.status) {}
 
+    // ---------------------------------------------------------------------- //
     friend
     std::ostream & operator<<(std::ostream & os, Config const & c);
 

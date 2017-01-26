@@ -5,9 +5,9 @@ namespace mzn {
 // -------------------------------------------------------------------------- //
 void TargetAddress::add_targets_from_ta(TargetAddress const & from_ta) {
 
-    // TODO everything is backwards
-    // this functions merges from_ta with ta, it only changes
-    // ta, it does not change from_ta
+    // this functions merges from_ta with ta, it only changes ta
+    // it does not change from_ta
+    // for use with an incomplete ta, where from_ta completes
 
     /* CASE 1 : ta has ONE target
        --------------------------

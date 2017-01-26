@@ -12,6 +12,7 @@
 #include "mzn_except.h"
 #include "system_calls.h"
 #include "user_interpreter.h"
+#include "instruction_interpreter.h"
 
 namespace mzn {
 
@@ -20,17 +21,51 @@ class MceCli {
 public:
 
     explicit
-    MceCli() : sn{}, stream_output(sn) {};
+    MceCli() : ta_{} {
 
-    SeismicNetwork sn;
-    StreamOutput stream_output;
+        try {
+
+            config_home_path = get_runtime_config_path();
+
+        } catch(mzn::FatalException & e) {
+
+            std::cout << std::endl << "No runtime configuration files found";
+            auto const confirm = ask_yes("Create empty config file");
+            if (confirm) create_empty_config_file(); else throw e;
+        }
+
+    };
+
+    std::string config_home_path;
 
     ~MceCli() = default;
+
+    static
+    bool ask_yes(std::string const & prompt) {
+        std::cout << std::endl << prompt << "? (y/n): ";
+        std::string response;
+        std::getline(std::cin, response);
+        if (response == "y") return true; else return false;
+    }
 
     //! mce cli starts here
     void user_input_loop();
 
-    void show_prompt();
+    void create_empty_config_file();
+
+    void save_to_config_file(SeismicNetwork const & sn) const;
+
+    void add_to_config(SeismicNetwork & sn,
+                       std::string const & user_input,
+                       TargetAddress & ta) const;
+
+    void remove_from_config(SeismicNetwork & sn, TargetAddress & ta) const;
+    void change_config(SeismicNetwork & sn, TargetAddress const & ta) const;
+
+private:
+
+    TargetAddress ta_;
+
 };
 
 } // end namespace
