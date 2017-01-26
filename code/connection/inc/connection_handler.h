@@ -30,10 +30,11 @@ public:
 
     // ---------------------------------------------------------------------- //
     std::string const ip_remote;
-    int const port_remote = 0;
-    uint64_t const auth_code = 0;
-    int const protocol_version = 0;
+    int const port_remote;
+    uint64_t const auth_code;
+    int const protocol_version;
 
+    //! constructor
     // ---------------------------------------------------------------------- //
     ConnectionHandler(std::string const ip_remote,
                       int const port_remote,
@@ -49,6 +50,7 @@ public:
 
     ~ConnectionHandler() = default;
 
+    //! move constructor
     //! use the default constructed mutex on each one, no move for mutex
     // ---------------------------------------------------------------------- //
     ConnectionHandler(ConnectionHandler && rhs) noexcept :

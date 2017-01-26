@@ -86,7 +86,6 @@ Json json_add_s() {
     ask<std::string>(s_json, "input", "A or B");
     ask<std::string>(s_json, "model");
     ask<std::string>(s_json, "cals");
-                   // {"port_e300", {} } };
 
     std::cout << std::endl << "Has E300? (y/n): ";
     std::string response;
@@ -462,7 +461,7 @@ Json json_from_ta(SeismicNetwork const & sn, TargetAddress const & ta) {
 
         case Scope::data_processor: {
             auto const & dp = sn.dp_const_ref(ta);
-            return json_from_dp(dp);;
+            return json_from_dp(dp);
         }
 
         case Scope::sensor: {

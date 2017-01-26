@@ -59,7 +59,14 @@ void MceCli::user_input_loop() {
                 break;
             }
 
+            if (user_input == "rm") {
+                // changes ta_ to parent
+                remove_from_config(sn, ta_);
+                continue;
+            }
+
             if (user_input[0] == '+') {
+                // changes ta_ to newly added
                 add_to_config(sn, user_input, ta_);
                 continue;
             }
@@ -130,7 +137,7 @@ void MceCli::create_empty_config_file() {
 // -------------------------------------------------------------------------- //
 void MceCli::add_to_config(SeismicNetwork & sn,
                            std::string const & user_input,
-                           TargetAddress const & ta) const {
+                           TargetAddress & ta) const {
 
     std::size_t scope_pos = 1;
 
@@ -142,35 +149,37 @@ void MceCli::add_to_config(SeismicNetwork & sn,
 
     std::cout << std::endl << child_json.dump(4);
 
-    std::cout << std::endl << "Looks good? (y/n): ";
-    std::string response;
-    std::getline(std::cin, response);
+    auto const confirm = ask_yes("Looks good");
+    if (not confirm) {std::cout << "OK, no changes"; return;}
 
-    if (response != "y") {std::cout << "OK, no changes"; return;}
-
+    int child_index;
     // it's on
     // --------------------------------------------------------------------- //
     switch (child_scope) {
 
         case Scope::data_processor: {
             auto & st = sn.st_ref(ta);
+            child_index = st.dp.size();
             st.dp.push_back( dp_from_json(child_json) );
             break;
         }
 
         case Scope::sensor: {
             auto & q = sn.q_ref(ta);
+            child_index = q.s.size();
             q.s.push_back( s_from_json(child_json) );
             break;
         }
 
         case Scope::digitizer: {
             auto & st = sn.st_ref(ta);
+            child_index = st.q.size();
             st.q.push_back( q_from_json(child_json) );
             break;
         }
 
         case Scope::station: {
+            child_index = sn.st.size();
             sn.st.push_back( st_from_json(child_json) );
             break;
         }
@@ -179,6 +188,79 @@ void MceCli::add_to_config(SeismicNetwork & sn,
     }
 
     save_to_config_file(sn);
+
+    auto const child_target = Target(child_scope, child_index);
+    auto const child_ta = TargetAddress(child_target);
+    ta.add_targets_from_ta(child_ta);
+}
+
+// -------------------------------------------------------------------------- //
+void MceCli::remove_from_config(SeismicNetwork & sn,
+                                TargetAddress & ta) const {
+
+    // confirm first
+    auto const target = ta.target();
+    std::cout <<  "\nRemoving " << target << " from " << ta << "\n";
+    auto json = json_from_ta(sn, ta);
+    std::cout << std::endl << json.dump(4);
+    auto const confirm = ask_yes("Remove");
+    if (not confirm) {std::cout << "OK, no changes"; return;}
+
+    // since digitizers (and then stations) can't have copy/move assignment
+    // due to const members by design, std::vector<T>.erase(..) can't be used.
+    // However, move constructors are provided.
+    // --------------------------------------------------------------------- //
+    auto remove_without_assignment = [](auto & v, auto const pos) {
+
+        // reset v
+        auto temp_v = std::move(v);
+        v.clear();
+
+        // refill v without the element
+        for (int i = 0; i < temp_v.size(); i++) {
+            // use move constructor which is defined
+            if (i != pos) v.push_back( std::move(temp_v[i]) );
+        }
+    };
+
+    // it's on
+    // --------------------------------------------------------------------- //
+    switch (target.scope) {
+
+        case Scope::data_processor: {
+            auto & st = sn.st_ref(ta);
+            st.dp.erase(st.dp.begin() + target.index);
+            break;
+        }
+
+        case Scope::sensor: {
+            auto & q = sn.q_ref(ta);
+            q.s.erase(q.s.begin() + target.index);
+            break;
+        }
+
+        case Scope::digitizer: {
+            auto & st = sn.st_ref(ta);
+            remove_without_assignment(st.q, target.index);
+            break;
+        }
+
+        case Scope::station: {
+            remove_without_assignment(sn.st, target.index);
+            break;
+        }
+
+        case Scope::seismic_network: {
+            sn.st.clear();
+            break;
+        }
+
+        default: throw std::logic_error{"@MceCli::add_to_config"};
+    }
+
+    save_to_config_file(sn);
+
+    ta.remove_one_target();
 }
 
 } // end namespace

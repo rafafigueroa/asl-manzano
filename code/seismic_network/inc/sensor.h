@@ -83,16 +83,17 @@ public:
         }
     }
 
+    // constructor
     Sensor(std::string const input,
            std::string const model,
            std::string const cals,
            std::unique_ptr<ConnectionHandlerE300> port_e300_ptr = nullptr) :
 
-            config(string_to_sp(input),
-                   model,
-                   cals,
-                   // has_e300?
-                   (port_e300_ptr != nullptr) ) {
+            config( string_to_input(input),
+                    model,
+                    cals,
+                    // has_e300?
+                    (port_e300_ptr != nullptr) ) {
 
         if (config.has_e300) port_e300_ptr_ = std::move(port_e300_ptr);
     }
@@ -106,19 +107,23 @@ public:
             status(rhs.status),
             port_e300_ptr_( std::move(rhs.port_e300_ptr_) ) {}
 
+    // move assignment
+    // ---------------------------------------------------------------------- //
+    Sensor & operator=(Sensor && rhs) {
+        port_e300_ptr_ = std::move(rhs.port_e300_ptr_);
+        return *this;
+    }
+
 private:
-    Input string_to_sp (std::string const & _input) {
+
+    Input string_to_input (std::string const & _input) {
         if (_input != "A" and _input != "B" ) {
-            std::cerr << "\nSensor input not A or B";
+            throw WarningException("Sensor",
+                                   "string_to_input",
+                                   "string not A or B");
         }
         return ( (_input == "A") ? Input::a : Input::b );
     }
-
-friend std::ostream & operator<<(std::ostream & os,
-                                 Config const & c);
-
-friend std::ostream & operator<<(std::ostream & os,
-                                 Status const & c);
 };
 
 // -------------------------------------------------------------------------- //

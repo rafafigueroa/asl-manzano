@@ -92,7 +92,7 @@ struct TargetAddress {
     // --------------------------------------------------------------------- //
     Target target() const;
 
-    //! removes the target at the end of the address
+    //! removes the target at the end of the address, from st0q0 to st0
     // --------------------------------------------------------------------- //
     void remove_one_target();
 

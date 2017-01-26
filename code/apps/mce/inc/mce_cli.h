@@ -30,12 +30,8 @@ public:
         } catch(mzn::FatalException & e) {
 
             std::cout << std::endl << "No runtime configuration files found";
-            std::cout << std::endl << "Create empty config file? (y/n): ";
-
-            std::string response;
-            std::getline(std::cin, response);
-
-            if (response == "y") create_empty_config_file(); else throw e;
+            auto const confirm = ask_yes("Create empty config file");
+            if (confirm) create_empty_config_file(); else throw e;
         }
 
     };
@@ -43,6 +39,14 @@ public:
     std::string config_home_path;
 
     ~MceCli() = default;
+
+    static
+    bool ask_yes(std::string const & prompt) {
+        std::cout << std::endl << prompt << "? (y/n): ";
+        std::string response;
+        std::getline(std::cin, response);
+        if (response == "y") return true; else return false;
+    }
 
     //! mce cli starts here
     void user_input_loop();
@@ -53,7 +57,10 @@ public:
 
     void add_to_config(SeismicNetwork & sn,
                        std::string const & user_input,
-                       TargetAddress const & ta) const;
+                       TargetAddress & ta) const;
+
+    void remove_from_config(SeismicNetwork & sn,
+                            TargetAddress & ta) const;
 
 private:
 

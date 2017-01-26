@@ -47,6 +47,7 @@ private:
 
 
 public:
+    //! constructor
     DataProcessor(std::string const in_user,
                   std::string const in_pw,
                   std::string const in_ip) :
