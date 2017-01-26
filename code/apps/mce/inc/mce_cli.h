@@ -25,7 +25,7 @@ public:
 
         try {
 
-            get_runtime_config_path();
+            config_home_path = get_runtime_config_path();
 
         } catch(mzn::FatalException & e) {
 
@@ -33,13 +33,11 @@ public:
             std::cout << std::endl << "Create empty config file? (y/n): ";
 
             std::string response;
-            getline(std::cin, response);
+            std::getline(std::cin, response);
 
             if (response == "y") create_empty_config_file(); else throw e;
         }
 
-        auto const home_path = get_environmental_variable("HOME");
-        config_home_path = home_path + std::string("/.config/manzano");
     };
 
     std::string config_home_path;
@@ -51,7 +49,12 @@ public:
 
     void create_empty_config_file();
 
-    void save_to_config_file(SeismicNetwork const & sn);
+    void save_to_config_file(SeismicNetwork const & sn) const;
+
+    static
+    void add_to_config(SeismicNetwork & sn,
+                       std::string const & user_input,
+                       TargetAddress const & ta);
 
 private:
 

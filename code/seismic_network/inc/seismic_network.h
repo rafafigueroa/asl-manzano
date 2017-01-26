@@ -46,9 +46,6 @@ public:
     SeismicNetwork();
     ~SeismicNetwork() = default;
 
-    //! using the filename from the CMake configuration, fill this object
-    void setup_from_config_file();
-
     //! holds a vector of stations
     std::vector<Station> st; //stations
     //! flag sets to true during constructor initialization
@@ -68,8 +65,6 @@ public:
     Sensor & s_ref(TargetAddress const & ta);
     Station & st_ref(TargetAddress const & ta);
     DataProcessor & dp_ref(TargetAddress const & ta) ;
-
-
 };
 
 

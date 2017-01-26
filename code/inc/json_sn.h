@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <cstdlib>
+#include <limits>
 #include "mzn_cmake_config.h"
 #include "mzn_except.h"
 #include "json.h"
@@ -36,16 +37,182 @@ Json read_json(std::string const & filename) {
 }
 
 // -------------------------------------------------------------------------- //
+template <typename T>
+void ask(Json & json, std::string const & key, std::string const & hint = "") {
+
+    std::cout << "\n" << key;
+    if (hint != "") std::cout << " (" << hint << ")";
+    std::cout << ": ";
+
+    T value;
+    std::cin >> value;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+
+    if ( std::cin.fail() ) {
+
+        std::cin.clear();
+
+        std::stringstream ss;
+        ss << "error with user response for key " << key;
+
+        throw WarningException( "JsonSn",
+                                "ask",
+                                ss.str() );
+    }
+
+    json[key] = value;
+}
+
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+inline
+Json json_add_ch() {
+
+    Json ch_json;
+    ask<std::string>( ch_json, "ip_remote",  "x.x.x.x");
+    ask<int>(         ch_json, "port_remote");
+    ask<std::string>( ch_json, "auth_code");
+    ask<int>(         ch_json, "port_host");
+    ask<int>(         ch_json, "protocol_version");
+
+    return ch_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_add_s() {
+
+    Json s_json;
+    ask<std::string>(s_json, "input", "A or B");
+    ask<std::string>(s_json, "model");
+    ask<std::string>(s_json, "cals");
+                   // {"port_e300", {} } };
+
+    std::cout << std::endl << "Has E300? (y/n): ";
+    std::string response;
+    std::getline(std::cin, response);
+
+    if (response == "y") {
+        s_json["port_e300"] = json_add_ch();
+    } else {
+        s_json["port_e300"] = Json::object();
+    }
+
+    return s_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_add_q() {
+
+    Json q_json;
+    ask<std::string>(q_json, "serial_number");
+
+    q_json["port_config"] =  json_add_ch();
+    q_json["sensor"] = Json::array();
+
+    return q_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_add_dp() {
+
+    Json dp_json;
+    ask<std::string>(dp_json, "user");
+    ask<std::string>(dp_json, "pw");
+    ask<std::string>(dp_json, "ip");
+
+    return dp_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_add_st() {
+
+    Json st_json;
+    ask<std::string>(st_json, "station_name", "ABCDF");
+    st_json["digitizer"] = Json::array();
+    st_json["data_processor"] = Json::array();
+    return st_json;
+}
+
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+inline
+Json json_empty_ch() {
+
+    Json ch_json = { {"ip_remote",        ""},
+                     {"port_remote",      0},
+                     {"auth_code",        ""},
+                     {"port_host",        0},
+                     {"protocol_version", 0} };
+    return ch_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_empty_s() {
+
+    Json s_json = { {"input", ""},
+                    {"model", ""},
+                    {"cals",  ""},
+                    {"port_e300", {} } };
+    return s_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_empty_q() {
+
+    Json q_json = { {"serial_number", ""},
+                    {"port_config",   json_empty_ch()} };
+
+    q_json["sensor"] = Json::array();
+    return q_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_empty_dp() {
+
+    Json dp_json = { {"user", ""},
+                     {"pw",   ""},
+                     {"ip",   ""} };
+    return dp_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_empty_st() {
+
+    Json st_json = { {"station_name", ""} };
+    st_json["digitizer"] = Json::array();
+    st_json["data_processor"] = Json::array();
+    return st_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_empty_sn() {
+
+    Json sn_json;
+    sn_json["station"] = Json::array();
+    return sn_json;
+}
+
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 inline
 Json json_from_ch(ConnectionHandler const & ch) {
 
     std::stringstream ss_auth_code;
     ss_auth_code << std::hex << ch.auth_code;
 
-    Json ch_json = { {"ip_remote",   ch.ip_remote},
-                     {"port_remote", ch.port_remote},
-                     {"auth_code",   ss_auth_code.str()},
-                     {"port_host",   ch.uc.port_host()},
+    Json ch_json = { {"ip_remote",        ch.ip_remote},
+                     {"port_remote",      ch.port_remote},
+                     {"auth_code",        ss_auth_code.str()},
+                     {"port_host",        ch.uc.port_host()},
                      {"protocol_version", ch.protocol_version} };
 
     return ch_json;
@@ -77,7 +244,7 @@ Json json_from_q(Digitizer const & q) {
     ss << std::hex << std::uppercase << q.config.serial_number;
 
     Json q_json = { {"serial_number", ss.str()},
-                    {"port_config", json_from_ch(q.port_config)} };
+                    {"port_config",   json_from_ch(q.port_config)} };
 
     q_json["sensor"] = Json::array();
 
@@ -93,8 +260,8 @@ inline
 Json json_from_dp(DataProcessor const & dp) {
 
     Json dp_json = { {"user", dp.config.user},
-                     {"pw", dp.config.pw},
-                     {"ip", dp.config.ip} };
+                     {"pw",   dp.config.pw},
+                     {"ip",   dp.config.ip} };
 
     return dp_json;
 }
@@ -133,7 +300,6 @@ Json json_from_sn(SeismicNetwork const & sn) {
 
     return sn_json;
 }
-
 // -------------------------------------------------------------------------- //
 class JsonRef {
 
@@ -149,25 +315,23 @@ public:
 
             std::stringstream ss;
             ss << "Error attempting to get value for key: " << key;
-            throw FatalException("SeismicNetwork",
-                                 "setup",
+            throw FatalException("SeismicNetwork", "setup",
                                  ss.str() );
         } else {
-            return json[key];
-        }
+            return json[key]; }
     }
 };
 
 // -------------------------------------------------------------------------- //
 inline
 ConnectionHandler
-ch_from_json(JsonRef const connection_handler_json) {
+ch_from_json(JsonRef const ch_json) {
 
-    std::string ip_remote      = connection_handler_json["ip_remote"];
-    int const port_remote      = connection_handler_json["port_remote"];
-    std::string auth_code      = connection_handler_json["auth_code"];
-    int const port_host        = connection_handler_json["port_host"];
-    int const protocol_version = connection_handler_json["protocol_version"];
+    std::string ip_remote      = ch_json["ip_remote"];
+    int const port_remote      = ch_json["port_remote"];
+    std::string auth_code      = ch_json["auth_code"];
+    int const port_host        = ch_json["port_host"];
+    int const protocol_version = ch_json["protocol_version"];
 
     ConnectionHandler connection_handler(
         ip_remote,
@@ -182,12 +346,12 @@ ch_from_json(JsonRef const connection_handler_json) {
 // -------------------------------------------------------------------------- //
 inline
 std::unique_ptr<ConnectionHandlerE300>
-ch_e300_ptr_from_json(JsonRef const connection_handler_json) {
+ch_e300_ptr_from_json(JsonRef const ch_json) {
 
-    std::string ip_remote      = connection_handler_json["ip_remote"];
-    int const port_remote      = connection_handler_json["port_remote"];
-    std::string auth_code      = connection_handler_json["auth_code"];
-    int const port_host        = connection_handler_json["port_host"];
+    std::string ip_remote      = ch_json["ip_remote"];
+    int const port_remote      = ch_json["port_remote"];
+    std::string auth_code      = ch_json["auth_code"];
+    int const port_host        = ch_json["port_host"];
 
     auto ch_ptr = std::make_unique<ConnectionHandlerE300>(
         ip_remote,
@@ -208,13 +372,13 @@ Sensor s_from_json(JsonRef const s_json) {
 
     if ( s_json.json.find("port_e300") != s_json.json.end() ) {
 
-        auto connection_handler_e300_json = s_json["port_e300"];
+        auto ch_e300_json = s_json["port_e300"];
 
         Sensor s(
             input,
             model,
             cals,
-            ch_e300_ptr_from_json(connection_handler_e300_json)
+            ch_e300_ptr_from_json(ch_e300_json)
         );
 
         return s;
@@ -234,11 +398,13 @@ Sensor s_from_json(JsonRef const s_json) {
 inline
 Digitizer q_from_json(JsonRef const q_json) {
 
-    std::string serial_number_string    = q_json["serial_number"];
-    uint64_t const serial_number =
-        std::strtoul(serial_number_string.c_str(), nullptr, 16);
+    std::string serial_number_string = q_json["serial_number"];
 
-    Json ch_config_json  = q_json["port_config"];
+    uint64_t const serial_number = std::strtoul(serial_number_string.c_str(),
+                                                nullptr,
+                                                16);
+
+    Json ch_config_json = q_json["port_config"];
 
     Digitizer q(
         serial_number,
@@ -317,6 +483,51 @@ Json json_from_ta(SeismicNetwork const & sn, TargetAddress const & ta) {
         }
 
         default: throw std::logic_error{"@JsonSn::json_from_ta"};
+    }
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_child_from_ta(SeismicNetwork const & sn,
+                        TargetAddress const & ta,
+                        Scope const & child_scope) {
+
+    auto const parent_scope = ta.scope();
+
+    switch (parent_scope) {
+
+        case Scope::digitizer: {
+
+            if (child_scope == Scope::sensor) return json_add_s();
+
+             throw WarningException("JsonSn",
+                                    "json_child_from_ta",
+                                    "digitizer childs are sensors");
+        }
+
+        case Scope::seismic_network: {
+
+             if (child_scope == Scope::station) return json_add_st();
+
+             throw WarningException("JsonSn",
+                                    "json_child_from_ta",
+                                    "seismic network childs are stations");
+        }
+
+        case Scope::station: {
+
+            switch (child_scope) {
+
+                case Scope::digitizer      : return json_add_q();
+                case Scope::data_processor : return json_add_dp();
+
+                default: throw WarningException("JsonSn",
+                                                "json_child_from_ta",
+                                                "station childs are q and dp");
+            }
+        }
+
+        default: throw std::logic_error{"@JsonSn::json_child_from_ta"};
     }
 }
 

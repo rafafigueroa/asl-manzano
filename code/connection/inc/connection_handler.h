@@ -36,10 +36,10 @@ public:
 
     // ---------------------------------------------------------------------- //
     ConnectionHandler(std::string const ip_remote,
-               int const port_remote,
-               uint64_t const auth_code,
-               int const port_host,
-               int const protocol_version = 0) :
+                      int const port_remote,
+                      uint64_t const auth_code,
+                      int const port_host,
+                      int const protocol_version = 0) :
 
             ip_remote(ip_remote),
             port_remote(port_remote),

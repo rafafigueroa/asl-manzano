@@ -7,6 +7,7 @@ namespace mzn {
 
 // -------------------------------------------------------------------------- //
 void MceCli::user_input_loop() {
+
     // prompts the user for their command
     // interactive
 
@@ -17,6 +18,8 @@ void MceCli::user_input_loop() {
         // rebuild TODO change sn contructor, total rebuild not needed
         // ----------------------------------------------------------------- //
         InstructionInterpreter ii(ta_);
+
+        auto & sn = ii.cm.sn;
 
         // check ta_ again, this time without catching
         // ----------------------------------------------------------------- //
@@ -32,28 +35,33 @@ void MceCli::user_input_loop() {
         // std::cout << std::endl << " » ";
 
         // ----------------------------------------------------------------- //
-        getline(std::cin, user_input);
+        std::getline(std::cin, user_input);
 
         try {
-
-            //! stream raw json format
-            if (user_input == "raw") {
-                auto const json = json_from_ta(ii.cm.sn, ta_);
-                std::cout << json.dump(4) << std::endl;
-                continue;
-            }
 
             //! user hit enter
             if (user_input == "") continue;
 
+            //! stream raw json format
+            if (user_input == "raw") {
+                auto const json = json_from_ta(sn, ta_);
+                std::cout << json.dump(4) << std::endl;
+                continue;
+            }
+
             if (user_input == "save") {
-                save_to_config_file(ii.cm.sn);
+                save_to_config_file(sn);
                 continue;
             }
 
             if (user_input == "quit") {
-                save_to_config_file(ii.cm.sn);
+                save_to_config_file(sn);
                 break;
+            }
+
+            if (user_input[0] == '+') {
+                add_to_config(sn, user_input, ta_);
+                continue;
             }
 
             //! quit program without saving
@@ -86,7 +94,7 @@ void MceCli::user_input_loop() {
 }
 
 // -------------------------------------------------------------------------- //
-void MceCli::save_to_config_file(SeismicNetwork const & sn) {
+void MceCli::save_to_config_file(SeismicNetwork const & sn) const {
 
     std::ofstream config_fs;
 
@@ -103,13 +111,35 @@ void MceCli::save_to_config_file(SeismicNetwork const & sn) {
 // -------------------------------------------------------------------------- //
 void MceCli::create_empty_config_file() {
 
+    // use home as default
+    auto const home_path = get_environmental_variable("HOME");
+    config_home_path = home_path + std::string("/.config/manzano");
+
+    std::cout << std::endl << "config path: " << config_home_path;
+
     std::ofstream config_fs;
 
     config_fs.open(config_home_path + "/config.json",
                    std::ofstream::out | std::ofstream::trunc);
 
-    // empty json object
-    config_fs << "{\n}";
+    config_fs << "{ \"station\": [] }";
+}
+
+// -------------------------------------------------------------------------- //
+void MceCli::add_to_config(SeismicNetwork & sn,
+                           std::string const & user_input,
+                           TargetAddress const & ta) {
+
+    std::size_t scope_pos = 1;
+
+    auto scope = UserInterpreter::match_scope(user_input,
+                                              scope_pos);
+
+    std::cout <<  "\nAdding a " << scope << " to " << ta << "\n";
+
+    auto const json = json_child_from_ta(sn, ta, scope);
+
+    std::cout << std::endl << json.dump(4) << "\n";
 }
 
 } // end namespace
