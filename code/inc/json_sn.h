@@ -618,22 +618,13 @@ Json json_add_child_from_ta(SeismicNetwork const & sn,
 
     switch (parent_scope) {
 
-        case Scope::digitizer: {
-
-            if (child_scope == Scope::sensor) return json_add_s();
-
-             throw WarningException("JsonSn",
-                                    "json_child_from_ta",
-                                    "digitizer childs are sensors");
-        }
-
         case Scope::seismic_network: {
 
              if (child_scope == Scope::station) return json_add_st();
 
-             throw WarningException("JsonSn",
-                                    "json_child_from_ta",
-                                    "seismic network childs are stations");
+            throw WarningException("JsonSn",
+                                   "json_child_from_ta",
+                                   "seismic network childs are stations");
         }
 
         case Scope::station: {
@@ -647,6 +638,27 @@ Json json_add_child_from_ta(SeismicNetwork const & sn,
                                                 "json_child_from_ta",
                                                 "station childs are q and dp");
             }
+        }
+
+        case Scope::digitizer: {
+
+            if (child_scope == Scope::sensor) return json_add_s();
+
+            throw WarningException("JsonSn",
+                                   "json_child_from_ta",
+                                   "digitizer childs are sensors");
+        }
+
+        case Scope::sensor: {
+            throw WarningException("JsonSn",
+                                   "json_child_from_ta",
+                                   "sensors do not have child targets");
+        }
+
+        case Scope::data_processor: {
+            throw WarningException("JsonSn",
+                                   "json_child_from_ta",
+                                   "data processors do not have child targets");
         }
 
         default: throw std::logic_error{"@JsonSn::json_child_from_ta"};
