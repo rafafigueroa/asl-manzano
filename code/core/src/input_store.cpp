@@ -9,8 +9,8 @@ InputStore::InputStore(SeismicNetwork const & sn) : sn_(sn) {}
 template<>
 typename Ci<Action::get, Kind::ping>::type
 InputStore::
-get_default_cmd<Action::get, Kind::ping>(std::string const & option,
-                                         TargetAddress const & ta) {
+get_default_cmd<Action::get, Kind::ping>(TargetAddress const & ta,
+                                         std::string const & option) {
     //  unless there an option is provided and is in the cmd_map
     //if (ui.option != "") return get_live_cmd<C1Ping4>(ui.option);
 
@@ -27,8 +27,8 @@ get_default_cmd<Action::get, Kind::ping>(std::string const & option,
 template<>
 typename Ci<Action::get, Kind::stat>::type
 InputStore::
-get_default_cmd<Action::get, Kind::stat>(std::string const & option,
-                                         TargetAddress const & ta) {
+get_default_cmd<Action::get, Kind::stat>(TargetAddress const & ta,
+                                         std::string const & option) {
 
     //  unless there an option is provided and is in the cmd_map
     //if (ui.option != "") return get_live_cmd<C1Ping4>(ui.option);
@@ -60,8 +60,8 @@ get_default_cmd<Action::get, Kind::stat>(std::string const & option,
 template<>
 typename Ci<Action::start, Kind::cal>::type
 InputStore::
-get_default_cmd<Action::start, Kind::cal>(std::string const & option,
-                                          TargetAddress const & ta) {
+get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
+                                          std::string const & option) {
 
     using Ci = typename Ci<Action::start, Kind::cal>::type;
     Ci cmd;
@@ -138,8 +138,8 @@ std::map< uint16_t, InputStore::OptionCmdMap > InputStore::mpid_options_map;
 template<>
 typename Ci<Action::set, Kind::ctrl>::type
 InputStore::
-get_default_cmd<Action::set, Kind::ctrl>(std::string const & option,
-                                         TargetAddress const & ta) {
+get_default_cmd<Action::set, Kind::ctrl>(TargetAddress const & ta,
+                                         std::string const & option) {
 
     using Ci = typename Ci<Action::set, Kind::ctrl>::type;
     Ci cmd;

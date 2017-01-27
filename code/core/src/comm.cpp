@@ -15,10 +15,10 @@ q_time(TargetAddress const & ta) {
     // status
     C1Stat cmd_stat; // Status
 
-    UserInstruction ui(Action::set, Kind::reg);
-    Comm::run<Action::set, Kind::reg>(ui, ta);
+    OptionInput ui(Action::set, Kind::reg);
+    Comm::run<Action::set, Kind::reg>(ta, oi);
     md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
-    UserInstruction ui2(Action::set, Kind::dereg);
+    OptionInput ui2(Action::set, Kind::dereg);
     Comm::run<Action::set, Kind::dereg>(ui2, ta);
 
     CxGlobalStatus * gs =
@@ -57,66 +57,62 @@ Comm::Comm() : sn{},
 }
 
 // -------------------------------------------------------------------------- //
+using TA = TargetAddress;
+using OI = OptionInput;
+
+// -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::poll>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::poll>(TA const & ta, OI const & oi) {
     // C1Pollsn, C1Mysn
-    q_send_recv<Action::get, Kind::poll>(ui, ta);
+    q_send_recv<Action::get, Kind::poll>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::ping>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::ping>(TA const & ta, OI const & oi) {
     // C1Ping4, C1Ping5
-    q_send_recv<Action::get, Kind::ping>(ui, ta);
+    q_send_recv<Action::get, Kind::ping>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::global>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::global>(TA const & ta, OI const & oi) {
     // C1Rqglob, C1glob
-    q_send_recv<Action::get, Kind::global>(ui, ta);
+    q_send_recv<Action::get, Kind::global>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::stat>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::stat>(TA const & ta,  OI const & oi) {
     // C1Rqstat, C1Stat (multi command)
-    q_send_recv<Action::get, Kind::stat>(ui, ta);
+    q_send_recv<Action::get, Kind::stat>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::center>(UserInstruction const & ui,
-                                          TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::center>(TA const & ta, OI const & oi) {
     // C2Rqamass, C2Amass
-    q_send_recv<Action::get, Kind::center>(ui, ta);
+    q_send_recv<Action::get, Kind::center>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::ctrl>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::ctrl>(TA const & ta, OI const & oi) {
     // sensor_control_mapping, C1Rqsc , C1Sc
-    q_send_recv<Action::get, Kind::ctrl>(ui, ta);
+    q_send_recv<Action::get, Kind::ctrl>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::dev>(UserInstruction const & ui,
-                                       TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::dev>(TA const & ta, OI const & oi) {
     // devices, C1Rqdev, C1Dev (multicommand)
-    q_send_recv<Action::get, Kind::dev>(ui, ta);
+    q_send_recv<Action::get, Kind::dev>(ta, oi);
 }
 
 // *** CALIBRATIONS *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::start, Kind::cal>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::start, Kind::cal>(TA const & ta, OI const & oi) {
 
     auto & s = sn.s_ref(ta);
 
@@ -128,12 +124,11 @@ void Comm::run<Action::start, Kind::cal>(UserInstruction const & ui,
     }
 
     // qcal, C1Qcal, C1Cack, no default option
-    q_send_recv<Action::start, Kind::cal>(ui, ta);
+    q_send_recv<Action::start, Kind::cal>(ta, oi);
 }
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::stop, Kind::cal>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::stop, Kind::cal>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
 
@@ -154,34 +149,30 @@ void Comm::run<Action::stop, Kind::cal>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::show, Kind::target>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::target>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::target>(ta);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::show, Kind::plan>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::plan>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << "show plan";
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::edit, Kind::plan>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::edit, Kind::plan>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << "edit plan";
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::set, Kind::ctrl>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::set, Kind::ctrl>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << " !!!! sending reboot signal to digitizer !!!!";
-    q_send_recv<Action::set, Kind::ctrl>(ui, ta);
+    q_send_recv<Action::set, Kind::ctrl>(ta, oi);
     std::cout << std::endl << " !!!! reboot signal sent !!!!";
 }
 
@@ -203,8 +194,7 @@ void Comm::last_reboot(Digitizer & q) {
 // *** REGISTRATION *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
-                                       TargetAddress const & ta) {
+void Comm::run<Action::set, Kind::reg>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
 
@@ -288,8 +278,7 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
 
 // *** DE - REGISTRATION *** //
 template<>
-void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::set, Kind::dereg>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
 
@@ -317,8 +306,7 @@ void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
     auto & s = sn.s_ref(ta);
@@ -326,6 +314,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
     // log this
     // ---------------------------------------------------------------------- //
     /*
+    TODO: use a logging library, output should be file + console
     std::ofstream out;
     out.open("out.txt", std::ofstream::out | std::ofstream::trunc);
     //save old buffer
@@ -450,7 +439,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
             std::cout << std::endl << " ### now: "
                       << Time::sys_time_of_day() << " ###\n";
 
-            Comm::run<Action::set, Kind::reg>(ui, ta);
+            Comm::run<Action::set, Kind::reg>(ta, oi);
 
             // check if a calibration is going on
             for (int i = 0; i < 2; i++) {
@@ -482,7 +471,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
             // no throw so far, received c1_cack
             msg_task.done = true;
 
-            Comm::run<Action::set, Kind::dereg>(ui, ta);
+            Comm::run<Action::set, Kind::dereg>(ta, oi);
 
             // add some wiggle time in between
             auto constexpr wiggle_duration = std::chrono::seconds(20);
@@ -525,7 +514,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         std::cerr << std::endl << "caught @Comm::run<plan, cal>";
         std::cerr << std::endl << "cancelling plan cal"
                   << "\n deregistering: \n";
-        Comm::run<Action::set, Kind::dereg>(ui, ta);
+        Comm::run<Action::set, Kind::dereg>(ta, oi);
         std::cerr << "\n cancelling keep alive for e300: \n";
         // ok to set even if keep_alive(...)  was not called here
         if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
@@ -538,8 +527,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::set, Kind::center>(UserInstruction const & ui,
-                                          TargetAddress const & ta) {
+void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
     auto const & s = sn.s_ref(ta);
@@ -589,8 +577,7 @@ void Comm::run<Action::set, Kind::center>(UserInstruction const & ui,
 // *** QUICK VIEW *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::qview>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::qview>(TA const & ta, OI const & oi) {
     // no option yet in green_manzano
     // handled completely by red_manzano, no common library worked
     /*
@@ -607,8 +594,7 @@ void Comm::run<Action::get, Kind::qview>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::quit, Kind::mzn>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::quit, Kind::mzn>(TA const & ta, OI const & oi) {
     // TODO clean up mtm
     // md.join_timed_threads();
 }
@@ -616,8 +602,7 @@ void Comm::run<Action::quit, Kind::mzn>(UserInstruction const & ui,
 //TODO: compound, utility function, move separetely?
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::uptime>(UserInstruction const & ui,
-                                          TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::uptime>(TA const & ta, OI const & oi) {
 
     auto & st = sn.st_ref(ta);
 
@@ -649,8 +634,7 @@ void Comm::run<Action::get, Kind::uptime>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::edit, Kind::stat>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::edit, Kind::stat>(TA const & ta, OI const & oi) {
     //TODO: use type traits
     //TODO: show users shortcut and live options
     // cmd_show_options<C1Ping4, Action::edit, Kind::stat>();
@@ -660,20 +644,17 @@ void Comm::run<Action::edit, Kind::stat>(UserInstruction const & ui,
 // for stream_output
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::show, Kind::config>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::config>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::config>(ta);
 }
 
 template<>
-void Comm::run<Action::show, Kind::status>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::status>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::status>(ta);
 }
 
 template<>
-void Comm::run<Action::show, Kind::command>(UserInstruction const & ui,
-                                            TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::command>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::command>(ta);
 }
 
