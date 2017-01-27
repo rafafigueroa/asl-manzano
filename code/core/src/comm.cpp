@@ -4,8 +4,46 @@
 namespace mzn {
 
 // -------------------------------------------------------------------------- //
-void autocal() {
+inline
+std::chrono::time_point<Time::SysClock, Time::Seconds<> >
+q_time(TargetAddress const & ta) {
 
+    /*
+    // request status
+    C1Rqstat cmd_rqstat;
+    cmd_rqstat.request_bitmap.global_status(true);
+    // status
+    C1Stat cmd_stat; // Status
+
+    UserInstruction ui(Action::set, Kind::reg);
+    Comm::run<Action::set, Kind::reg>(ui, ta);
+    md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+    UserInstruction ui2(Action::set, Kind::dereg);
+    Comm::run<Action::set, Kind::dereg>(ui2, ta);
+
+    CxGlobalStatus * gs =
+        dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+    if (gs == nullptr) throw FatalException("Comm", "autocal", "gs nullptr");
+
+    // Q330 manual: "Seconds offset ... when added to a data sequence number
+    // is seconds since January 1 2000"
+    auto const q_data_seq_number = gs -> data_sequence_number.data();
+    auto const q_seconds_offset = gs -> seconds_offset.data();
+    auto const q_sec_since_epoch = q_data_seq_number + q_seconds_offset;
+
+    CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000> q_now_time;
+    q_now_time.data(q_sec_since_epoch);
+
+    std::cout << std::endl << "q_now_seq_num: " << q_sec_since_epoch;
+    std::cout << std::endl << "q_now_time: " << q_now_time;
+    std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
+
+    return q_now_time();
+    */
+
+    return std::chrono::time_point< Time::SysClock, Time::Seconds<> >{};
 }
 
 // -------------------------------------------------------------------------- //
@@ -308,35 +346,6 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
     // the cal times depend on the digitizer time (seconds since epoch)
     // ---------------------------------------------------------------------- //
-
-    C1Rqstat cmd_rqstat; // Request Status
-    cmd_rqstat.request_bitmap.global_status(true);
-    // setup response
-    C1Stat cmd_stat; // Status
-
-    Comm::run<Action::set, Kind::reg>(ui, ta);
-    md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
-    Comm::run<Action::set, Kind::dereg>(ui, ta);
-
-    CxGlobalStatus * gs =
-        dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
-
-    if (gs == nullptr) throw FatalException("Comm", "autocal", "gs nullptr");
-
-    // Q330 manual: "Seconds offset ... when added to a data sequence number
-    // is seconds since January 1 2000"
-    auto const q_data_seq_number = gs -> data_sequence_number.data();
-    auto const q_seconds_offset = gs -> seconds_offset.data();
-    auto const q_sec_since_epoch = q_data_seq_number + q_seconds_offset;
-
-    CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000> q_now_time;
-    q_now_time.data(q_sec_since_epoch);
-
-    std::cout << std::endl << "q_now_seq_num: " << q_sec_since_epoch;
-    std::cout << std::endl << "q_now_time: " << q_now_time;
-    std::cout << std::endl << " ### now: "
-                      << Time::sys_time_of_day() << " ###\n";
-
     for (auto & msg_task : msg_tasks) {
         auto * cal = dynamic_cast<C1Qcal *>( msg_task.cmd_send.get() );
         if (cal == nullptr) throw FatalException("Comm",
@@ -354,7 +363,6 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
     // e300 keep alive setup
     // ---------------------------------------------------------------------- //
-
     if (s.config.has_e300) {
 
         // plan cal might have been called before digitizer registration
@@ -404,7 +412,35 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         }
     }
 
+    // make sure cals are coordinated (not send a cal when there is one)
+    // ---------------------------------------------------------------------- //
+    auto cal_is_running = [&]() {
 
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.global_status(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxGlobalStatus * gs =
+            dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+        if (gs == nullptr) throw FatalException("Comm",
+                                                "autocal",
+                                                "global stat nullptr");
+
+        auto const & cs = gs -> calibrator_status;
+
+        return ( cs.calibration_enable_is_on_this_second() or
+                 cs.calibration_signal_is_on_this_second() or
+                 cs.calibrator_should_be_generating_a_signal_but_isnt() );
+    };
+
+    // main loop of auto calibration
     // ---------------------------------------------------------------------- //
     try {
 
@@ -416,6 +452,23 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
             Comm::run<Action::set, Kind::reg>(ui, ta);
 
+            // check if a calibration is going on
+            for (int i = 0; i < 2; i++) {
+
+                if ( cal_is_running() ) break;
+
+                // add some more wiggle time, digitizer still running cals
+                auto constexpr wiggle_duration = std::chrono::seconds(10);
+                std::this_thread::sleep_for(wiggle_duration);
+
+                if (i == 2) {
+                    throw FatalException("Comm",
+                                         "run<auto, cal>",
+                                         "Calibrations are not coordinated");
+                }
+            }
+
+            // ok ready to go
             msg_task.exec_time( std::chrono::system_clock::now() );
             msg_task.end_time( msg_task.exec_time() + msg_task.run_duration() );
 
@@ -578,9 +631,12 @@ void Comm::run<Action::get, Kind::uptime>(UserInstruction const & ui,
     for (auto & q : st.q) {
 
         uptime_report_fs << "\n    digitizer: ";
-        uptime_report_fs << "    " << std::hex << q.config.serial_number << std::dec;
+        uptime_report_fs << "    " << std::hex
+                         << q.config.serial_number
+                         << std::dec;
+
         uptime_report_fs << "\n    time of last reboot: ";
-//        uptime_report_fs <<  last_reboot(q)  ;
+        // uptime_report_fs <<  last_reboot(q)  ;
     }
 
     uptime_report_fs << "\n    data processor: uptime:\n ";
@@ -603,8 +659,6 @@ void Comm::run<Action::edit, Kind::stat>(UserInstruction const & ui,
 // -------------------------------------------------------------------------- //
 // for stream_output
 // -------------------------------------------------------------------------- //
-
-
 template<>
 void Comm::run<Action::show, Kind::config>(UserInstruction const & ui,
                                            TargetAddress const & ta) {
