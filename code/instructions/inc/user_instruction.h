@@ -136,6 +136,30 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
     return os;
 }
 
+// -------------------------------------------------------------------------- //
+struct OptionInput {
+
+    std::string option;
+    bool live = false;
+
+    bool empty() const {return option.empty();}
+
+    OptionInput(std::string const & option, bool const live) :
+            option{option},
+            live{live} {}
+};
+
+// -------------------------------------------------------------------------- //
+inline
+std::ostream & operator<<(std::ostream & os, OptionInput const & oi) {
+
+    if ( not oi.empty() ) {
+        if (oi.live) os << "/"; else os << ":";
+        os << oi.option;
+    }
+    return os;
+}
+
 //! A user instruciton is Action / Kind combination
 /*! the combination creates a unique instruction
     operator() provides a unique identifiers
@@ -148,8 +172,7 @@ struct UserInstruction {
 
     Action action;
     Kind kind;
-    std::string option;
-    bool live;
+    OptionInput option_input;
 
     UserInstruction(Action const in_action,
                     Kind const in_kind,
@@ -157,8 +180,7 @@ struct UserInstruction {
                     bool const in_live = false) :
             action(in_action),
             kind(in_kind),
-            option(in_option),
-            live(in_live) {}
+            option_input(in_option, in_live) {}
 
     // copy assignment
     UserInstruction & operator=(UserInstruction const &) = default;
@@ -197,15 +219,8 @@ std::ostream & operator<<(std::ostream & os,
                           UserInstruction const & ui) {
 
     os << "\n" << ui.action
-       << " "   << ui.kind;
-
-    if ( not ui.option.empty() ) {
-        if (ui.live) {
-            os << "/" << ui.option;
-        } else {
-            os << ":" << ui.option;
-        }
-    }
+       << " "   << ui.kind
+       << ui.option_input;
 
     return os;
 }

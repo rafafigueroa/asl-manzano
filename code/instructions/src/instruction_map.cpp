@@ -10,26 +10,24 @@ InstructionMap::filter_actions(TargetAddress const & ta) {
     Scope scope = ta.scope();
 
     switch (scope) {
-        case Scope::digitizer:
-            return VA{Action::show,
-                      Action::edit,
-                      Action::get,
-                      Action::set,
-                      Action::stop};
+        case Scope::digitizer:      return VA{Action::show,
+                                              Action::edit,
+                                              Action::get,
+                                              Action::set,
+                                              Action::stop};
 
-        case Scope::sensor:
-            return VA{Action::show,
-                      Action::edit,
-                      Action::set,
-                      Action::start,
-                      Action::auto_};
+        case Scope::sensor:         return VA{Action::show,
+                                              Action::edit,
+                                              Action::set,
+                                              Action::start,
+                                              Action::auto_};
 
-        case Scope::data_processor:
-            return VA{Action::show,
-                      Action::edit,
-                      Action::get};
+        case Scope::data_processor: return VA{Action::show,
+                                              Action::edit,
+                                              Action::get};
 
-        default : return VA{Action::show, Action::edit};
+        default :                   return VA{Action::show,
+                                              Action::edit};
     }
 }
 
@@ -234,98 +232,5 @@ bool InstructionMap::has_empty_option(Action const action, Kind const kind) {
 
     return true;
 }
-
-
-    /*
-// -------------------------------------------------------------------------- //
-InstructionMap::ActionToKindMap const q_kinds_map = {
-
-    { Action::get, InstructionMap::VK{Kind::ping,
-                                      Kind::poll}
-    }
-
-};
-
-
-// -------------------------------------------------------------------------- //
-InstructionMap::ScopeToActionKindMap const q_ak_map = {
-
-    { Scope::digitizer, InstructionMap::VA{Kind::ping,
-                                           Kind::poll}
-    }
-
-};
-
-    */
-
-// -------------------------------------------------------------------------- //
-using IM = InstructionMap;
-
-// -------------------------------------------------------------------------- //
-// using KindOptionMap  = EnumUnorderedMap<Kind, VO const>;
-// -------------------------------------------------------------------------- //
-IM::KindOptionMap const InstructionMap::q_ko_map{
-    {Kind::stat,
-        IM::VO{"boom", "gps", "gpssat", "power", "thread", "dataport", "pll"}},
-};
-
-// -------------------------------------------------------------------------- //
-IM::KindOptionMap const InstructionMap::s_ko_map{
-    {Kind::cal,
-        IM::VO{"sine", "step", "longsine", "longstep"}},
-};
-
-// -------------------------------------------------------------------------- //
-// ActionKindMap  = EnumUnorderedMap<Action, KindOptionMap const>;
-// -------------------------------------------------------------------------- //
-IM::ActionKindMap const InstructionMap::q_ak_map{
-    { Action::get, q_ko_map}
-
-        /*
-        IM::VK{Kind::poll,
-                          Kind::qview,
-                          Kind::ctrl,
-                          Kind::center,
-                          Kind::ping,
-                          Kind::dev,
-                          Kind::stat} }
-                          */
-};
-
-// -------------------------------------------------------------------------- //
-IM::ActionKindMap const InstructionMap::s_ak_map{
-
-    { Action::get, s_ko_map }
-};
-
-// -------------------------------------------------------------------------- //
-// using ScopeActionMap = EnumUnorderedMap<Scope, ActionKindMap const>;
-// -------------------------------------------------------------------------- //
-IM::ScopeActionMap const InstructionMap::sa_map{
-
-    { Scope::digitizer, q_ak_map },
-    { Scope::sensor, s_ak_map }
-};
-
-// -------------------------------------------------------------------------- //
-const std::map< Scope, std::vector<Action> >
-InstructionMap::map_scope_action = {
-
-    {Scope::digitizer,      std::vector<Action> {Action::show,
-                                                 Action::edit,
-                                                 Action::get,
-                                                 Action::set,
-                                                 Action::stop,}
-    },
-
-    {Scope::sensor,         std::vector<Action> {Action::show,
-                                                 Action::edit,
-                                                 Action::get,
-                                                 Action::set,
-                                                 Action::start,
-                                                 Action::plan,}
-    },
-};
-
 
 } // <- mzn
