@@ -79,6 +79,7 @@ void ask(Json & json,
     std::cout << ": ";
 
     T value;
+    // dont accept enter as response, wait until there is some response
     std::cin >> value;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
 
@@ -104,6 +105,7 @@ void ask(Json & json,
     std::cout << "[" << original_json[key] << "]";
     std::cout << ": ";
 
+    // accept enter as response
     std::string input;
     std::getline(std::cin, input);
 
@@ -124,83 +126,36 @@ void ask(Json & json,
     else throw std::logic_error("@JsonSn, ask, wrong type");
 }
 
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-inline
-Json json_change_ch(Json const & original_json) {
-
-    Json ch_json;
-    ask<std::string>( ch_json, original_json, "ip_remote",  "#.#.#.#");
-
-    ip_format_check(ch_json["ip_remote"]);
-
-    ask<int>(         ch_json, original_json, "port_remote", ">5000");
-    ask<std::string>( ch_json, original_json, "auth_code", "");
-    ask<int>(         ch_json, original_json, "port_host", ">2000");
-    ask<int>(         ch_json, original_json, "protocol_version", "2");
-
-    return ch_json;
-}
 
 // -------------------------------------------------------------------------- //
 inline
-Json json_change_s(Json const & original_json) {
+bool ask_yes(std::string const & prompt, bool const original = false) {
 
-    Json s_json;
-    ask<std::string>(s_json, original_json, "input", "A or B");
-    ask<std::string>(s_json, original_json, "model", "STS2, STS1, etc");
-    ask<std::string>(s_json, original_json, "cals", "STS2, STS2_HF_TEST, etc");
+    std::cout << std::endl << prompt << "? ";
+    std::cout << "(y/n) ";
+    if (original == true) std::cout << "[true]";
+    std::cout << ": ";
 
-    std::cout << std::endl << "Has E300? (y/n): ";
-    std::string response;
-    std::getline(std::cin, response);
+    std::string input;
 
-    if (response == "y") {
-        s_json["port_e300"] = json_change_ch(original_json["port_e300"]);
+    if (original == true) {
+        // accept enter as response
+        std::getline(std::cin, input);
     } else {
-        s_json["port_e300"] = Json::object();
+        // wait for actual response, enter will not skip this
+        std::cin >> input;
     }
 
-    return s_json;
-}
+    if ( std::cin.fail() ) {
+        std::cin.clear();
+        std::stringstream ss;
+        ss << "error with user response for " << prompt;
+        throw WarningException( "JsonSn", "ask_yes", ss.str() );
+    }
 
-// -------------------------------------------------------------------------- //
-inline
-Json json_change_q(Json const & original_json) {
+    if (input == "" and original == true) return true;
 
-    Json q_json;
-    ask<std::string>(q_json, original_json, "serial_number", "012345ABCDEF");
-
-    q_json["port_config"] = json_change_ch(original_json["port_config"]);
-    q_json["sensor"] = original_json["sensor"];
-
-    return q_json;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-Json json_change_dp(Json const & original_json) {
-
-    Json dp_json;
-    ask<std::string>(dp_json, original_json, "user", "rafa");
-    ask<std::string>(dp_json, original_json, "pw", "");
-    ask<std::string>(dp_json, original_json, "ip", "#.#.#.#");
-
-    ip_format_check(dp_json["ip"]);
-
-    return dp_json;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-Json json_change_st(Json const & original_json) {
-
-    Json st_json;
-    ask<std::string>(st_json, original_json, "station_name", "ABCDF");
-    st_json["digitizer"] = original_json["digitizer"];
-    st_json["data_processor"] = original_json["data_processor"];
-
-    return st_json;
+    if (input == "y") return true; else return false;
 }
 
 // -------------------------------------------------------------------------- //
@@ -227,13 +182,12 @@ Json json_add_s() {
 
     Json s_json;
     ask<std::string>(s_json, "input", "A or B");
-    ask<std::string>(s_json, "model", "STS2, STS1, etc");
-    ask<std::string>(s_json, "cals", "STS2, STS2_HF_TEST, etc");
+    ask<std::string>(s_json, "model", "STS_2, STS_1, etc");
+    ask<std::string>(s_json, "cals", "STS_2, STS_2_HF_TEST, etc");
 
-    std::cout << std::endl << "Has E300? (y/n): "; std::string response;
-    std::getline(std::cin, response);
+    auto const confirm = ask_yes("Has E300");
 
-    if (response == "y") {
+    if (confirm) {
         s_json["port_e300"] = json_add_ch();
     } else {
         s_json["port_e300"] = Json::object();
@@ -277,6 +231,90 @@ Json json_add_st() {
     ask<std::string>(st_json, "station_name", "ABCDF");
     st_json["digitizer"] = Json::array();
     st_json["data_processor"] = Json::array();
+
+    return st_json;
+}
+
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_ch(Json const & original_json) {
+
+    Json ch_json;
+    ask<std::string>( ch_json, original_json, "ip_remote",  "#.#.#.#");
+
+    ip_format_check(ch_json["ip_remote"]);
+
+    ask<int>(         ch_json, original_json, "port_remote", ">5000");
+    ask<std::string>( ch_json, original_json, "auth_code", "");
+    ask<int>(         ch_json, original_json, "port_host", ">2000");
+    ask<int>(         ch_json, original_json, "protocol_version", "2");
+
+    return ch_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_s(Json const & original_json) {
+
+    Json s_json;
+    ask<std::string>(s_json, original_json, "input", "A or B");
+    ask<std::string>(s_json, original_json, "model", "STS_2, STS_1, etc");
+    ask<std::string>(s_json, original_json, "cals", "STS_2, STS_2_HF_TEST, etc");
+
+    auto const has_e300 = not original_json["port_e300"].empty();
+
+    auto const confirm = ask_yes("Has E300", has_e300);
+
+    if (confirm and has_e300) {
+        // modify existing
+        s_json["port_e300"] = json_change_ch(original_json["port_e300"]);
+    } else if (confirm) {
+        // add new
+        s_json["port_e300"] = json_add_ch();
+    } else {
+        // no e300
+        s_json["port_e300"] = Json::object();
+    }
+
+    return s_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_q(Json const & original_json) {
+
+    Json q_json;
+    ask<std::string>(q_json, original_json, "serial_number", "012345ABCDEF");
+
+    q_json["port_config"] = json_change_ch(original_json["port_config"]);
+    q_json["sensor"] = original_json["sensor"];
+
+    return q_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_dp(Json const & original_json) {
+
+    Json dp_json;
+    ask<std::string>(dp_json, original_json, "user", "rafa");
+    ask<std::string>(dp_json, original_json, "pw", "");
+    ask<std::string>(dp_json, original_json, "ip", "#.#.#.#");
+
+    ip_format_check(dp_json["ip"]);
+
+    return dp_json;
+}
+
+// -------------------------------------------------------------------------- //
+inline
+Json json_change_st(Json const & original_json) {
+
+    Json st_json;
+    ask<std::string>(st_json, original_json, "station_name", "ABCDF");
+    st_json["digitizer"] = original_json["digitizer"];
+    st_json["data_processor"] = original_json["data_processor"];
 
     return st_json;
 }
@@ -452,7 +490,9 @@ Sensor s_from_json(JsonRef const s_json) {
     std::string const model = s_json["model"];
     std::string const cals  = s_json["cals"];
 
-    if ( not s_json["port_e300"].empty() ) {
+    auto const has_e300 = not s_json["port_e300"].empty();
+
+    if (has_e300) {
 
         auto ch_e300_json = s_json["port_e300"];
 

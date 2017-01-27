@@ -1,7 +1,6 @@
 // ** command line interface ** //
 // Manzano Software //
 #include "mce_cli.h"
-#include "json_sn.h"
 
 namespace mzn {
 
@@ -10,7 +9,6 @@ void MceCli::user_input_loop() {
 
     // prompts the user for their command
     // interactive
-
     std::string user_input;
 
     while (true) {
@@ -48,12 +46,6 @@ void MceCli::user_input_loop() {
                 continue;
             }
 
-            //! stream raw json format
-            if (user_input == "raw") {
-                auto const json = json_from_ta(sn, ta_);
-                std::cout << json.dump(4) << std::endl;
-                continue;
-            }
 
             if (user_input == "rm") {
                 // changes ta_ to parent
@@ -67,6 +59,13 @@ void MceCli::user_input_loop() {
                 continue;
             }
 
+            //! stream raw json format
+            if (user_input == "raw") {
+                auto const json = json_from_ta(sn, ta_);
+                std::cout << json.dump(4) << std::endl;
+                continue;
+            }
+
             if (user_input[0] == '+') {
                 // changes ta_ to newly added
                 add_to_config(sn, user_input, ta_);
@@ -74,6 +73,38 @@ void MceCli::user_input_loop() {
             }
 
             if (user_input == "quit") break;
+
+            if (user_input == "help") {
+                std::cout << "\nrm      : remove current target"
+                          << "\ned      : edit current target"
+                          << "\nraw     : view raw json format"
+                          << "\n+st     : add station to sn"
+                          << "\n+q      : add digitizer to st"
+                          << "\n+s      : add sensor to q"
+                          << "\n+dp     : add data_processor to st"
+                          << "\n..      : select parent target"
+                          << "\nsn      : select seismic network"
+                          << "\nst#     : select st[#]"
+                          << "\nst#q#   : select st[#]q[#]"
+                          << "\nst#q#s# : select st[#]q[#]s[#]"
+                          << "\nst#dp#  : select st[#]dp[#]"
+                          << "\n"
+                          << "\n   relative addressing:"
+                          << "\n   ===================="
+                          << "\nst[#]     » q#  : select st[#]q[#]"
+                          << "\nst[#]q[#] » s#  : select st[#]q[#]s[#]"
+                          << "\nst[#]     » dp# : select st[#]dp[#]"
+                          << "\n"
+                          << "\n   confirmation:"
+                          << "\n   ============="
+                          << "\n   press enter to keep original value: "
+                          << "\n        input (A or B)[\"B\"]: "
+                          << "\n        Has E300? (y/n) [true]: "
+                          << "\n   or change original value: "
+                          << "\n        input (A or B)[\"B\"]: A"
+                          << "\n        Has E300? (y/n) [true]: n";
+                continue;
+            }
 
             //! only thing left is a target address
             auto ta = UserInterpreter::match_target_address(user_input);
@@ -191,7 +222,8 @@ void MceCli::add_to_config(SeismicNetwork & sn,
     }
 
     save_to_config_file(sn);
-// child_ta is incomplete, lets add the parents
+
+    // child_ta is incomplete, lets add the parents
     child_ta.add_targets_from_ta(ta);
     // this should make it easier to modify this newly created object
     ta = child_ta;
