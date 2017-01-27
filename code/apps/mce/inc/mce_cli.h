@@ -13,6 +13,7 @@
 #include "system_calls.h"
 #include "user_interpreter.h"
 #include "instruction_interpreter.h"
+#include "json_sn.h"
 
 namespace mzn {
 
@@ -39,14 +40,6 @@ public:
     std::string config_home_path;
 
     ~MceCli() = default;
-
-    static
-    bool ask_yes(std::string const & prompt) {
-        std::cout << std::endl << prompt << "? (y/n): ";
-        std::string response;
-        std::getline(std::cin, response);
-        if (response == "y") return true; else return false;
-    }
 
     //! mce cli starts here
     void user_input_loop();

@@ -4,7 +4,7 @@ project(mce)
 include(mce.cmake)
 
 set(k_mce_VERSION_MAJOR 0)
-set(k_mce_VERSION_MINOR 1)
+set(k_mce_VERSION_MINOR 9)
 
 configure_file("${DIR_mce}/inc/mce_cmake_config.h.in"
                "${DIR_mce}/inc/mce_cmake_config.h")
