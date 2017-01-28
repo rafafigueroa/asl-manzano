@@ -40,12 +40,12 @@ include_directories(${DIR_MZN}/libs/json)
 # ----- SERIAL WJWWOOD C++ LIBRARY ----- #
 # on separate file (serial_config.cmake) builds static library
 
-# ----- GLOBAL FUNCTIONS ----- #
-include_directories(${DIR_MZN}/inc)
-
 # ----- MANZANO EXCEPTIONS ----- #
 include_directories(${DIR_MZN}/exceptions/inc)
 include(${DIR_MZN}/exceptions/exceptions.cmake)
+
+# ----- GLOBAL FUNCTIONS ----- #
+include_directories(${DIR_MZN}/inc)
 
 # ----- COMPILER FLAGS ----- #
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthreads -Wall -Qunused-arguments -Wno-missing-braces -Wmissing-field-initializers")

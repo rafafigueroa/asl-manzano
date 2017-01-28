@@ -26,26 +26,28 @@ template<Action action>
 void InstructionInterpreter::match(UserInstruction const & ui,
                                    TargetAddress const & ta) {
 
+    auto const & oi = ui.option_input;
+
     switch (ui.kind) {
-        case Kind::target:  cm.run<action, Kind::target>(ui, ta);  break;
-        case Kind::config:  cm.run<action, Kind::config>(ui, ta);  break;
-        case Kind::status:  cm.run<action, Kind::status>(ui, ta);  break;
-        case Kind::command: cm.run<action, Kind::command>(ui, ta); break;
-        case Kind::poll:    cm.run<action, Kind::poll>(ui, ta);    break;
-        case Kind::global:  cm.run<action, Kind::global>(ui, ta);  break;
-        case Kind::ping:    cm.run<action, Kind::ping>(ui, ta);    break;
-        case Kind::stat:    cm.run<action, Kind::stat>(ui, ta);    break;
-        case Kind::qview:   cm.run<action, Kind::qview>(ui, ta);   break;
-        case Kind::dev:     cm.run<action, Kind::dev>(ui, ta);     break;
-        case Kind::ctrl:    cm.run<action, Kind::ctrl>(ui, ta);    break;
-        case Kind::reg:     cm.run<action, Kind::reg>(ui, ta);     break;
-        case Kind::dereg:   cm.run<action, Kind::dereg>(ui, ta);   break;
-        case Kind::cal:     cm.run<action, Kind::cal>(ui, ta);     break;
-        case Kind::center:  cm.run<action, Kind::center>(ui, ta);  break;
-        case Kind::pulse:   cm.run<action, Kind::pulse>(ui, ta);   break;
-        case Kind::uptime:  cm.run<action, Kind::uptime>(ui, ta);  break;
-        case Kind::mzn:     cm.run<action, Kind::mzn>(ui, ta);     break;
-        case Kind::plan:    cm.run<action, Kind::plan>(ui, ta);    break;
+        case Kind::target:  cm.run<action, Kind::target>(ta, oi);  break;
+        case Kind::config:  cm.run<action, Kind::config>(ta, oi);  break;
+        case Kind::status:  cm.run<action, Kind::status>(ta, oi);  break;
+        case Kind::command: cm.run<action, Kind::command>(ta, oi); break;
+        case Kind::poll:    cm.run<action, Kind::poll>(ta, oi);    break;
+        case Kind::global:  cm.run<action, Kind::global>(ta, oi);  break;
+        case Kind::ping:    cm.run<action, Kind::ping>(ta, oi);    break;
+        case Kind::stat:    cm.run<action, Kind::stat>(ta, oi);    break;
+        case Kind::qview:   cm.run<action, Kind::qview>(ta, oi);   break;
+        case Kind::dev:     cm.run<action, Kind::dev>(ta, oi);     break;
+        case Kind::ctrl:    cm.run<action, Kind::ctrl>(ta, oi);    break;
+        case Kind::reg:     cm.run<action, Kind::reg>(ta, oi);     break;
+        case Kind::dereg:   cm.run<action, Kind::dereg>(ta, oi);   break;
+        case Kind::cal:     cm.run<action, Kind::cal>(ta, oi);     break;
+        case Kind::center:  cm.run<action, Kind::center>(ta, oi);  break;
+        case Kind::pulse:   cm.run<action, Kind::pulse>(ta, oi);   break;
+        case Kind::uptime:  cm.run<action, Kind::uptime>(ta, oi);  break;
+        case Kind::mzn:     cm.run<action, Kind::mzn>(ta, oi);     break;
+        case Kind::plan:    cm.run<action, Kind::plan>(ta, oi);    break;
         default:
             throw std::logic_error{"at InstructionInterpreter::run_instruction"};
     }

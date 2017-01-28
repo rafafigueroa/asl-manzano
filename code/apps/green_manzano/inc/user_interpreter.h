@@ -55,18 +55,6 @@ public:
 
     static
     TargetAddress match_target_address(std::string const & token);
-
-    // take token_index by reference to change it
-    static
-    int match_positive_number(std::string const & token,
-                              std::size_t & token_index);
-
-private:
-
-    // used to underline the problematic token in the error message
-    static
-    std::string underline_error(std::string const & token, int e_index);
-
 };
 
 } // end namespace

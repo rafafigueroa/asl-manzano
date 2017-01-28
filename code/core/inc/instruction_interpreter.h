@@ -7,6 +7,7 @@
 #include <sstream>
 #include <functional>
 
+#include "string_utilities.h"
 #include "comm.h"
 
 namespace mzn {

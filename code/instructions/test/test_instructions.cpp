@@ -52,19 +52,6 @@ public:
 // -------------------------------------------------------------------------- //
 TEST_F(FixtureInstructions, instructions_setup) {}
 
-TEST_F(FixtureInstructions, new_instruction_map) {
-
-    auto & m_sa = im.sa_map.at(Scope::digitizer);
-    auto & m_ak = m_sa.at(Action::get);
-    auto & m_ko = m_ak.at(Kind::stat);
-
-    std::stringstream ss;
-    ss << '\n' << im.sa_map.at(Scope::digitizer).at(Action::get).at(Kind::stat)[0];
-    ss << '\n' << im.sa_map;
-
-    std::cout << ss.str();
-}
-
 // These tests assume the test stations during development
 // They will eventually call the dummy dataset and dummy q330
 // -------------------------------------------------------------------------- //
@@ -96,8 +83,7 @@ TEST_F(FixtureInstructions, instructions_cout) {
                 ss << "]";
             }
         }
-
-        ss << "\n\n RED\n";
+ss << "\n\n RED\n";
 
         for (auto const & action : IM::filter_actions_gui(ta) ) {
             for (auto const & kind : IM::filter_kinds_gui(ta, action) ) {
@@ -117,8 +103,7 @@ TEST_F(FixtureInstructions, instructions_cout) {
             }
         }
     }
-
-    // std::cout << std::endl << ss.str();
+// std::cout << std::endl << ss.str();
 }
 
 // -------------------------------------------------------------------------- //
@@ -126,5 +111,3 @@ int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 };
-
-
