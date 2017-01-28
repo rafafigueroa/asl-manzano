@@ -1068,6 +1068,17 @@
     ]
  },
 
+
+  "c1_pulse":{
+    "cmd_fields":[
+      {"cf_name": "sensor_control_bitmap", "cf_size": 2, "cf_type": "BmStatSensorControlBitmap"},
+      {"cf_name": "pulse_duration", "cf_size": 2, "cf_type": "CmdFieldDuration<uint16_t, std::centi>"}
+    ],
+    "cmd_number": "0x22",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
   "c2_samass":{
     "cmd_fields":[
       {"cf_name": "tolerance_1a", "cf_size": 2, "cf_type": "CmdField<uint16_t>"},

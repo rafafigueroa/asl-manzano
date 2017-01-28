@@ -144,6 +144,9 @@ struct OptionInput {
 
     bool empty() const {return option.empty();}
 
+    OptionInput() = default;
+    ~OptionInput() = default;
+
     OptionInput(std::string const & option, bool const live) :
             option{option},
             live{live} {}

@@ -15,11 +15,7 @@ q_time(TargetAddress const & ta) {
     // status
     C1Stat cmd_stat; // Status
 
-    OptionInput ui(Action::set, Kind::reg);
-    Comm::run<Action::set, Kind::reg>(ta, oi);
     md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
-    OptionInput ui2(Action::set, Kind::dereg);
-    Comm::run<Action::set, Kind::dereg>(ui2, ta);
 
     CxGlobalStatus * gs =
         dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
@@ -53,8 +49,7 @@ Comm::Comm() : sn{},
                input_store{sn},
                stream_output{sn},
                msg_task_manager_{sn, md},
-               cmd_file_reader_{sn} {
-}
+               cmd_file_reader_{sn} {}
 
 // -------------------------------------------------------------------------- //
 using TA = TargetAddress;
@@ -274,9 +269,9 @@ void Comm::run<Action::set, Kind::reg>(TA const & ta, OI const & oi) {
                                "Registration failed");
     }
 }
-// -------------------------------------------------------------------------- //
 
 // *** DE - REGISTRATION *** //
+// -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::set, Kind::dereg>(TA const & ta, OI const & oi) {
 
@@ -439,7 +434,7 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
             std::cout << std::endl << " ### now: "
                       << Time::sys_time_of_day() << " ###\n";
 
-            Comm::run<Action::set, Kind::reg>(ta, oi);
+            Comm::run<Action::set, Kind::reg>(ta);
 
             // check if a calibration is going on
             for (int i = 0; i < 2; i++) {
@@ -471,7 +466,7 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
             // no throw so far, received c1_cack
             msg_task.done = true;
 
-            Comm::run<Action::set, Kind::dereg>(ta, oi);
+            Comm::run<Action::set, Kind::dereg>(ta);
 
             // add some wiggle time in between
             auto constexpr wiggle_duration = std::chrono::seconds(20);
@@ -514,7 +509,7 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
         std::cerr << std::endl << "caught @Comm::run<plan, cal>";
         std::cerr << std::endl << "cancelling plan cal"
                   << "\n deregistering: \n";
-        Comm::run<Action::set, Kind::dereg>(ta, oi);
+        Comm::run<Action::set, Kind::dereg>(ta);
         std::cerr << "\n cancelling keep alive for e300: \n";
         // ok to set even if keep_alive(...)  was not called here
         if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
