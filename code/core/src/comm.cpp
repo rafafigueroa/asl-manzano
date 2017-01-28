@@ -506,8 +506,92 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
         //std::cout.rdbuf(cout_buffer);
 
         // cancel keep alive thread and rethrow exception
-        std::cerr << std::endl << "caught @Comm::run<plan, cal>";
-        std::cerr << std::endl << "cancelling plan cal"
+        std::cerr << std::endl << "caught @Comm::run<auto, cal>";
+        std::cerr << std::endl << "cancelling auto cal"
+                  << "\n deregistering: \n";
+        Comm::run<Action::set, Kind::dereg>(ta);
+        std::cerr << "\n cancelling keep alive for e300: \n";
+        // ok to set even if keep_alive(...)  was not called here
+        if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
+        std::cerr << std::endl << "rethrow";
+        throw e;
+    }
+
+    //std::cout.rdbuf(cout_buffer);
+}
+
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
+
+    auto & q = sn.q_ref(ta);
+    auto & s = sn.s_ref(ta);
+
+    // e300 keep alive setup
+    // ---------------------------------------------------------------------- //
+    if (s.config.has_e300) { std::cout << "\nTODO test if needed"; return;}
+
+    // make sure cals are coordinated (not send a cal when there is one)
+    // ---------------------------------------------------------------------- //
+    auto boom_positions = [&]() -> std::array<int, 6> const {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.boom_positions(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxBoomPositions * bp =
+            dynamic_cast<CxBoomPositions  *>( cmd_stat.inner_commands[0].get() );
+
+        if (bp == nullptr) throw FatalException("Comm",
+                                                "run",
+                                                "boom positions nullptr");
+
+        std::array<int, 6> const boom_positions {bp -> channel_1_boom(),
+                                                 bp -> channel_2_boom(),
+                                                 bp -> channel_3_boom(),
+                                                 bp -> channel_4_boom(),
+                                                 bp -> channel_5_boom(),
+                                                 bp -> channel_6_boom()};
+        return boom_positions;
+    };
+
+    // ---------------------------------------------------------------------- //
+    try {
+
+        auto constexpr loop_limit = 10;
+        auto constexpr period = std::chrono::seconds(1); 
+        Comm::run<Action::set, Kind::reg>(ta);
+
+        std::cout << std::endl << " ### now: " << Time::sys_time_of_day() << " ###\n";
+
+        // can't use delay since delay is meant for independently sent cals
+        for (int i = 0; i < loop_limit; i++) {
+
+            auto const bp = boom_positions();
+
+            std::cout << "<" << bp[0] << ">";
+
+            std::this_thread::sleep_for(period);
+        }
+
+        Comm::run<Action::set, Kind::dereg>(ta);
+
+        std::cout << std::endl << " ### now: "
+                  << Time::sys_time_of_day() << " ###\n";
+
+    } catch (Exception const & e) {
+
+        //std::cout.rdbuf(cout_buffer);
+
+        // cancel keep alive thread and rethrow exception
+        std::cerr << std::endl << "caught @Comm::run<auto, stat:boom>";
+        std::cerr << std::endl << "cancelling auto stat:boom"
                   << "\n deregistering: \n";
         Comm::run<Action::set, Kind::dereg>(ta);
         std::cerr << "\n cancelling keep alive for e300: \n";
@@ -568,6 +652,80 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
         std::make_unique<C1Cack>( std::move(cmd_cack) );
 }
 
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
+
+    auto & q = sn.q_ref(ta);
+    auto const & s = sn.s_ref(ta);
+
+    // ---------------------------------------------------------------------- //
+    auto centering_is_running = [&]() {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.global_status(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxGlobalStatus * gs =
+            dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+        if (gs == nullptr) throw FatalException("Comm",
+                                                "autocal",
+                                                "global stat nullptr");
+
+        auto const & scm = gs -> sensor_control_bitmap.sensor_control_mapping();
+
+        using SCM = BmStatSensorControlBitmap::SensorControlMapping;
+
+        return (scm == SCM::sensor_a_centering or
+                scm == SCM::sensor_b_centering or
+                scm == SCM::sensor_a_calibration or
+                scm == SCM::sensor_b_calibration);
+    };
+
+    // make sure another centering is not running
+    if ( centering_is_running() ) {
+        throw FatalException("Comm",
+                             "run<auto, cal>",
+                             "Calibrations are not coordinated");
+    }
+
+    // pulse setup for mass centering
+    C1Pulse cmd_pulse;
+
+    // the pulse needs to be in CentiSeconds.
+    // (q330 manual "Duration 10 ms intervals")
+    // using centi directly assures there is no truncation, using milliseconds
+    // will be interpreted as possible truncation and will not compile unless
+    // using floor to the expected type
+    auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(90);
+
+    cmd_pulse.pulse_duration(pulse_duration);
+
+    if (s.config.input == Sensor::Input::a) {
+        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
+            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_centering);
+    } else {
+        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
+            BmStatSensorControlBitmap::SensorControlMapping::sensor_b_centering);
+    }
+
+    C1Cack cmd_cack;
+    md.send_recv(q.port_config, cmd_pulse, cmd_cack);
+
+    // create task_id
+    auto constexpr ui_id = UserInstruction::hash(Action::set, Kind::center);
+    auto const task_id = ta.hash() + ui_id;
+
+    output_store.cmd_map[task_id] =
+        std::make_unique<C1Cack>( std::move(cmd_cack) );
+}
 
 // *** QUICK VIEW *** //
 // -------------------------------------------------------------------------- //
@@ -584,7 +742,6 @@ void Comm::run<Action::get, Kind::qview>(TA const & ta, OI const & oi) {
      output_store.cmd_map[task_id] =
         std::make_unique<C2Qv>( std::move(cmd_qv) );
         */
-
 }
 
 // -------------------------------------------------------------------------- //
@@ -624,8 +781,6 @@ void Comm::run<Action::get, Kind::uptime>(TA const & ta, OI const & oi) {
 
     uptime_report_fs.close();
 }
-
-
 
 // -------------------------------------------------------------------------- //
 template<>

@@ -10,6 +10,7 @@ InstructionMap::filter_actions(TargetAddress const & ta) {
     Scope scope = ta.scope();
 
     switch (scope) {
+
         case Scope::digitizer:      return VA{Action::show,
                                               Action::edit,
                                               Action::get,
@@ -86,7 +87,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
         switch (action) {
             case Action::set: return VK{Kind::center};
             case Action::start: return VK{Kind::cal, Kind::pulse};
-            case Action::auto_: return VK{Kind::cal};
+            case Action::auto_: return VK{Kind::cal, Kind::stat};
             default : return VK{};
         }
     }
@@ -220,6 +221,14 @@ InstructionMap::filter_options(Action const action,
             }
         }
 
+        case Action::auto_: {
+
+            switch (kind) {
+                case Kind::stat: return VS{"boom"};
+                default: return VS{};
+            }
+        }
+
         default: return VS{};
     }
 }
@@ -229,6 +238,7 @@ bool InstructionMap::has_empty_option(Action const action, Kind const kind) {
 
     if (action == Action::set    and kind == Kind::ctrl)   return false;
     if (action == Action::start  and kind == Kind::cal)    return false;
+    if (action == Action::auto_  and kind == Kind::stat)   return false;
 
     return true;
 }

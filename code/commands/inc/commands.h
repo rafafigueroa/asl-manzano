@@ -17,6 +17,7 @@
 #include "c1_ping_4.h"
 #include "c1_ping_5.h"
 #include "c1_pollsn.h"
+#include "c1_pulse.h"
 #include "c1_qcal.h"
 #include "c1_rqdev.h"
 #include "c1_rqglob.h"
