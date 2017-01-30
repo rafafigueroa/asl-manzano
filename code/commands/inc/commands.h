@@ -34,6 +34,8 @@
 #include "c2_samass.h"
 #include "c2_rqamass.h"
 #include "c2_amass.h"
+#include "c2_regchk.h"
+#include "c2_regresp.h"
 #include "cx_arp_status.h"
 #include "cx_auxiliary_board_status.h"
 #include "cx_baler_status.h"

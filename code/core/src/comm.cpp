@@ -565,10 +565,11 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
     try {
 
         auto constexpr loop_limit = 10;
-        auto constexpr period = std::chrono::seconds(1); 
+        auto constexpr period = std::chrono::seconds(1);
         Comm::run<Action::set, Kind::reg>(ta);
 
-        std::cout << std::endl << " ### now: " << Time::sys_time_of_day() << " ###\n";
+        std::cout << std::endl << " ### now: "
+                  << Time::sys_time_of_day() << " ###\n";
 
         // can't use delay since delay is meant for independently sent cals
         for (int i = 0; i < loop_limit; i++) {
@@ -690,12 +691,14 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     };
 
     // make sure another centering is not running
+    // ---------------------------------------------------------------------- //
     if ( centering_is_running() ) {
         throw FatalException("Comm",
                              "run<auto, cal>",
                              "Calibrations are not coordinated");
     }
 
+    // ---------------------------------------------------------------------- //
     // pulse setup for mass centering
     C1Pulse cmd_pulse;
 

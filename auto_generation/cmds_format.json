@@ -203,6 +203,27 @@
   },
 
 
+  "c2_regchk":{
+    "cmd_fields":[
+      {"cf_name": "ip_address", "cf_size": 4, "cf_type": "CmdFieldIp"}
+    ],
+    "cmd_number": "0x5D",
+    "crc_and_header": true,
+    "originator": "dp"
+
+  },
+
+  "c2_regresp":{
+    "cmd_fields":[
+      {"cf_name": "registered", "cf_size": 4, "cf_type": "CmdField<bool, 4>"}
+    ],
+    "cmd_number": "0xC9",
+    "crc_and_header": true,
+    "originator": "q"
+
+  },
+
+
   "c1_rqdev":{
     "cmd_fields":[
     ],
