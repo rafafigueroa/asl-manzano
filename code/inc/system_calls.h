@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <cstdlib>
+#include <sys/ioctl.h>
 #include "mzn_cmake_config.h"
 #include "mzn_except.h"
 
@@ -49,6 +50,14 @@ std::string get_runtime_config_path() {
     throw FatalException( "Manzano",
                           "get_runtime_config_path",
                           ss.str() );
+}
+
+// -------------------------------------------------------------------------- //
+inline
+int get_terminal_cols () {
+    winsize w;
+    ioctl(0, TIOCGWINSZ, &w);
+    return w.ws_col;
 }
 
 } // <- mzn

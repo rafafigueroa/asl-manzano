@@ -48,6 +48,7 @@ Comm::Comm() : sn{},
                output_store{},
                input_store{sn},
                stream_output{sn},
+               ip_address_number{0},
                msg_task_manager_{sn, md},
                cmd_file_reader_{sn} {}
 
@@ -104,6 +105,29 @@ void Comm::run<Action::get, Kind::dev>(TA const & ta, OI const & oi) {
     q_send_recv<Action::get, Kind::dev>(ta, oi);
 }
 
+
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::get, Kind::reg>(TA const & ta, OI const & oi) {
+
+    // get current reg status from q, C2Regchk, C2Regresp
+    auto & q = sn.q_ref(ta);
+
+    C2Regresp cmd_regresp;
+
+    q_is_reg(q, cmd_regresp);
+
+    std::cout << cmd_regresp;
+
+    // create task_id
+    auto constexpr ui_id = UserInstruction::hash(Action::get, Kind::reg);
+    auto const task_id = ta.hash() + ui_id;
+
+    // move to cmd store
+    output_store.cmd_map[task_id] =
+        std::make_unique<C2Regresp>( std::move(cmd_regresp) );
+}
+
 // *** CALIBRATIONS *** //
 // -------------------------------------------------------------------------- //
 template<>
@@ -125,21 +149,12 @@ void Comm::run<Action::start, Kind::cal>(TA const & ta, OI const & oi) {
 template<>
 void Comm::run<Action::stop, Kind::cal>(TA const & ta, OI const & oi) {
 
-    auto & q = sn.q_ref(ta);
-
-    C1Rqglob cmd_send;
-    C1Glob cmd_recv;
-    md.send_recv(q.port_config, cmd_send, cmd_recv);
-
-    /*
-
-    //TODO: does it receive ack?
+    //TODO: move to q_send_recv
     auto & q = sn.q_ref(ta);
 
     C1Stop cmd_stop; // Calibration Stop
     C1Cack cack;
     md.send_recv(q.port_config, cmd_stop, cack);
-    */
 }
 
 // -------------------------------------------------------------------------- //
@@ -204,6 +219,9 @@ void Comm::run<Action::set, Kind::reg>(TA const & ta, OI const & oi) {
         // dance
         md.send_recv(q.port_config, cmd_rqsrv, cmd_srvch, false);
 
+        // Store this computer ip_address_number, for future get reg checking
+        ip_address_number = cmd_srvch.server_ip_address();
+
         // DP Response to Q challenge
         C1Srvrsp cmd_srvrsp;
 
@@ -255,7 +273,6 @@ void Comm::run<Action::set, Kind::reg>(TA const & ta, OI const & oi) {
         // move to cmd store
         output_store.cmd_map[task_id] =
             std::make_unique<C1Cack>( std::move(cmd_cack) );
-
 
     } catch (Exception const & e) {
 

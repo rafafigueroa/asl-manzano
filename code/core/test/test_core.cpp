@@ -15,6 +15,7 @@
 #include "dummy_q_port.h"
 
 #include "mzn_time.h"
+#include "system_calls.h"
 // -------------------------------------------------------------------------- //
 
 class FixtureCore : public ::testing::Test {
@@ -23,6 +24,21 @@ public:
     mzn::Comm cm;
     virtual void SetUp() {}
 };
+
+// -------------------------------------------------------------------------- //
+TEST_F(FixtureCore, spcl) {
+
+    using namespace mzn;
+
+    std::cout << std::endl << "testing terminal" << std::endl;
+
+    std::string input;
+
+    for (int i = 0; i < 10; i++) {
+        std::cout << "\ncols " << get_terminal_cols() << std::endl;
+        std::getline(std::cin, input);
+    }
+}
 
 // -------------------------------------------------------------------------- //
 TEST_F(FixtureCore, msg_task) {

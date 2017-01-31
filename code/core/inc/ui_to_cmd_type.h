@@ -41,10 +41,11 @@ template <> struct Ci<Action::start, Kind::cal>   {using type = C1Qcal;};
 // -------------------------------------------------------------------------- //
 template <> struct Co<Action::get, Kind::ping>    {using type = C1Ping5;};
 template <> struct Co<Action::get, Kind::poll>    {using type = C1Mysn;};
-template <> struct Co<Action::get, Kind::global>    {using type = C1Glob;};
+template <> struct Co<Action::get, Kind::global>  {using type = C1Glob;};
 template <> struct Co<Action::get, Kind::center>  {using type = C2Amass;};
 template <> struct Co<Action::get, Kind::ctrl>    {using type = C1Sc;};
 template <> struct Co<Action::get, Kind::dev>     {using type = C1Dev;};
+template <> struct Co<Action::get, Kind::reg>     {using type = C2Regresp;};
 template <> struct Co<Action::get, Kind::stat>    {using type = C1Stat;};
 template <> struct Co<Action::set, Kind::ctrl>    {using type = C1Cack;};
 template <> struct Co<Action::set, Kind::reg>     {using type = C1Cack;};
