@@ -987,6 +987,24 @@
 
   },
 
+  "c1_ssc":{
+    "cmd_fields":[
+
+      {"cf_name": "sensor_output_1_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_2_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_3_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_4_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_5_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_6_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_7_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"},
+      {"cf_name": "sensor_output_8_definition", "cf_size": 4, "cf_type": "BmSensorControlBitmap"}
+
+    ],
+    "cmd_number": "0x2E",
+    "crc_and_header": true,
+    "originator": "dp"
+ },
+
   "c1_rqsc":{
     "cmd_fields":[
     ],

@@ -24,6 +24,7 @@
 #include "c1_rqsc.h"
 #include "c1_rqsrv.h"
 #include "c1_rqstat.h"
+#include "c1_ssc.h"
 #include "c1_sc.h"
 #include "c1_srvch.h"
 #include "c1_srvrsp.h"

@@ -590,8 +590,8 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
 
         StreamPlotter<int16_t, 3, int8_t> sp;
 
-        auto constexpr loop_limit = 10;
-        auto constexpr period = std::chrono::milliseconds(400);
+        auto constexpr loop_limit = 100;
+        auto constexpr period = std::chrono::milliseconds(900);
 
         if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
@@ -609,7 +609,7 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
             std::this_thread::sleep_for(period);
         }
 
-        Comm::run<Action::set, Kind::dereg>(ta);
+        //Comm::run<Action::set, Kind::dereg>(ta);
 
         std::cout << std::endl << " ### now: "
                   << Time::sys_time_of_day() << " ###\n";
@@ -622,7 +622,6 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
         std::cerr << std::endl << "caught @Comm::run<auto, stat:boom>";
         std::cerr << std::endl << "cancelling auto stat:boom"
                   << "\n deregistering: \n";
-        Comm::run<Action::set, Kind::dereg>(ta);
         std::cerr << "\n cancelling keep alive for e300: \n";
         // ok to set even if keep_alive(...)  was not called here
         if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
@@ -661,7 +660,7 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
     // the digitizer seems to setup to 20 all invalid sensors.
     // can a legitimate sensor ALSO take the value 20? Leo indicates yes.
     // this C2Samass might not be a good idea
-    auto constexpr tolerance = 10;
+    auto constexpr tolerance = 0;
 
     // the pulse needs to be in CentiSeconds.
     // (q330 manual "Duration 10 ms intervals")
@@ -759,7 +758,8 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     // using centi directly assures there is no truncation, using milliseconds
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
-    auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(90);
+    auto constexpr pulse_duration = std::chrono::seconds(9);
+    // std::chrono::duration<int, std::centi>(90);
 
     cmd_pulse.pulse_duration(pulse_duration);
     cmd_pulse.sensor_control_bitmap.active_high(true);

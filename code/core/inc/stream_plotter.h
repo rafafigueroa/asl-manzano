@@ -89,12 +89,10 @@ void StreamPlotter<T, N, Tc>::plot_lines() {
 
     auto const points_to_plot = data_.size() - plot_pos_;
 
-    std::cout << std::flush << "<" << points_to_plot << ">" << std::flush;
+//    std::cout << std::flush << "<" << points_to_plot << ">" << std::flush;
     if (points_to_plot % points_per_line_ != 0) return;
-    std::cout << std::flush << "[" << std::flush;
 
     for (int i = plot_pos_; i < data_.size(); i += points_per_line_) {
-        std::cout << std::flush << "*" << std::flush;
         plot_line(i);
     }
 
