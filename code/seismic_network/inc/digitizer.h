@@ -44,15 +44,13 @@ private:
     };
 
 public:
+    //! currently using port_config due to current mzn functionality
+    //! the configuration with data/control works if mzn needs data directly
     explicit
     Digitizer(uint64_t const serial_number,
-              ConnectionHandler port_config,
-              ConnectionHandler port_control,
-              ConnectionHandler port_data) :
+              ConnectionHandler port_config) :
 
     port_config( std::move(port_config) ),
-    port_control( std::move(port_control) ),
-    port_data( std::move(port_data) ),
 
     config(serial_number),
     status() {}
@@ -62,8 +60,6 @@ public:
 public:
     //! digitizer ports, each one with an udp connection
     ConnectionHandler port_config;
-    ConnectionHandler port_control;
-    ConnectionHandler port_data;
 
     //! sensor targets
     std::vector<Sensor> s;
@@ -76,12 +72,11 @@ public:
     // ---------------------------------------------------------------------- //
     Digitizer(Digitizer && rhs) noexcept :
             port_config(  std::move(rhs.port_config) ),
-            port_control( std::move(rhs.port_control) ),
-            port_data(    std::move(rhs.port_data) ),
             s( std::move(rhs.s) ),
             config(rhs.config),
             status(rhs.status) {}
 
+    // ---------------------------------------------------------------------- //
     friend
     std::ostream & operator<<(std::ostream & os, Config const & c);
 

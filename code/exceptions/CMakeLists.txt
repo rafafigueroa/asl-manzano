@@ -10,7 +10,7 @@ add_library(exceptions ${SOURCES_exceptions})
 
 set_target_properties(exceptions
                       PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_exceptions}/bin)
+                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_exceptions}/lib)
 
 # ---- TEST ----- #
 add_executable(test_exceptions ${DIR_exceptions}/test/test_exceptions.cpp)

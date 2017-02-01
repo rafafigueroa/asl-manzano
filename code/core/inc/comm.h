@@ -75,7 +75,8 @@ public:
     //! can use typename std::enable_if<action != Action::get>::type
     // --------------------------------------------------------------------- //
     template <Action action, Kind kind>
-    void run(UserInstruction const & ui, TargetAddress const & ta) {
+    void run(TargetAddress const & ta,
+             OptionInput const & oi = OptionInput{}) {
 
         std::stringstream ss;
         ss << "Comm::run general case is not defined"
@@ -89,12 +90,11 @@ private:
     // --------------------------------------------------------------------- //
     template <Action action, Kind kind>
     inline
-    void q_send_recv(UserInstruction const & ui,
-                     TargetAddress const & ta) {
+    void q_send_recv(TargetAddress const & ta,
+                     OptionInput const & oi = OptionInput{}) {
 
         // send and receive commands
-        auto cmd_input =
-            input_store.get_input_cmd<action, kind>(ui, ta);
+        auto cmd_input = input_store.get_input_cmd<action, kind>(ta, oi);
 
         // empty (default constructed) cmd for receiving
         using Co = typename Co<action, kind>::type;

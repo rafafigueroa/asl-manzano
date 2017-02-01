@@ -6,55 +6,6 @@
 namespace mzn {
 
 // -------------------------------------------------------------------------- //
-std::string UserInterpreter::underline_error(std::string const & token,
-                                             int e_index) {
-
-    std::stringstream token_underlined;
-
-    if (token.size() > e_index) {
-        token_underlined << "\n    " << token
-                         << "\n    " << std::string(e_index, '~')
-                         << "^" << std::string(token.size() - e_index - 1, '~');
-    }
-
-    return token_underlined.str();
-}
-
-// -------------------------------------------------------------------------- //
-int UserInterpreter::match_positive_number(std::string const & token,
-                                           std::size_t & token_index) {
-
-    std::string token_number;
-
-    for (int i = token_index; i < token.size(); i++) {
-        if (std::isdigit(token[i])) {
-            token_number.push_back(token[i]);
-        } else {
-            break;
-        }
-    }
-
-    if (token_number.size() == 0) {
-
-        std::stringstream error_msg;
-
-        error_msg << "expected positive number in token \'" << token << "\' \n";
-
-        if (token.size() > 1) {
-            error_msg << "at:" << underline_error(token, token_index);
-        }
-
-        throw WarningException("UserInterpreter",
-                               "match_positive_number",
-                               error_msg.str() );
-    }
-
-    token_index += token_number.size();
-
-    return std::stoi(token_number);
-}
-
-// -------------------------------------------------------------------------- //
 Action UserInterpreter::match_action(std::string const & token) {
 
     if (token == "show")    return Action::show;
@@ -247,6 +198,7 @@ void UserInterpreter::run_user_input(std::string & user_input) {
 
 // -------------------------------------------------------------------------- //
 void UserInterpreter::user_input_loop(std::string const & qrun_fname) {
+
 
     auto const runtime_config_path = get_runtime_config_path();
     std::string const qrun_path = runtime_config_path + "/" + qrun_fname;

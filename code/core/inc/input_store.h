@@ -101,11 +101,10 @@ public:
     template <Action action, Kind kind,
               class Ci = typename Ci<action, kind>::type >
     inline
-    Ci get_input_cmd(UserInstruction const & ui,
-                     TargetAddress const & ta) {
+    Ci get_input_cmd(TargetAddress const & ta, OptionInput const & oi) {
 
-        if (ui.live) return get_live_cmd<action, kind>(ui.option, ta);
-        return get_default_cmd<action, kind>(ui.option, ta);
+        if (oi.live) return get_live_cmd<action, kind>(ta, oi.option);
+        return get_default_cmd<action, kind>(ta, oi.option);
     }
 
     // specialized functions for commands that have shortcuts and/or
@@ -114,8 +113,7 @@ public:
     template <Action action, Kind kind,
               class Ci = typename Ci<action, kind>::type >
     inline
-    Ci get_default_cmd(std::string const & option,
-                       TargetAddress const & ta) {
+    Ci get_default_cmd(TargetAddress const & ta, std::string const & option) {
         return Ci{};
     }
 
@@ -125,20 +123,20 @@ public:
     // --------------------------------------------------------------------- //
     template <Action action, Kind kind>
     inline
-    std::string get_string_input(UserInstruction const & ui,
-                                 TargetAddress const & ta) {
+    std::string get_string_input(TargetAddress const & ta,
+                                 OptionInput const & oi) {
 
-        if (ui.live) return std::string{};
+        if (oi.live) return std::string{};
 
-        auto cmd_input = get_default_cmd<action, kind>(ui.option, ta);
+        auto cmd_input = get_default_cmd<action, kind>(oi.option, ta);
         std::stringstream ss;
         ss << cmd_input;
         return ss.str();
     }
+
     // --------------------------------------------------------------------- //
     template <Action action, Kind kind>
-    void add_live_cmd(std::string const & option,
-                      TargetAddress const & ta) {
+    void add_live_cmd(TargetAddress const & ta, std::string const & option) {
         //using Ci = typename Ci<action, kind>::type;
         //cmd_map[option] = std::make_unique<Ci>(Ci{});
     }
@@ -147,8 +145,7 @@ public:
     template <Action action, Kind kind,
               class Ci = typename Ci<action, kind>::type >
     inline
-    Ci get_live_cmd(std::string const & option,
-                    TargetAddress const & ta) {
+    Ci get_live_cmd(TargetAddress const & ta, std::string const & option) {
 
         /*
         // search for the option in storage
@@ -194,8 +191,8 @@ private:
 template<>
 inline
 std::string InputStore::get_string_input<Action::set, Kind::reg> (
-        UserInstruction const & ui,
-        TargetAddress const & ta) {
+        TargetAddress const & ta,
+        OptionInput const & oi) {
 
     return std::string{"REGISTER ->"};
 }
@@ -204,8 +201,8 @@ std::string InputStore::get_string_input<Action::set, Kind::reg> (
 template<>
 inline
 std::string InputStore::get_string_input<Action::set, Kind::dereg> (
-        UserInstruction const & ui,
-        TargetAddress const & ta) {
+        TargetAddress const & ta,
+        OptionInput const & oi) {
 
     return std::string{"DE-REGISTER ->"};
 }

@@ -40,23 +40,21 @@ public:
 
     //! @calls match_*
     //! @returns input_tokens
+    static
     std::vector<std::string> parse_user_input(std::string & user_input);
 
     //! match_* converts from a string to the correct type/value
+    static
     Action match_action(std::string const & token);
+
+    static
     Kind match_kind(std::string const & token);
+
+    static
     Scope match_scope(std::string const & token, std::size_t & token_index);
+
+    static
     TargetAddress match_target_address(std::string const & token);
-
-    // take token_index by reference to change it
-    int match_positive_number(std::string const & token,
-                              std::size_t & token_index);
-
-private:
-
-    // used to underline the problematic token in the error message
-    std::string underline_error(std::string const & token, int e_index);
-
 };
 
 } // end namespace

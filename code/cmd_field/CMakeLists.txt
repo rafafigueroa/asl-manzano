@@ -10,7 +10,7 @@ add_library(cmd_field ${SOURCES_CMD_FIELD})
 
 set_target_properties(cmd_field
                       PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_CMD_FIELD}/bin)
+                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_CMD_FIELD}/lib)
 
 # ---- TEST ----- #
 if(TRUE)

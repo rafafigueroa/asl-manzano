@@ -154,7 +154,7 @@ void StreamOutput::show<Kind::config>(TargetAddress const & ta) const {
 
     os << "\nConfig:\n";
     switch (scope) {
-        case Scope::seismic_network: os << sn_.config;            break;
+        case Scope::seismic_network: os << sn_.config;                  break;
         case Scope::station:         os << sn_.st_const_ref(ta).config; break;
         case Scope::digitizer:       os << sn_.q_const_ref(ta).config;  break;
         case Scope::data_processor:  os << sn_.dp_const_ref(ta).config; break;
@@ -172,7 +172,7 @@ void StreamOutput::show<Kind::status>(TargetAddress const & ta) const {
 
     os << "\nStatus:\n";
     switch (scope) {
-        case Scope::seismic_network: os << sn_.status;            break;
+        case Scope::seismic_network: os << sn_.status;                  break;
         case Scope::station:         os << sn_.st_const_ref(ta).status; break;
         case Scope::digitizer:       os << sn_.q_const_ref(ta).status;  break;
         case Scope::data_processor:  os << sn_.dp_const_ref(ta).status; break;
@@ -215,7 +215,7 @@ void StreamOutput::show<Kind::command>(TargetAddress const & ta) const {
 
                 // this command can be ran without setting an option
                 if ( InstructionMap::has_empty_option(action, kinds[i]) ) {
-                    os << " [:]";
+                    os << " []";
                 }
 
                 for (int j = 0; j < m; j++) {
@@ -380,11 +380,11 @@ void StreamOutput::show_prompt(TargetAddress const & ta) const {
 
     if (ta.sn_child.scope == Scope::station) {
 
-        os << std::endl << std::endl
+        os << std::endl
             << sn_.st[ta.sn_child.index] << ":" << ta << " » ";
 
     } else {
-        os << std::endl << std::endl << ta << " » ";
+        os << std::endl << ta << " » ";
     }
 }
 

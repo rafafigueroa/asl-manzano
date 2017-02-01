@@ -4,8 +4,42 @@
 namespace mzn {
 
 // -------------------------------------------------------------------------- //
-void autocal() {
+inline
+std::chrono::time_point<Time::SysClock, Time::Seconds<> >
+q_time(TargetAddress const & ta) {
 
+    /*
+    // request status
+    C1Rqstat cmd_rqstat;
+    cmd_rqstat.request_bitmap.global_status(true);
+    // status
+    C1Stat cmd_stat; // Status
+
+    md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+    CxGlobalStatus * gs =
+        dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+    if (gs == nullptr) throw FatalException("Comm", "autocal", "gs nullptr");
+
+    // Q330 manual: "Seconds offset ... when added to a data sequence number
+    // is seconds since January 1 2000"
+    auto const q_data_seq_number = gs -> data_sequence_number.data();
+    auto const q_seconds_offset = gs -> seconds_offset.data();
+    auto const q_sec_since_epoch = q_data_seq_number + q_seconds_offset;
+
+    CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000> q_now_time;
+    q_now_time.data(q_sec_since_epoch);
+
+    std::cout << std::endl << "q_now_seq_num: " << q_sec_since_epoch;
+    std::cout << std::endl << "q_now_time: " << q_now_time;
+    std::cout << std::endl << " ### now: "
+                      << Time::sys_time_of_day() << " ###\n";
+
+    return q_now_time();
+    */
+
+    return std::chrono::time_point< Time::SysClock, Time::Seconds<> >{};
 }
 
 // -------------------------------------------------------------------------- //
@@ -15,87 +49,81 @@ Comm::Comm() : sn{},
                input_store{sn},
                stream_output{sn},
                msg_task_manager_{sn, md},
-               cmd_file_reader_{sn} {
-}
+               cmd_file_reader_{sn} {}
+
+// -------------------------------------------------------------------------- //
+using TA = TargetAddress;
+using OI = OptionInput;
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::poll>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::poll>(TA const & ta, OI const & oi) {
     // C1Pollsn, C1Mysn
-    q_send_recv<Action::get, Kind::poll>(ui, ta);
+    q_send_recv<Action::get, Kind::poll>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::ping>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::ping>(TA const & ta, OI const & oi) {
     // C1Ping4, C1Ping5
-    q_send_recv<Action::get, Kind::ping>(ui, ta);
+    q_send_recv<Action::get, Kind::ping>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::global>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::global>(TA const & ta, OI const & oi) {
     // C1Rqglob, C1glob
-    q_send_recv<Action::get, Kind::global>(ui, ta);
+    q_send_recv<Action::get, Kind::global>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::stat>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::stat>(TA const & ta,  OI const & oi) {
     // C1Rqstat, C1Stat (multi command)
-    q_send_recv<Action::get, Kind::stat>(ui, ta);
+    q_send_recv<Action::get, Kind::stat>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::center>(UserInstruction const & ui,
-                                          TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::center>(TA const & ta, OI const & oi) {
     // C2Rqamass, C2Amass
-    q_send_recv<Action::get, Kind::center>(ui, ta);
+    q_send_recv<Action::get, Kind::center>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::ctrl>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::ctrl>(TA const & ta, OI const & oi) {
     // sensor_control_mapping, C1Rqsc , C1Sc
-    q_send_recv<Action::get, Kind::ctrl>(ui, ta);
+    q_send_recv<Action::get, Kind::ctrl>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::dev>(UserInstruction const & ui,
-                                       TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::dev>(TA const & ta, OI const & oi) {
     // devices, C1Rqdev, C1Dev (multicommand)
-    q_send_recv<Action::get, Kind::dev>(ui, ta);
+    q_send_recv<Action::get, Kind::dev>(ta, oi);
 }
 
 // *** CALIBRATIONS *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::start, Kind::cal>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::start, Kind::cal>(TA const & ta, OI const & oi) {
 
     auto & s = sn.s_ref(ta);
 
     // --------- E300 registration ----------- //
     if (s.config.has_e300) {
-        s.port_e300().reg();
+        s.port_e300_ref().reg();
         std::cout << std::endl << "\n** E300 REGISTERED! ** " << std::endl;
-        s.port_e300().cal_connect();
+        s.port_e300_ref().cal_connect();
     }
 
     // qcal, C1Qcal, C1Cack, no default option
-    q_send_recv<Action::start, Kind::cal>(ui, ta);
+    q_send_recv<Action::start, Kind::cal>(ta, oi);
 }
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::stop, Kind::cal>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::stop, Kind::cal>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
 
@@ -116,34 +144,30 @@ void Comm::run<Action::stop, Kind::cal>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::show, Kind::target>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::target>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::target>(ta);
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::show, Kind::plan>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::plan>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << "show plan";
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::edit, Kind::plan>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::edit, Kind::plan>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << "edit plan";
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::set, Kind::ctrl>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::set, Kind::ctrl>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << " !!!! sending reboot signal to digitizer !!!!";
-    q_send_recv<Action::set, Kind::ctrl>(ui, ta);
+    q_send_recv<Action::set, Kind::ctrl>(ta, oi);
     std::cout << std::endl << " !!!! reboot signal sent !!!!";
 }
 
@@ -165,8 +189,7 @@ void Comm::last_reboot(Digitizer & q) {
 // *** REGISTRATION *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
-                                       TargetAddress const & ta) {
+void Comm::run<Action::set, Kind::reg>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
 
@@ -246,12 +269,11 @@ void Comm::run<Action::set, Kind::reg>(UserInstruction const & ui,
                                "Registration failed");
     }
 }
-// -------------------------------------------------------------------------- //
 
 // *** DE - REGISTRATION *** //
+// -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::set, Kind::dereg>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
 
@@ -279,8 +301,7 @@ void Comm::run<Action::set, Kind::dereg>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
     auto & s = sn.s_ref(ta);
@@ -288,6 +309,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
     // log this
     // ---------------------------------------------------------------------- //
     /*
+    TODO: use a logging library, output should be file + console
     std::ofstream out;
     out.open("out.txt", std::ofstream::out | std::ofstream::trunc);
     //save old buffer
@@ -308,35 +330,6 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
     // the cal times depend on the digitizer time (seconds since epoch)
     // ---------------------------------------------------------------------- //
-
-    C1Rqstat cmd_rqstat; // Request Status
-    cmd_rqstat.request_bitmap.global_status(true);
-    // setup response
-    C1Stat cmd_stat; // Status
-
-    Comm::run<Action::set, Kind::reg>(ui, ta);
-    md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
-    Comm::run<Action::set, Kind::dereg>(ui, ta);
-
-    CxGlobalStatus * gs =
-        dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
-
-    if (gs == nullptr) throw FatalException("Comm", "autocal", "gs nullptr");
-
-    // Q330 manual: "Seconds offset ... when added to a data sequence number
-    // is seconds since January 1 2000"
-    auto const q_data_seq_number = gs -> data_sequence_number.data();
-    auto const q_seconds_offset = gs -> seconds_offset.data();
-    auto const q_sec_since_epoch = q_data_seq_number + q_seconds_offset;
-
-    CmdFieldTime<uint32_t, Time::k_shift_seconds_1970_2000> q_now_time;
-    q_now_time.data(q_sec_since_epoch);
-
-    std::cout << std::endl << "q_now_seq_num: " << q_sec_since_epoch;
-    std::cout << std::endl << "q_now_time: " << q_now_time;
-    std::cout << std::endl << " ### now: "
-                      << Time::sys_time_of_day() << " ###\n";
-
     for (auto & msg_task : msg_tasks) {
         auto * cal = dynamic_cast<C1Qcal *>( msg_task.cmd_send.get() );
         if (cal == nullptr) throw FatalException("Comm",
@@ -354,7 +347,6 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
     // e300 keep alive setup
     // ---------------------------------------------------------------------- //
-
     if (s.config.has_e300) {
 
         // plan cal might have been called before digitizer registration
@@ -362,11 +354,11 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         // gets registered before proceeding. Also this is not caught here,
         // so if e300 registration fails, calibration fails, as it should.
 
-        s.port_e300().reg();
+        s.port_e300_ref().reg();
 
         // connect external calibration signal from e300
 
-        s.port_e300().cal_connect();
+        s.port_e300_ref().cal_connect();
 
         // if the calibration plan takes more than an hour, the e300
         // needs to be kept awake or it will go back to "safe" mode
@@ -399,12 +391,40 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
             // sets cancel_keep_alive to false
             // but it can be set to true during the keep_alive_delay
-            s.port_e300().keep_alive(total_plan_run_duration,
+            s.port_e300_ref().keep_alive(total_plan_run_duration,
                                      keep_alive_delay);
         }
     }
 
+    // make sure cals are coordinated (not send a cal when there is one)
+    // ---------------------------------------------------------------------- //
+    auto cal_is_running = [&]() {
 
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.global_status(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxGlobalStatus * gs =
+            dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+        if (gs == nullptr) throw FatalException("Comm",
+                                                "autocal",
+                                                "global stat nullptr");
+
+        auto const & cs = gs -> calibrator_status;
+
+        return ( cs.calibration_enable_is_on_this_second() or
+                 cs.calibration_signal_is_on_this_second() or
+                 cs.calibrator_should_be_generating_a_signal_but_isnt() );
+    };
+
+    // main loop of auto calibration
     // ---------------------------------------------------------------------- //
     try {
 
@@ -414,8 +434,25 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
             std::cout << std::endl << " ### now: "
                       << Time::sys_time_of_day() << " ###\n";
 
-            Comm::run<Action::set, Kind::reg>(ui, ta);
+            Comm::run<Action::set, Kind::reg>(ta);
 
+            // check if a calibration is going on
+            for (int i = 0; i < 2; i++) {
+
+                if ( cal_is_running() ) break;
+
+                // add some more wiggle time, digitizer still running cals
+                auto constexpr wiggle_duration = std::chrono::seconds(10);
+                std::this_thread::sleep_for(wiggle_duration);
+
+                if (i == 2) {
+                    throw FatalException("Comm",
+                                         "run<auto, cal>",
+                                         "Calibrations are not coordinated");
+                }
+            }
+
+            // ok ready to go
             msg_task.exec_time( std::chrono::system_clock::now() );
             msg_task.end_time( msg_task.exec_time() + msg_task.run_duration() );
 
@@ -429,7 +466,7 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
             // no throw so far, received c1_cack
             msg_task.done = true;
 
-            Comm::run<Action::set, Kind::dereg>(ui, ta);
+            Comm::run<Action::set, Kind::dereg>(ta);
 
             // add some wiggle time in between
             auto constexpr wiggle_duration = std::chrono::seconds(20);
@@ -462,20 +499,20 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
         }
 
         // all done successfully, get the future from keep alive
-        if (s.config.has_e300) s.port_e300().wait_keep_alive();
+        if (s.config.has_e300) s.port_e300_ref().wait_keep_alive();
 
     } catch (Exception const & e) {
 
         //std::cout.rdbuf(cout_buffer);
 
         // cancel keep alive thread and rethrow exception
-        std::cerr << std::endl << "caught @Comm::run<plan, cal>";
-        std::cerr << std::endl << "cancelling plan cal"
+        std::cerr << std::endl << "caught @Comm::run<auto, cal>";
+        std::cerr << std::endl << "cancelling auto cal"
                   << "\n deregistering: \n";
-        Comm::run<Action::set, Kind::dereg>(ui, ta);
+        Comm::run<Action::set, Kind::dereg>(ta);
         std::cerr << "\n cancelling keep alive for e300: \n";
         // ok to set even if keep_alive(...)  was not called here
-        if (s.config.has_e300) s.port_e300().cancel_keep_alive();
+        if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
         std::cerr << std::endl << "rethrow";
         throw e;
     }
@@ -485,8 +522,91 @@ void Comm::run<Action::auto_, Kind::cal>(UserInstruction const & ui,
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::set, Kind::center>(UserInstruction const & ui,
-                                          TargetAddress const & ta) {
+void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
+
+    auto & q = sn.q_ref(ta);
+    auto & s = sn.s_ref(ta);
+
+    // e300 keep alive setup
+    // ---------------------------------------------------------------------- //
+    if (s.config.has_e300) { std::cout << "\nTODO test if needed"; return;}
+
+    // make sure cals are coordinated (not send a cal when there is one)
+    // ---------------------------------------------------------------------- //
+    auto boom_positions = [&]() -> std::array<int, 6> const {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.boom_positions(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxBoomPositions * bp =
+            dynamic_cast<CxBoomPositions  *>( cmd_stat.inner_commands[0].get() );
+
+        if (bp == nullptr) throw FatalException("Comm",
+                                                "run",
+                                                "boom positions nullptr");
+
+        std::array<int, 6> const boom_positions {bp -> channel_1_boom(),
+                                                 bp -> channel_2_boom(),
+                                                 bp -> channel_3_boom(),
+                                                 bp -> channel_4_boom(),
+                                                 bp -> channel_5_boom(),
+                                                 bp -> channel_6_boom()};
+        return boom_positions;
+    };
+
+    // ---------------------------------------------------------------------- //
+    try {
+
+        auto constexpr loop_limit = 10;
+        auto constexpr period = std::chrono::seconds(1); 
+        Comm::run<Action::set, Kind::reg>(ta);
+
+        std::cout << std::endl << " ### now: " << Time::sys_time_of_day() << " ###\n";
+
+        // can't use delay since delay is meant for independently sent cals
+        for (int i = 0; i < loop_limit; i++) {
+
+            auto const bp = boom_positions();
+
+            std::cout << "<" << bp[0] << ">";
+
+            std::this_thread::sleep_for(period);
+        }
+
+        Comm::run<Action::set, Kind::dereg>(ta);
+
+        std::cout << std::endl << " ### now: "
+                  << Time::sys_time_of_day() << " ###\n";
+
+    } catch (Exception const & e) {
+
+        //std::cout.rdbuf(cout_buffer);
+
+        // cancel keep alive thread and rethrow exception
+        std::cerr << std::endl << "caught @Comm::run<auto, stat:boom>";
+        std::cerr << std::endl << "cancelling auto stat:boom"
+                  << "\n deregistering: \n";
+        Comm::run<Action::set, Kind::dereg>(ta);
+        std::cerr << "\n cancelling keep alive for e300: \n";
+        // ok to set even if keep_alive(...)  was not called here
+        if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
+        std::cerr << std::endl << "rethrow";
+        throw e;
+    }
+
+    //std::cout.rdbuf(cout_buffer);
+}
+
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
     auto const & s = sn.s_ref(ta);
@@ -532,12 +652,85 @@ void Comm::run<Action::set, Kind::center>(UserInstruction const & ui,
         std::make_unique<C1Cack>( std::move(cmd_cack) );
 }
 
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
+
+    auto & q = sn.q_ref(ta);
+    auto const & s = sn.s_ref(ta);
+
+    // ---------------------------------------------------------------------- //
+    auto centering_is_running = [&]() {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.global_status(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxGlobalStatus * gs =
+            dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+        if (gs == nullptr) throw FatalException("Comm",
+                                                "autocal",
+                                                "global stat nullptr");
+
+        auto const & scm = gs -> sensor_control_bitmap.sensor_control_mapping();
+
+        using SCM = BmStatSensorControlBitmap::SensorControlMapping;
+
+        return (scm == SCM::sensor_a_centering or
+                scm == SCM::sensor_b_centering or
+                scm == SCM::sensor_a_calibration or
+                scm == SCM::sensor_b_calibration);
+    };
+
+    // make sure another centering is not running
+    if ( centering_is_running() ) {
+        throw FatalException("Comm",
+                             "run<auto, cal>",
+                             "Calibrations are not coordinated");
+    }
+
+    // pulse setup for mass centering
+    C1Pulse cmd_pulse;
+
+    // the pulse needs to be in CentiSeconds.
+    // (q330 manual "Duration 10 ms intervals")
+    // using centi directly assures there is no truncation, using milliseconds
+    // will be interpreted as possible truncation and will not compile unless
+    // using floor to the expected type
+    auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(90);
+
+    cmd_pulse.pulse_duration(pulse_duration);
+
+    if (s.config.input == Sensor::Input::a) {
+        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
+            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_centering);
+    } else {
+        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
+            BmStatSensorControlBitmap::SensorControlMapping::sensor_b_centering);
+    }
+
+    C1Cack cmd_cack;
+    md.send_recv(q.port_config, cmd_pulse, cmd_cack);
+
+    // create task_id
+    auto constexpr ui_id = UserInstruction::hash(Action::set, Kind::center);
+    auto const task_id = ta.hash() + ui_id;
+
+    output_store.cmd_map[task_id] =
+        std::make_unique<C1Cack>( std::move(cmd_cack) );
+}
 
 // *** QUICK VIEW *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::qview>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::qview>(TA const & ta, OI const & oi) {
     // no option yet in green_manzano
     // handled completely by red_manzano, no common library worked
     /*
@@ -549,13 +742,11 @@ void Comm::run<Action::get, Kind::qview>(UserInstruction const & ui,
      output_store.cmd_map[task_id] =
         std::make_unique<C2Qv>( std::move(cmd_qv) );
         */
-
 }
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::quit, Kind::mzn>(UserInstruction const & ui,
-                                        TargetAddress const & ta) {
+void Comm::run<Action::quit, Kind::mzn>(TA const & ta, OI const & oi) {
     // TODO clean up mtm
     // md.join_timed_threads();
 }
@@ -563,8 +754,7 @@ void Comm::run<Action::quit, Kind::mzn>(UserInstruction const & ui,
 //TODO: compound, utility function, move separetely?
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::uptime>(UserInstruction const & ui,
-                                          TargetAddress const & ta) {
+void Comm::run<Action::get, Kind::uptime>(TA const & ta, OI const & oi) {
 
     auto & st = sn.st_ref(ta);
 
@@ -578,9 +768,12 @@ void Comm::run<Action::get, Kind::uptime>(UserInstruction const & ui,
     for (auto & q : st.q) {
 
         uptime_report_fs << "\n    digitizer: ";
-        uptime_report_fs << "    " << std::hex << q.config.serial_number << std::dec;
+        uptime_report_fs << "    " << std::hex
+                         << q.config.serial_number
+                         << std::dec;
+
         uptime_report_fs << "\n    time of last reboot: ";
-//        uptime_report_fs <<  last_reboot(q)  ;
+        // uptime_report_fs <<  last_reboot(q)  ;
     }
 
     uptime_report_fs << "\n    data processor: uptime:\n ";
@@ -589,12 +782,9 @@ void Comm::run<Action::get, Kind::uptime>(UserInstruction const & ui,
     uptime_report_fs.close();
 }
 
-
-
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::edit, Kind::stat>(UserInstruction const & ui,
-                                         TargetAddress const & ta) {
+void Comm::run<Action::edit, Kind::stat>(TA const & ta, OI const & oi) {
     //TODO: use type traits
     //TODO: show users shortcut and live options
     // cmd_show_options<C1Ping4, Action::edit, Kind::stat>();
@@ -603,23 +793,18 @@ void Comm::run<Action::edit, Kind::stat>(UserInstruction const & ui,
 // -------------------------------------------------------------------------- //
 // for stream_output
 // -------------------------------------------------------------------------- //
-
-
 template<>
-void Comm::run<Action::show, Kind::config>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::config>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::config>(ta);
 }
 
 template<>
-void Comm::run<Action::show, Kind::status>(UserInstruction const & ui,
-                                           TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::status>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::status>(ta);
 }
 
 template<>
-void Comm::run<Action::show, Kind::command>(UserInstruction const & ui,
-                                            TargetAddress const & ta) {
+void Comm::run<Action::show, Kind::command>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::command>(ta);
 }
 

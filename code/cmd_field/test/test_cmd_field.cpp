@@ -483,40 +483,42 @@ TEST_F(FixtureCmdField, time_epochs_constructors) {
     // now is now in any epoch
     ss << "\n\nconstructor: time points with shift";
 
-    auto const cft = mzn::CmdFieldTime<int, 0>(now);
-    auto const cft_shifted_a_day = mzn::CmdFieldTime<int, 86400>(now);
+    auto const cft = mzn::CmdFieldTime<int>(now);
+    auto const cft_shifted = mzn::CmdFieldTime<int, 86400>(now);
 
-    ss << std::endl << cft << "  /  " << cft_shifted_a_day;
+    ss << std::endl << cft << "  /  " << cft_shifted;
 
     // -----------
     ss << "\n\nwith mutator: time points with shift";
 
-    auto cft2 = mzn::CmdFieldTime<int, 0>{};
-    auto cft2_shifted_a_day = mzn::CmdFieldTime<int, 86400>{};
+    auto cft2 = mzn::CmdFieldTime<int>{};
+    auto cft2_shifted = mzn::CmdFieldTime<int, 86400>{};
 
     cft2(now);
-    cft2_shifted_a_day(now);
+    cft2_shifted(now);
 
-    ss << std::endl << cft2 << "  /  " << cft2_shifted_a_day;
+    ss << std::endl << cft2 << "  /  " << cft2_shifted;
+    ss << "\n\n";
+    ss << cft2.data() << " / " << cft2_shifted.data();
     ss << "\n\n";
 
     // now is now, all show the same time point:
-    EXPECT_EQ( cft(), cft_shifted_a_day() );
-    EXPECT_EQ( cft2(), cft2_shifted_a_day() );
+    EXPECT_EQ( cft(), cft_shifted() );
+    EXPECT_EQ( cft2(), cft2_shifted() );
     EXPECT_EQ( cft(), cft2() );
 
     // equality operators are implemented
-    EXPECT_EQ(cft, cft_shifted_a_day);
-    EXPECT_EQ(cft2, cft2_shifted_a_day);
+    EXPECT_EQ(cft, cft_shifted);
+    EXPECT_EQ(cft2, cft2_shifted);
     EXPECT_EQ(cft, cft2);
 
     // same epoch, same internal value:
     EXPECT_EQ( cft.data(), cft2.data() );
-    EXPECT_EQ( cft_shifted_a_day.data() , cft2_shifted_a_day.data() );
+    EXPECT_EQ( cft_shifted.data() , cft2_shifted.data() );
 
     // different epoch, different internal value:
-    EXPECT_NE( cft.data() , cft_shifted_a_day.data() );
-    EXPECT_NE( cft2.data() , cft2_shifted_a_day.data() );
+    EXPECT_NE( cft.data() , cft_shifted.data() );
+    EXPECT_NE( cft2.data() , cft2_shifted.data() );
 
     std::cout << ss.str();
 }
@@ -542,13 +544,15 @@ TEST_F(FixtureCmdField, duration_constructors) {
     EXPECT_EQ(cfs5_, cfs5_2);
     EXPECT_EQ(cfs5_2, cfs5_3);
 
-    auto const m1 = std::chrono::minutes(1);
+    auto const m1 = std::chrono::minutes(5);
     mzn::CmdFieldDuration<int, std::ratio<60> > cfm1_(m1);
 
     // 1 minutes > 5 seconds, comparison using different Periods
     EXPECT_GT(cfm1_, cfs5_);
 
     auto const cfs60_ = mzn::CmdFieldDuration<int>(m1);
+    ss << "\ninternal value: " << cfs60_.data();
+    ss << "\ndirect stream: " << cfs60_;
 
     // 60 seconds == 1 minute, comparison using different Periods
     EXPECT_EQ(cfm1_(), cfs60_() );
@@ -976,6 +980,35 @@ TEST_F(FixtureCmdField, msg_and_data_pod) {
     EXPECT_EQ(copy_i64, i64);
     EXPECT_EQ(copy_ui64, ui64);
     EXPECT_EQ(copy_bl, bl);
+}
+
+
+
+// -------------------------------------------------------------------------- //
+TEST_F(FixtureCmdField, baler_status) {
+
+/*
+ "bm_balerstatus":{
+    "bm_fields":[
+
+      {"bmf_name": "timeout_counts", "bmf_val_begin": 0, "bmf_val_mask": "0xFFF"},
+      {"bmf_name": "baler_is_currently_forced_off_for_the_minimum_off_time", "bmf_bit": 12},
+      {"bmf_name": "set_to_one", "bmf_bit": 13},
+      {"bmf_name": "baler_power_status", "bmf_code_full_range": false,
+        "bmf_code_begin": 14, "bmf_code_mask": "0x3",
+        "bmf_codes": [
+              {"bmf_code_name": "baler_off",  "bmf_code": 0},
+              {"bmf_code_name": "baler_power_turned_on_by_a_command", "bmf_code": 1},
+              {"bmf_code_name": "baler_power_turned_on_automatically", "bmf_code": 2},
+              {"bmf_code_name": "baler_power_is_continuous", "bmf_code": 3}
+        ]
+      }
+    ]
+
+,   "mf_size": 2, "bm_originator": "q"
+},
+*/
+
 }
 
 // -------------------------------------------------------------------------- //

@@ -10,26 +10,25 @@ InstructionMap::filter_actions(TargetAddress const & ta) {
     Scope scope = ta.scope();
 
     switch (scope) {
-        case Scope::digitizer:
-            return VA{Action::show,
-                      Action::edit,
-                      Action::get,
-                      Action::set,
-                      Action::stop};
 
-        case Scope::sensor:
-            return VA{Action::show,
-                      Action::edit,
-                      Action::set,
-                      Action::start,
-                      Action::auto_};
+        case Scope::digitizer:      return VA{Action::show,
+                                              Action::edit,
+                                              Action::get,
+                                              Action::set,
+                                              Action::stop};
 
-        case Scope::data_processor:
-            return VA{Action::show,
-                      Action::edit,
-                      Action::get};
+        case Scope::sensor:         return VA{Action::show,
+                                              Action::edit,
+                                              Action::set,
+                                              Action::start,
+                                              Action::auto_};
 
-        default : return VA{Action::show, Action::edit};
+        case Scope::data_processor: return VA{Action::show,
+                                              Action::edit,
+                                              Action::get};
+
+        default :                   return VA{Action::show,
+                                              Action::edit};
     }
 }
 
@@ -88,7 +87,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
         switch (action) {
             case Action::set: return VK{Kind::center};
             case Action::start: return VK{Kind::cal, Kind::pulse};
-            case Action::auto_: return VK{Kind::cal};
+            case Action::auto_: return VK{Kind::cal, Kind::stat};
             default : return VK{};
         }
     }
@@ -199,7 +198,7 @@ InstructionMap::filter_options(Action const action,
 
             switch (kind) {
                 case Kind::stat: return VS{"boom", "gps", "gpssat", "power",
-                                           "dataport", "pll"};
+                                           "dataport", "pll", "thread"};
                 default: return VS{};
             }
         }
@@ -222,6 +221,14 @@ InstructionMap::filter_options(Action const action,
             }
         }
 
+        case Action::auto_: {
+
+            switch (kind) {
+                case Kind::stat: return VS{"boom"};
+                default: return VS{};
+            }
+        }
+
         default: return VS{};
     }
 }
@@ -231,101 +238,9 @@ bool InstructionMap::has_empty_option(Action const action, Kind const kind) {
 
     if (action == Action::set    and kind == Kind::ctrl)   return false;
     if (action == Action::start  and kind == Kind::cal)    return false;
+    if (action == Action::auto_  and kind == Kind::stat)   return false;
 
     return true;
 }
-
-
-    /*
-// -------------------------------------------------------------------------- //
-InstructionMap::ActionToKindMap const q_kinds_map = {
-
-    { Action::get, InstructionMap::VK{Kind::ping,
-                                      Kind::poll}
-    }
-
-};
-
-
-// -------------------------------------------------------------------------- //
-InstructionMap::ScopeToActionKindMap const q_ak_map = {
-
-    { Scope::digitizer, InstructionMap::VA{Kind::ping,
-                                           Kind::poll}
-    }
-
-};
-
-    */
-
-// -------------------------------------------------------------------------- //
-using IM = InstructionMap;
-
-// -------------------------------------------------------------------------- //
-// using KindOptionMap  = EnumUnorderedMap<Kind, VO const>;
-// -------------------------------------------------------------------------- //
-IM::KindOptionMap const InstructionMap::q_ko_map{
-    {Kind::stat,
-        IM::VO{"boom", "gps", "gpssat", "power", "dataport", "pll"}},
-};
-
-// -------------------------------------------------------------------------- //
-IM::KindOptionMap const InstructionMap::s_ko_map{
-    {Kind::cal,
-        IM::VO{"sine", "step", "longsine", "longstep"}},
-};
-
-// -------------------------------------------------------------------------- //
-// ActionKindMap  = EnumUnorderedMap<Action, KindOptionMap const>;
-// -------------------------------------------------------------------------- //
-IM::ActionKindMap const InstructionMap::q_ak_map{
-    { Action::get, q_ko_map}
-
-        /*
-        IM::VK{Kind::poll,
-                          Kind::qview,
-                          Kind::ctrl,
-                          Kind::center,
-                          Kind::ping,
-                          Kind::dev,
-                          Kind::stat} }
-                          */
-};
-
-// -------------------------------------------------------------------------- //
-IM::ActionKindMap const InstructionMap::s_ak_map{
-
-    { Action::get, s_ko_map }
-};
-
-// -------------------------------------------------------------------------- //
-// using ScopeActionMap = EnumUnorderedMap<Scope, ActionKindMap const>;
-// -------------------------------------------------------------------------- //
-IM::ScopeActionMap const InstructionMap::sa_map{
-
-    { Scope::digitizer, q_ak_map },
-    { Scope::sensor, s_ak_map }
-};
-
-// -------------------------------------------------------------------------- //
-const std::map< Scope, std::vector<Action> >
-InstructionMap::map_scope_action = {
-
-    {Scope::digitizer,      std::vector<Action> {Action::show,
-                                                 Action::edit,
-                                                 Action::get,
-                                                 Action::set,
-                                                 Action::stop,}
-    },
-
-    {Scope::sensor,         std::vector<Action> {Action::show,
-                                                 Action::edit,
-                                                 Action::get,
-                                                 Action::set,
-                                                 Action::start,
-                                                 Action::plan,}
-    },
-};
-
 
 } // <- mzn

@@ -1,46 +1,64 @@
 {
-  "EXAMPLE":
-  {
-    "digitizer":
-    [
-      {
-        "serial_number": "01ABC",
-
-        "port_config": {"ip_remote":"x.x.x.x", "port_remote":5000,
-                        "auth_code":"x", "port_host":2000,
-                        "protocol_version": 2},
-
-        "port_control": {"ip_remote":"x.x.x.x", "port_remote":5002,
-                         "auth_code":"x", "port_host":2002,
-                         "protocol_version": 2},
-
-        "port_data": {"ip_remote":"x.x.x.x", "port_remote":5003,
-                      "auth_code":"x", "port_host":2003,
-                      "protocol_version": 2},
-
-        "sensor":
-        [
-          {
-            "input": "A",
-            "model": "STS2",
-            "cals": "TIMED_SEND_TEST"
-          },
-
-          {
-            "input": "B",
-            "model": "STS1",
-            "cals": "STS_1_E300",
-            "port_e300": {"ip_remote":"x.x.x.x", "port_remote":5009,
-                          "auth_code":"x", "port_host":2009,
-                          "protocol_version": 0}
-          }
-
-        ]
-      }
-    ],
-
-    "data_processor":{"ip":"x.x.x.x",
-                      "user":"x",
-                      "pw":"x"}
-  }
+    "station": [
+        {
+            "data_processor": [],
+            "digitizer": [
+                {
+                    "port_config": {
+                        "auth_code": "0",
+                        "ip_remote": "0.0.0.0",
+                        "port_host": 2000,
+                        "port_remote": 5000,
+                        "protocol_version": 2
+                    },
+                    "sensor": [
+                        {
+                            "cals": "STS_2_HG",
+                            "input": "A",
+                            "model": "STS_2",
+                            "port_e300": {}
+                        },
+                        {
+                            "cals": "STS_1_E300",
+                            "input": "B",
+                            "model": "STS_1",
+                            "port_e300": {
+                                "auth_code": "0",
+                                "ip_remote": "0.0.0.0",
+                                "port_host": 2080,
+                                "port_remote": 5080,
+                                "protocol_version": 0
+                            }
+                        }
+                    ],
+                    "serial_number": "BA12C"
+                }
+            ],
+            "station_name": "EXPL"
+        },
+        {
+            "data_processor": [],
+            "digitizer": [
+                {
+                    "port_config": {
+                        "auth_code": "0",
+                        "ip_remote": "0.0.0.0",
+                        "port_host": 2100,
+                        "port_remote": 5100,
+                        "protocol_version": 2
+                    },
+                    "sensor": [
+                        {
+                            "cals": "STS_2_HG",
+                            "input": "A",
+                            "model": "STS_2",
+                            "port_e300": {}
+                        }
+                    ],
+                    "serial_number": "1122AA"
+                }
+            ],
+            "station_name": "OTHR"
+        }
+    ]
 }

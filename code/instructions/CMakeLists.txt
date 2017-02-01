@@ -10,7 +10,7 @@ add_library(instructions ${SOURCES_instructions})
 
 set_target_properties(instructions
                       PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_instructions}/bin)
+                      ARCHIVE_OUTPUT_DIRECTORY ${DIR_instructions}/lib)
 
 # ---- TEST ----- #
 add_executable(test_instructions ${DIR_instructions}/test/test_instructions.cpp)

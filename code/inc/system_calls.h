@@ -17,8 +17,12 @@ std::string get_environmental_variable(std::string const & v) {
     char const * home_path = std::getenv( v.c_str() );
 
     if (home_path == nullptr) {
+
         auto const error_msg = std::string("No environmental variable: ") + v;
-        throw std::runtime_error(error_msg);
+
+        throw FatalException( "Manzano",
+                              "get_environmental_variable",
+                              error_msg );
     }
 
     return std::string(home_path);
@@ -40,7 +44,7 @@ std::string get_runtime_config_path() {
 
     std::stringstream ss;
     ss << "Config path not found at: \n    "
-       << config_home_path << " or " << config_src_path;
+       << config_home_path << " or\n    " << config_src_path;
 
     throw FatalException( "Manzano",
                           "get_runtime_config_path",

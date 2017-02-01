@@ -7,6 +7,7 @@
 #include <sstream>
 #include <functional>
 
+#include "string_utilities.h"
 #include "comm.h"
 
 namespace mzn {
@@ -24,7 +25,10 @@ class InstructionInterpreter {
 
 public:
     explicit
-    InstructionInterpreter();
+    InstructionInterpreter(
+            TargetAddress const & ta =
+                TargetAddress{Target(Scope::station, 0),
+                              Target(Scope::digitizer,  0)});
 
     ~InstructionInterpreter() = default;
 

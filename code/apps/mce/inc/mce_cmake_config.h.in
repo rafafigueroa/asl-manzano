@@ -1,0 +1,2 @@
+#define k_mce_VERSION_MAJOR @k_mce_VERSION_MAJOR@
+#define k_mce_VERSION_MINOR @k_mce_VERSION_MINOR@

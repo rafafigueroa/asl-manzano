@@ -3,41 +3,54 @@
 
 namespace mzn {
 
+// ta defaults to st0q0
 // -------------------------------------------------------------------------- //
-InstructionInterpreter::InstructionInterpreter() :
-            current_ta_ ( Target(Scope::station, 0),
-                          Target(Scope::digitizer,  0) ),
-        cm{} {}
+InstructionInterpreter::InstructionInterpreter(TargetAddress const & ta) :
+        current_ta_(ta),
+        cm{} {
+
+    try {
+
+        check_ta_in_sn(current_ta_);
+
+    } catch(WarningException const & e) {
+
+        std::cerr << "\nta: " << ta << "\nNot present, configuration likely broken";
+        std::cerr << e.what();
+        current_ta_ = TargetAddress{};
+    }
+}
 
 // -------------------------------------------------------------------------- //
 template<Action action>
 void InstructionInterpreter::match(UserInstruction const & ui,
                                    TargetAddress const & ta) {
 
+    auto const & oi = ui.option_input;
+
     switch (ui.kind) {
-        case Kind::target:  cm.run<action, Kind::target>(ui, ta);  break;
-        case Kind::config:  cm.run<action, Kind::config>(ui, ta);  break;
-        case Kind::status:  cm.run<action, Kind::status>(ui, ta);  break;
-        case Kind::command: cm.run<action, Kind::command>(ui, ta); break;
-        case Kind::poll:    cm.run<action, Kind::poll>(ui, ta);    break;
-        case Kind::global:  cm.run<action, Kind::global>(ui, ta);  break;
-        case Kind::ping:    cm.run<action, Kind::ping>(ui, ta);    break;
-        case Kind::stat:    cm.run<action, Kind::stat>(ui, ta);    break;
-        case Kind::qview:   cm.run<action, Kind::qview>(ui, ta);   break;
-        case Kind::dev:     cm.run<action, Kind::dev>(ui, ta);     break;
-        case Kind::ctrl:    cm.run<action, Kind::ctrl>(ui, ta);    break;
-        case Kind::reg:     cm.run<action, Kind::reg>(ui, ta);     break;
-        case Kind::dereg:   cm.run<action, Kind::dereg>(ui, ta);   break;
-        case Kind::cal:     cm.run<action, Kind::cal>(ui, ta);     break;
-        case Kind::center:  cm.run<action, Kind::center>(ui, ta);  break;
-        case Kind::pulse:   cm.run<action, Kind::pulse>(ui, ta);   break;
-        case Kind::uptime:  cm.run<action, Kind::uptime>(ui, ta);  break;
-        case Kind::mzn:     cm.run<action, Kind::mzn>(ui, ta);     break;
-        case Kind::plan:    cm.run<action, Kind::plan>(ui, ta);    break;
+        case Kind::target:  cm.run<action, Kind::target>(ta, oi);  break;
+        case Kind::config:  cm.run<action, Kind::config>(ta, oi);  break;
+        case Kind::status:  cm.run<action, Kind::status>(ta, oi);  break;
+        case Kind::command: cm.run<action, Kind::command>(ta, oi); break;
+        case Kind::poll:    cm.run<action, Kind::poll>(ta, oi);    break;
+        case Kind::global:  cm.run<action, Kind::global>(ta, oi);  break;
+        case Kind::ping:    cm.run<action, Kind::ping>(ta, oi);    break;
+        case Kind::stat:    cm.run<action, Kind::stat>(ta, oi);    break;
+        case Kind::qview:   cm.run<action, Kind::qview>(ta, oi);   break;
+        case Kind::dev:     cm.run<action, Kind::dev>(ta, oi);     break;
+        case Kind::ctrl:    cm.run<action, Kind::ctrl>(ta, oi);    break;
+        case Kind::reg:     cm.run<action, Kind::reg>(ta, oi);     break;
+        case Kind::dereg:   cm.run<action, Kind::dereg>(ta, oi);   break;
+        case Kind::cal:     cm.run<action, Kind::cal>(ta, oi);     break;
+        case Kind::center:  cm.run<action, Kind::center>(ta, oi);  break;
+        case Kind::pulse:   cm.run<action, Kind::pulse>(ta, oi);   break;
+        case Kind::uptime:  cm.run<action, Kind::uptime>(ta, oi);  break;
+        case Kind::mzn:     cm.run<action, Kind::mzn>(ta, oi);     break;
+        case Kind::plan:    cm.run<action, Kind::plan>(ta, oi);    break;
         default:
             throw std::logic_error{"at InstructionInterpreter::run_instruction"};
     }
-
 }
 
 // -------------------------------------------------------------------------- //
@@ -155,17 +168,27 @@ InstructionInterpreter::current_ta_remove_one_target() {
 void
 InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
 
-
     std::size_t sn_child_index = 0;
     std::size_t st_child_index = 0;
+
+    auto throw_no_ta_in_sn = [&ta, this]() {
+        std::stringstream ss;
+        ss << ta << " does not exist on the seismic network";
+
+        // stream current seismic network
+        this -> cm.stream_output.show<Kind::target>(TargetAddress{});
+
+        throw WarningException("InstructionInterpreter",
+                               "check_ta_in_sn",
+                               ss.str() );
+    };
 
     // does the station exist?
     if ( ta.sn_child.scope == Scope::station and
          ta.sn_child.index >= cm.sn.st.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "station does not exist");
+        throw_no_ta_in_sn();
+
     } else {
         sn_child_index = ta.sn_child.index;
     }
@@ -174,9 +197,8 @@ InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
     if ( ta.st_child.scope == Scope::digitizer and
          ta.st_child.index >= cm.sn.st[sn_child_index].q.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "digitizer does not exist");
+        throw_no_ta_in_sn();
+
     } else {
         st_child_index = ta.st_child.index;
     }
@@ -185,9 +207,8 @@ InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
     if ( ta.st_child.scope == Scope::data_processor and
          ta.st_child.index >= cm.sn.st[sn_child_index].dp.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "data processor does not exist");
+        throw_no_ta_in_sn();
+
     } else {
         st_child_index = ta.st_child.index;
     }
@@ -197,9 +218,7 @@ InstructionInterpreter::check_ta_in_sn(TargetAddress const & ta) const {
          ta.q_child.index >=
          cm.sn.st[sn_child_index].q[st_child_index].s.size() ) {
 
-        throw WarningException("InstructionInterpreter",
-                               "check_ta_in_sn",
-                               "sensor does not exist");
+        throw_no_ta_in_sn();
     }
 }
 

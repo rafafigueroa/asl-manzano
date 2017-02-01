@@ -61,8 +61,8 @@ public:
     //! and action/kind is not known at compile time
     //! only the output of the command is needed
     // --------------------------------------------------------------------- //
-    std::string get_string_output(UserInstruction const & ui,
-                                  TargetAddress const & ta) {
+    std::string get_string_output(TargetAddress const & ta,
+                                  UserInstruction const & ui) {
 
         auto const ui_id = UserInstruction::hash(ui.action, ui.kind);
         auto const task_id = ta.hash() + ui_id;
