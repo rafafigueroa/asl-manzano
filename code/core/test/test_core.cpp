@@ -16,8 +16,9 @@
 
 #include "mzn_time.h"
 #include "system_calls.h"
-// -------------------------------------------------------------------------- //
+#include "stream_plotter.h"
 
+// -------------------------------------------------------------------------- //
 class FixtureCore : public ::testing::Test {
 public:
 
@@ -26,23 +27,18 @@ public:
 };
 
 // -------------------------------------------------------------------------- //
-TEST_F(FixtureCore, spcl) {
+TEST_F(FixtureCore, stream_plotter) {
 
     using namespace mzn;
 
-    std::cout << std::endl << "testing terminal" << std::endl;
+    StreamPlotter<int> sp;
 
-    std::string input;
-
-    for (int i = 0; i < 10; i++) {
-        std::cout << "\ncols " << get_terminal_cols() << std::endl;
-        std::getline(std::cin, input);
-    }
 }
 
 // -------------------------------------------------------------------------- //
 TEST_F(FixtureCore, msg_task) {
 
+    /*
     using namespace mzn;
 
     SeismicNetwork sn{};
@@ -64,6 +60,7 @@ TEST_F(FixtureCore, msg_task) {
      }
 
     msg_tasks[0].stream<C1Qcal>(std::cout);
+    */
 }
 
 // -------------------------------------------------------------------------- //

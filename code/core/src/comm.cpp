@@ -546,11 +546,14 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
 
     // e300 keep alive setup
     // ---------------------------------------------------------------------- //
-    if (s.config.has_e300) { std::cout << "\nTODO test if needed"; return;}
+    if (s.config.has_e300) { std::cout << "\nTODO E300 auto stat"; return;}
+
+    // ---------------------------------------------------------------------- //
+    using Point = std::array<int16_t, 3>;
 
     // make sure cals are coordinated (not send a cal when there is one)
     // ---------------------------------------------------------------------- //
-    auto boom_positions = [&]() -> std::array<int, 6> const {
+    auto boom_positions = [&]() {
 
         // request status
         C1Rqstat cmd_rqstat;
@@ -569,21 +572,28 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
                                                 "run",
                                                 "boom positions nullptr");
 
-        std::array<int, 6> const boom_positions {bp -> channel_1_boom(),
-                                                 bp -> channel_2_boom(),
-                                                 bp -> channel_3_boom(),
-                                                 bp -> channel_4_boom(),
-                                                 bp -> channel_5_boom(),
-                                                 bp -> channel_6_boom()};
-        return boom_positions;
+        if (s.config.input == Sensor::Input::a) {
+
+            return Point { bp -> channel_1_boom(),
+                           bp -> channel_2_boom(),
+                           bp -> channel_3_boom() };
+        } else {
+
+            return Point { bp -> channel_4_boom(),
+                           bp -> channel_5_boom(),
+                           bp -> channel_6_boom() };
+        }
     };
 
     // ---------------------------------------------------------------------- //
     try {
 
+        StreamPlotter<int16_t, 3, int8_t> sp;
+
         auto constexpr loop_limit = 10;
-        auto constexpr period = std::chrono::seconds(1);
-        Comm::run<Action::set, Kind::reg>(ta);
+        auto constexpr period = std::chrono::milliseconds(400);
+
+        if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
         std::cout << std::endl << " ### now: "
                   << Time::sys_time_of_day() << " ###\n";
@@ -591,9 +601,10 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
         // can't use delay since delay is meant for independently sent cals
         for (int i = 0; i < loop_limit; i++) {
 
-            auto const bp = boom_positions();
+            Point const bp = boom_positions();
 
-            std::cout << "<" << bp[0] << ">";
+            sp.add(bp);
+            sp.plot_lines();
 
             std::this_thread::sleep_for(period);
         }
@@ -629,18 +640,29 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
     auto & q = sn.q_ref(ta);
     auto const & s = sn.s_ref(ta);
 
-    // TODO experiment with these values
-
+    // --------- E300 registration ----------- //
+    if (s.config.has_e300) throw InfoException("Comm",
+                                               "run<set, center>",
+                                               "TODO: set center for e300");
     using Minutes = std::chrono::minutes;
 
     // mass centering set
-    C2Samass cmd_samass;
-    cmd_samass.tolerance_1a(1);
-    cmd_samass.tolerance_1b(1);
-    cmd_samass.tolerance_1c(1);
-    cmd_samass.maximum_tries_1(3);
-    cmd_samass.normal_interval_1( Minutes(2) );
-    cmd_samass.squelch_interval_1( Minutes(2) );
+    // TODO experiment with these values
+    auto constexpr maximum_tries = 5;
+    auto constexpr normal_interval = Minutes(2);
+    auto constexpr squelch_interval = Minutes(3);
+    using SCB = BmStatSensorControlBitmap;
+    auto constexpr scm_a = SCB::SensorControlMapping::sensor_a_centering;
+    auto constexpr scm_b = SCB::SensorControlMapping::sensor_b_centering;
+
+
+    // TODO !!!! get stat:boom and check which ones have 20,
+    // skips those with tolerance = 0, or else this will try to center it.
+    // the digitizer seems to setup to 20 all invalid sensors.
+    // can a legitimate sensor ALSO take the value 20? Leo indicates yes.
+    // this C2Samass might not be a good idea
+    auto constexpr tolerance = 10;
+
     // the pulse needs to be in CentiSeconds.
     // (q330 manual "Duration 10 ms intervals")
     // using centi directly assures there is no truncation, using milliseconds
@@ -648,16 +670,29 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
     // using floor to the expected type
     auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(95);
 
-    cmd_samass.pulse_duration_1(pulse_duration);
+    C2Samass cmd_samass;
 
     if (s.config.input == Sensor::Input::a) {
-        cmd_samass.sensor_control_bitmap_1.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_centering);
+        cmd_samass.pulse_duration_1(pulse_duration);
+        cmd_samass.tolerance_1a(tolerance);
+        cmd_samass.tolerance_1b(tolerance);
+        cmd_samass.tolerance_1c(tolerance);
+        cmd_samass.maximum_tries_1(maximum_tries);
+        cmd_samass.normal_interval_1(normal_interval);
+        cmd_samass.squelch_interval_1(squelch_interval);
+        cmd_samass.sensor_control_bitmap_1.active_high(true);
+        cmd_samass.sensor_control_bitmap_1.sensor_control_mapping(scm_a);
     } else {
-        cmd_samass.sensor_control_bitmap_1.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_b_centering);
+        cmd_samass.pulse_duration_2(pulse_duration);
+        cmd_samass.tolerance_2a(tolerance);
+        cmd_samass.tolerance_2b(tolerance);
+        cmd_samass.tolerance_2c(tolerance);
+        cmd_samass.maximum_tries_2(maximum_tries);
+        cmd_samass.normal_interval_2(normal_interval);
+        cmd_samass.squelch_interval_2(squelch_interval);
+        cmd_samass.sensor_control_bitmap_2.active_high(true);
+        cmd_samass.sensor_control_bitmap_2.sensor_control_mapping(scm_b);
     }
-
 
     C1Cack cmd_cack;
     md.send_recv(q.port_config, cmd_samass, cmd_cack);
@@ -727,6 +762,7 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(90);
 
     cmd_pulse.pulse_duration(pulse_duration);
+    cmd_pulse.sensor_control_bitmap.active_high(true);
 
     if (s.config.input == Sensor::Input::a) {
         cmd_pulse.sensor_control_bitmap.sensor_control_mapping(

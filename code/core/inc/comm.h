@@ -16,6 +16,7 @@
 #include "output_store.h"
 #include "input_store.h"
 #include "stream_output.h"
+#include "stream_plotter.h"
 #include "message_dispatch.h"
 
 // external libraries
