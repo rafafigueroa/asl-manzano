@@ -18,6 +18,7 @@
 #include "stream_output.h"
 #include "stream_plotter.h"
 #include "message_dispatch.h"
+#include "string_utilities.h"
 
 // external libraries
 #include "md5.h" // jason holland's (usgs) md5 library
@@ -160,6 +161,27 @@ private:
         auto const reg_status = cmd_regresp.registered();
         q.port_config.registered = reg_status;
         return reg_status;
+    }
+
+    // --------------------------------------------------------------------- //
+    uint32_t q_current_seq_number(Digitizer & q) {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.global_status(true);
+        // status
+        C1Stat cmd_stat; // Status
+
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        CxGlobalStatus * gs =
+            dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+        if (gs == nullptr) throw FatalException("Comm",
+                                                "q_current_seq_number",
+                                                "gs nullptr");
+
+        return gs -> current_data_sequence_number();
     }
 
     /*

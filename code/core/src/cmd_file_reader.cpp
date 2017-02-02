@@ -22,7 +22,7 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
 
     std::ifstream cals_fs;
 
-    auto const runtime_config_path = get_runtime_config_path();
+    auto const runtime_config_path = Utility::get_runtime_config_path();
     std::string const cal_sequences_path{"/cal_sequences.json"};
 
     cals_fs.open(runtime_config_path + cal_sequences_path);

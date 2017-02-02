@@ -820,6 +820,101 @@ void Comm::run<Action::get, Kind::qview>(TA const & ta, OI const & oi) {
 
 // -------------------------------------------------------------------------- //
 template<>
+void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
+
+    auto & q = sn.q_ref(ta);
+
+    auto time_count_ = 0;
+    auto seq_number_ = q_current_seq_number(q);
+
+    // TODO: try lowest numbers of data_sequence_number
+    // can you get qview data from before the initial request?
+    C2Rqqv cmd_rqqv;
+    cmd_rqqv.lowest_sequence_number(seq_number_);
+
+    std::size_t token_pos = 0;
+    int channel = Utility::match_positive_number(oi.option, token_pos);
+
+    switch (channel) {
+        case 1 : cmd_rqqv.channel_map.channel_1(true); break;
+        case 2 : cmd_rqqv.channel_map.channel_2(true); break;
+        case 3 : cmd_rqqv.channel_map.channel_3(true); break;
+        case 4 : cmd_rqqv.channel_map.channel_4(true); break;
+        case 5 : cmd_rqqv.channel_map.channel_5(true); break;
+        case 6 : cmd_rqqv.channel_map.channel_6(true); break;
+    }
+
+    C2Qv cmd_qv;
+    md.send_recv(q.port_config, cmd_rqqv, cmd_qv, false);
+
+    // ------ From command to vector --------- //
+    // TODO make const? read only one?
+    for (auto & cmd_cx_qv : cmd_qv.inner_commands) {
+
+        CxQv * qv = dynamic_cast<CxQv *>( cmd_cx_qv.get() );
+
+        if (qv == nullptr) throw std::logic_error{"@Comm::qview"};
+
+        // quotes from manual (Communication Protocol)
+
+        // TODO:use this
+        // "The seconds offset added to the starting sequence number
+        // in the header gives you the actual sequence number for
+        // this second of data"
+        // CmdField<uint16_t, 2> seconds_offset;
+
+        // "Each [byte] difference must be multiplied by (1 << shift count)"
+        // CmdField<uint16_t, 2> shift_count;
+        auto const shift_count = qv -> shift_count();
+        auto const multiplier = 1 << shift_count;
+
+        // "39 byte differences from starting value (40 bytes actually used)"
+        // the last point in the bit difference vector is always zero.
+        // it provides 40 points but only 39 are usable.
+
+        // a new vector with 40 absolute values is needed
+        // the first point (absolute value) of the 40 is actually given by
+        // starting value
+        // the other 39 are calculated using the difference vector and
+        // multiplier
+
+        // start with one axis
+        using Point = std::array<int32_t, 1>;
+
+        auto constexpr N = 40;
+        std::vector<Point> qview_values(N);
+        std::array<int32_t, N> qview_times{};
+
+        // "The starting value is a signed 32 bit value"
+        // CmdField<int32_t, 4> starting_value;
+        auto const starting_value = qv -> starting_value();
+
+        qview_values[0] = Point{starting_value};
+        qview_times[0] = time_count_;
+
+        // takes data differences, which are signed bytes
+        // CmdField<std::array<int8_t, 40>, 40> byte_difference;
+        int8_t data_point;
+
+        // first point already taken
+        for (int i = 1; i < N; i++) {
+            data_point = qv -> byte_difference()[i];
+            // need to check for overflow?
+            Point const point = { starting_value + (data_point * multiplier) };
+            qview_values[i] = point;
+            qview_times[i] =  ++time_count_;
+        }
+
+        StreamPlotter<int32_t, 1, int32_t, 2> sp;
+        sp.add(qview_values);
+    }
+
+    // time_start_++;
+
+}
+
+// -------------------------------------------------------------------------- //
+template<>
 void Comm::run<Action::quit, Kind::mzn>(TA const & ta, OI const & oi) {
     // TODO clean up mtm
     // md.join_timed_threads();

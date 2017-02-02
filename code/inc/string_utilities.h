@@ -12,6 +12,8 @@
 
 namespace mzn {
 
+namespace Utility {
+
 // --------------------------------------------------------------------- //
 inline
 std::vector<std::string> get_tokens(std::string const & line,
@@ -87,7 +89,9 @@ int match_positive_number(std::string const & token,
     token_index += token_number.size();
 
     return std::stoi(token_number);
-}
+
+} // <- Utility
+} // <- mzn
 
 }
 #endif // _MZN_STRING_UTILITIES_H_

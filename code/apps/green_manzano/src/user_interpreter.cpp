@@ -93,7 +93,7 @@ Scope UserInterpreter::match_scope(std::string const & token,
         error_msg << "mismatch in token \'" << token << "\' \n";
 
         if (token.size() > 1) {
-            error_msg << "at:" << underline_error(token, token_index);
+            error_msg << "at:" << Utility::underline_error(token, token_index);
         }
 
         error_msg << "\noptions: "
@@ -130,7 +130,7 @@ UserInterpreter::match_target_address(std::string const & token) {
         Target target;
 
         target.scope = match_scope(token, token_index);
-        target.index = match_positive_number(token, token_index);
+        target.index = Utility::match_positive_number(token, token_index);
 
         ta.add_target(target);
     }
@@ -199,8 +199,7 @@ void UserInterpreter::run_user_input(std::string & user_input) {
 // -------------------------------------------------------------------------- //
 void UserInterpreter::user_input_loop(std::string const & qrun_fname) {
 
-
-    auto const runtime_config_path = get_runtime_config_path();
+    auto const runtime_config_path = Utility::get_runtime_config_path();
     std::string const qrun_path = runtime_config_path + "/" + qrun_fname;
 
     std::ifstream qrun_fs(qrun_path);

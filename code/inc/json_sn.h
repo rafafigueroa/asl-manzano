@@ -14,6 +14,8 @@
 
 namespace mzn {
 
+namespace Utility {
+
 // -------------------------------------------------------------------------- //
 inline
 void ip_format_check(std::string const & ip) {
@@ -665,6 +667,7 @@ Json json_add_child_from_ta(SeismicNetwork const & sn,
     }
 }
 
+} // <- Utility
 } // <- mzn
 
 #endif

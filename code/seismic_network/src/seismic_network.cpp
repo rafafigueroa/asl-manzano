@@ -12,13 +12,13 @@ SeismicNetwork::SeismicNetwork() : st{} {
 
     try {
 
-        auto const runtime_config_path = get_runtime_config_path();
+        auto const runtime_config_path = Utility::get_runtime_config_path();
         std::string const file_path = runtime_config_path + "/config.json";
 
-        auto sn_json = read_json(file_path);
+        auto sn_json = Utility::read_json(file_path);
 
         for (auto const & st_json : sn_json["station"]) {
-            st.push_back( st_from_json(st_json) );
+            st.push_back( Utility::st_from_json(st_json) );
         }
 
     } catch(std::out_of_range const & e) {

@@ -11,6 +11,8 @@
 
 namespace mzn {
 
+namespace Utility {
+
 // -------------------------------------------------------------------------- //
 inline
 std::string get_environmental_variable(std::string const & v) {
@@ -60,6 +62,7 @@ int get_terminal_cols () {
     return w.ws_col;
 }
 
+} // <- Utility
 } // <- mzn
 
 #endif
