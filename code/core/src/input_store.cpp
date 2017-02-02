@@ -108,14 +108,17 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     // Need to setup basic command before choosing options
     auto const & s = sn_.s_const_ref(ta);
 
+    cmd.sensor_control_active_high(true);
+    using SCML = BmSensorControlMap::Lines;
+
     // sensor calibration channel first
     if (s.config.input == Sensor::Input::a) {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::a);
-        cmd.sensor_control_bitmap.calen_a(true);
+        cmd.sensor_control_map.lines(SCML::sensor_a_calibration);
         cmd.monitor_channel_bitmap.channel_4(true);
     } else {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::b);
-        cmd.sensor_control_bitmap.calen_b(true);
+        cmd.sensor_control_map.lines(SCML::sensor_b_calibration);
         cmd.monitor_channel_bitmap.channel_2(true);
     }
 

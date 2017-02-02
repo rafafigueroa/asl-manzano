@@ -94,7 +94,7 @@ void Comm::run<Action::get, Kind::center>(TA const & ta, OI const & oi) {
 // -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::get, Kind::ctrl>(TA const & ta, OI const & oi) {
-    // sensor_control_mapping, C1Rqsc , C1Sc
+    // sensor_control_map, C1Rqsc , C1Sc
     q_send_recv<Action::get, Kind::ctrl>(ta, oi);
 }
 
@@ -654,9 +654,9 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
     auto constexpr maximum_tries = 5;
     auto constexpr normal_interval = Minutes(2);
     auto constexpr squelch_interval = Minutes(3);
-    using SCB = BmStatSensorControlBitmap;
-    auto constexpr scm_a = SCB::SensorControlMapping::sensor_a_centering;
-    auto constexpr scm_b = SCB::SensorControlMapping::sensor_b_centering;
+    using SCM = BmSensorControlMap;
+    auto constexpr scm_a = SCM::Lines::sensor_a_centering;
+    auto constexpr scm_b = SCM::Lines::sensor_b_centering;
 
 
     // TODO !!!! get stat:boom and check which ones have 20,
@@ -683,8 +683,8 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
         cmd_samass.maximum_tries_1(maximum_tries);
         cmd_samass.normal_interval_1(normal_interval);
         cmd_samass.squelch_interval_1(squelch_interval);
-        cmd_samass.sensor_control_bitmap_1.active_high(true);
-        cmd_samass.sensor_control_bitmap_1.sensor_control_mapping(scm_a);
+        cmd_samass.sensor_control_active_high_1(true);
+        cmd_samass.sensor_control_map_1.lines(scm_a);
     } else {
         cmd_samass.pulse_duration_2(pulse_duration);
         cmd_samass.tolerance_2a(tolerance);
@@ -693,8 +693,8 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
         cmd_samass.maximum_tries_2(maximum_tries);
         cmd_samass.normal_interval_2(normal_interval);
         cmd_samass.squelch_interval_2(squelch_interval);
-        cmd_samass.sensor_control_bitmap_2.active_high(true);
-        cmd_samass.sensor_control_bitmap_2.sensor_control_mapping(scm_b);
+        cmd_samass.sensor_control_active_high_2(true);
+        cmd_samass.sensor_control_map_2.lines(scm_b);
     }
 
     C1Cack cmd_cack;
@@ -714,6 +714,8 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
     auto const & s = sn.s_ref(ta);
+
+    using SCML = BmSensorControlMap::Lines;
 
     // ---------------------------------------------------------------------- //
     auto centering_is_running = [&]() {
@@ -735,14 +737,13 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
                                                 "autocal",
                                                 "global stat nullptr");
 
-        auto const & scm = gs -> sensor_control_bitmap.sensor_control_mapping();
+        auto const & scm = gs -> sensor_control_map.lines();
 
-        using SCM = BmStatSensorControlBitmap::SensorControlMapping;
 
-        return (scm == SCM::sensor_a_centering or
-                scm == SCM::sensor_b_centering or
-                scm == SCM::sensor_a_calibration or
-                scm == SCM::sensor_b_calibration);
+        return (scm == SCML::sensor_a_centering or
+                scm == SCML::sensor_b_centering or
+                scm == SCML::sensor_a_calibration or
+                scm == SCML::sensor_b_calibration);
     };
 
     // make sure another centering is not running
@@ -766,16 +767,27 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
 
     cmd_pulse.pulse_duration(pulse_duration);
 
-    // TODO: test 
-    cmd_pulse.sensor_control_bitmap.active_high(false);
+    // ---------------------------------------------------------------------- //
+    // C1_PULSE seems to have a weird behaviour with SCM.
+    // instead of saying what you want, you find what it is and you send to
+    // C1_PULSE what you dont want from the current SCM (sensor control map)
+
+    /*
+    // sensor_control_map, C1Rqsc , C1Sc
+    C1Rqsc cmd_rqsc;
+    C1Sc cmd_sc;
+    md.send_recv(q.port_config, cmd_rqsc, cmd_sc);
+
+    auto pulse_scm = [](SCML & lines) { return lines; }
+    */
+
+    //auto const current_active_high = cmd_sc.sensor_control_active_high();
+    cmd_pulse.sensor_control_active_high(true);
 
     if (s.config.input == Sensor::Input::a) {
-        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
-            // TODO: test 
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_calibration);
+        cmd_pulse.sensor_control_map.lines(SCML::sensor_a_centering);
     } else {
-        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_b_centering);
+        cmd_pulse.sensor_control_map.lines(SCML::sensor_b_centering);
     }
 
     C1Cack cmd_cack;

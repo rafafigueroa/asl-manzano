@@ -32,6 +32,8 @@ namespace mzn {
 template <typename T, int N = 3, typename Tc = T, int ppl = 2>
 class StreamPlotter {
 
+    static_assert(ppl % 2 == 0, "StreamPlotter ppl should be even");
+
     using Point = std::array<T, N>;
 
     std::vector<Point> data_;
@@ -101,19 +103,23 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
     auto constexpr v_max_float = static_cast<float>(v_max);
 
     os <<"\n";
-    T sum;
-    // char for plot
-    char c;
 
     for (int axis = 0; axis < N; axis++) {
 
-        // sum values
-        sum = 0; for (int j = i; j < i + ppl; j++) sum += data_[j][axis];
+        // divide sum in two to get a rough trend, used in choosing plot c
+        // ----------------------------------------------------------------- //
+        // ppl is even, this is half of the sum index
+        auto const hsi = i + ppl/2;
+        // sum first and second halfs
+        int j;
+        T sum_fh = 0; for (j = i  ; j < hsi    ; j++) sum_fh += data_[j][axis];
+        T sum_sh = 0; for (j = hsi; j < i + ppl; j++) sum_sh += data_[j][axis];
 
         // calculate average coordinate value
+        // ----------------------------------------------------------------- //
         // allow for truncation, limit to range of Tc if Tc != T
         // stream as T, specially in the case of Tc int8_t
-        T const v = static_cast<Tc>(sum / ppl);
+        T const v = static_cast<Tc>( (sum_fh + sum_sh) / ppl);
 
         // stream average
         os  << std::setfill(' ') << std::setw(v_digits) << v;
@@ -123,11 +129,10 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
 
         // plot the line
         // ----------------------------------------------------------------- //
-
         // choose char for plot
-        c = '|';
-        if (data_[i][axis] < v) c = '\\';
-        if (data_[i][axis] > v) c = '/';
+        char c = '|';
+        if (sum_fh > sum_sh) c = '\\';
+        if (sum_fh < sum_sh) c = '/';
 
         // position in the plot
         int const v_pos = std::round( plot_middle * (1.0 + v/v_max_float) );
@@ -179,12 +184,9 @@ void StreamPlotter<T, N, Tc, ppl>::plot_lines() {
 
     auto const points_to_plot = data_.size() - plot_pos_;
 
-//    std::cout << std::flush << "<" << points_to_plot << ">" << std::flush;
     if (points_to_plot % ppl != 0) return;
 
-    for (int i = plot_pos_; i < data_.size(); i += ppl) {
-        plot_line(i);
-    }
+    for (int i = plot_pos_; i < data_.size(); i += ppl) plot_line(i);
 
     plot_pos_ += points_to_plot;
 }

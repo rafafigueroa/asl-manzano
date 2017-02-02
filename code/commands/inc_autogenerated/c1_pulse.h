@@ -25,7 +25,8 @@ public:
     C1Pulse & operator=(C1Pulse const & rhs) = default;
     std::string const cmd_name = "c1_pulse";
 
-    BmStatSensorControlBitmap sensor_control_bitmap;
+    CmdField<bool, 1> sensor_control_active_high;
+    BmSensorControlMap sensor_control_map;
     CmdFieldDuration<uint16_t, std::centi> pulse_duration;
 
     uint16_t msg_to_data(std::vector<uint8_t> const & msg,

@@ -68,26 +68,26 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
         // not the autocal sequences file. So that the the autocal config
         // is independent of how the sensors are connected into the digitizer
 
+        cal.sensor_control_active_high(true);
         // ------------- CALIBRATION CHANNEL -------------------- //
         // ------------- MONITOR CHANNEL -------------------- //
-
+        using SCML = BmSensorControlMap::Lines;
         // monitor channel is being defaulted (for autocals)
         // to the middle channel of the other input
         if (s.config.input == Sensor::Input::a) {
 
             cal.calibration_bitmap.input(BmCalibrationBitmap::Input::a);
-            cal.sensor_control_bitmap.calen_a(true);
+            cal.sensor_control_map.lines(SCML::sensor_a_calibration);
             cal.monitor_channel_bitmap.channel_5(true);
 
         } else if (s.config.input == Sensor::Input::b)  {
 
             cal.calibration_bitmap.input(BmCalibrationBitmap::Input::b);
-            cal.sensor_control_bitmap.calen_b(true);
+            cal.sensor_control_map.lines(SCML::sensor_b_calibration);
             cal.monitor_channel_bitmap.channel_2(true);
         }
 
         // ------------- WAVEFORM -------------------- //
-
         std::string const waveform_json = sensor_cals_json[i]["wave_form"];
 
         // in this case, no match = sine, since Waveform::sine = 0
@@ -115,9 +115,7 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
         cal.amplitude(amplitude_json);
 
         // ------------- DURATIONS -------------------- //
-        auto duration_in_seconds = [](unsigned int h,
-                                      unsigned int m) {
-
+        auto duration_in_seconds = [](unsigned int h, unsigned int m) {
             return std::chrono::seconds(h*3600 + m*60);
         };
 

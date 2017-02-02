@@ -25,14 +25,30 @@ public:
     C1Ssc & operator=(C1Ssc const & rhs) = default;
     std::string const cmd_name = "c1_ssc";
 
-    BmSensorControlBitmap sensor_output_1_definition;
-    BmSensorControlBitmap sensor_output_2_definition;
-    BmSensorControlBitmap sensor_output_3_definition;
-    BmSensorControlBitmap sensor_output_4_definition;
-    BmSensorControlBitmap sensor_output_5_definition;
-    BmSensorControlBitmap sensor_output_6_definition;
-    BmSensorControlBitmap sensor_output_7_definition;
-    BmSensorControlBitmap sensor_output_8_definition;
+    CmdFieldIgnore<uint16_t> sensor_a_output_1_ignore;
+    CmdField<bool, 1> sensor_a_output_1_active_high;
+    BmSensorControlMap sensor_a_output_1_control_map;
+    CmdFieldIgnore<uint16_t> sensor_a_output_2_ignore;
+    CmdField<bool, 1> sensor_a_output_2_active_high;
+    BmSensorControlMap sensor_a_output_2_control_map;
+    CmdFieldIgnore<uint16_t> sensor_a_output_3_ignore;
+    CmdField<bool, 1> sensor_a_output_3_active_high;
+    BmSensorControlMap sensor_a_output_3_control_map;
+    CmdFieldIgnore<uint16_t> sensor_a_output_4_ignore;
+    CmdField<bool, 1> sensor_a_output_4_active_high;
+    BmSensorControlMap sensor_a_output_4_control_map;
+    CmdFieldIgnore<uint16_t> sensor_b_output_1_ignore;
+    CmdField<bool, 1> sensor_b_output_1_active_high;
+    BmSensorControlMap sensor_b_output_1_control_map;
+    CmdFieldIgnore<uint16_t> sensor_b_output_2_ignore;
+    CmdField<bool, 1> sensor_b_output_2_active_high;
+    BmSensorControlMap sensor_b_output_2_control_map;
+    CmdFieldIgnore<uint16_t> sensor_b_output_3_ignore;
+    CmdField<bool, 1> sensor_b_output_3_active_high;
+    BmSensorControlMap sensor_b_output_3_control_map;
+    CmdFieldIgnore<uint16_t> sensor_b_output_4_ignore;
+    CmdField<bool, 1> sensor_b_output_4_active_high;
+    BmSensorControlMap sensor_b_output_4_control_map;
 
     uint16_t msg_to_data(std::vector<uint8_t> const & msg,
                          uint16_t mf_begin) override;

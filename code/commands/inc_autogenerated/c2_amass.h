@@ -31,7 +31,8 @@ public:
     CmdField<uint16_t> maximum_tries_1;
     CmdFieldDuration<uint16_t, std::ratio<60> > normal_interval_1;
     CmdFieldDuration<uint16_t, std::ratio<60> > squelch_interval_1;
-    BmStatSensorControlBitmap sensor_control_bitmap_1;
+    CmdField<bool> sensor_control_active_high_1;
+    BmSensorControlMap sensor_control_map_1;
     CmdFieldDuration<uint16_t, std::centi> pulse_duration_1;
     CmdField<uint16_t> tolerance_2a;
     CmdField<uint16_t> tolerance_2b;
@@ -39,7 +40,8 @@ public:
     CmdField<uint16_t> maximum_tries_2;
     CmdFieldDuration<uint16_t, std::ratio<60> > normal_interval_2;
     CmdFieldDuration<uint16_t, std::ratio<60> > squelch_interval_2;
-    BmStatSensorControlBitmap sensor_control_bitmap_2;
+    CmdField<bool> sensor_control_active_high_2;
+    BmSensorControlMap sensor_control_map_2;
     CmdFieldDuration<uint16_t, std::centi> pulse_duration_2;
 
     uint16_t msg_to_data(std::vector<uint8_t> const & msg,

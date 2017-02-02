@@ -363,13 +363,10 @@
 ,   "mf_size": 2, "bm_originator": "dp"
 },
 
-
- "bm_sensor_control_bitmap":{
+ "bm_sensor_control_map":{
     "bm_fields":[
 
-      {"bmf_name": "active_high", "bmf_bit": 8},
-      {"bmf_name": "sensor_control_mapping", "bmf_code_full_range": false,
-          "bmf_code_begin": 0, "bmf_code_mask": "0x7F",
+      {"bmf_name": "lines", "bmf_code_full_range": true,
           "bmf_codes": [
               {"bmf_code_name": "not_doing_calibration_or_recentering", "bmf_code": 0},
               {"bmf_code_name": "sensor_a_calibration", "bmf_code": 1},
@@ -390,39 +387,8 @@
       }
 
     ]
-,    "mf_size": 4, "bm_originator": "q"
+,    "mf_size": 1, "bm_originator": "both"
 },
-
-
- "bm_stat_sensor_control_bitmap":{
-    "bm_fields":[
-
-      {"bmf_name": "active_high", "bmf_bit": 8},
-      {"bmf_name": "sensor_control_mapping", "bmf_code_full_range": false,
-          "bmf_code_begin": 0, "bmf_code_mask": "0x7F",
-          "bmf_codes": [
-              {"bmf_code_name": "not_doing_calibration_or_recentering", "bmf_code": 0},
-              {"bmf_code_name": "sensor_a_calibration", "bmf_code": 1},
-              {"bmf_code_name": "sensor_a_centering", "bmf_code": 2},
-              {"bmf_code_name": "sensor_a_capacitive_coupling", "bmf_code": 3},
-              {"bmf_code_name": "sensor_b_calibration", "bmf_code": 4},
-              {"bmf_code_name": "sensor_b_centering", "bmf_code": 5},
-              {"bmf_code_name": "sensor_b_capacitive_coupling", "bmf_code": 6},
-              {"bmf_code_name": "sensor_a_lock", "bmf_code": 7},
-              {"bmf_code_name": "sensor_a_unlock", "bmf_code": 8},
-              {"bmf_code_name": "sensor_a_aux_1", "bmf_code": 9},
-              {"bmf_code_name": "sensor_a_aux_2", "bmf_code": 10},
-              {"bmf_code_name": "sensor_b_lock", "bmf_code": 11},
-              {"bmf_code_name": "sensor_b_unlock", "bmf_code": 12},
-              {"bmf_code_name": "sensor_b_aux_1", "bmf_code": 13},
-              {"bmf_code_name": "sensor_b_aux_2", "bmf_code": 14}
-          ]
-      }
-
-    ]
-,    "mf_size": 2, "bm_originator": "both"
-},
-
 
  "bm_cal_sensor_control_bitmap":{
     "bm_fields":[

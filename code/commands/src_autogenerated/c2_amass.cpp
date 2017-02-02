@@ -9,7 +9,8 @@ C2Amass::C2Amass():
     maximum_tries_1(),
     normal_interval_1(),
     squelch_interval_1(),
-    sensor_control_bitmap_1(),
+    sensor_control_active_high_1(),
+    sensor_control_map_1(),
     pulse_duration_1(),
     tolerance_2a(),
     tolerance_2b(),
@@ -17,7 +18,8 @@ C2Amass::C2Amass():
     maximum_tries_2(),
     normal_interval_2(),
     squelch_interval_2(),
-    sensor_control_bitmap_2(),
+    sensor_control_active_high_2(),
+    sensor_control_map_2(),
     pulse_duration_2() { }
 
 uint16_t C2Amass::msg_to_data(std::vector<uint8_t> const & msg,
@@ -39,7 +41,8 @@ uint16_t C2Amass::msg_to_data(std::vector<uint8_t> const & msg,
     mf_begin = maximum_tries_1.msg_to_data(msg, mf_begin);
     mf_begin = normal_interval_1.msg_to_data(msg, mf_begin);
     mf_begin = squelch_interval_1.msg_to_data(msg, mf_begin);
-    mf_begin = sensor_control_bitmap_1.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_active_high_1.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_map_1.msg_to_data(msg, mf_begin);
     mf_begin = pulse_duration_1.msg_to_data(msg, mf_begin);
     mf_begin = tolerance_2a.msg_to_data(msg, mf_begin);
     mf_begin = tolerance_2b.msg_to_data(msg, mf_begin);
@@ -47,7 +50,8 @@ uint16_t C2Amass::msg_to_data(std::vector<uint8_t> const & msg,
     mf_begin = maximum_tries_2.msg_to_data(msg, mf_begin);
     mf_begin = normal_interval_2.msg_to_data(msg, mf_begin);
     mf_begin = squelch_interval_2.msg_to_data(msg, mf_begin);
-    mf_begin = sensor_control_bitmap_2.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_active_high_2.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_map_2.msg_to_data(msg, mf_begin);
     mf_begin = pulse_duration_2.msg_to_data(msg, mf_begin);
 
     return mf_begin;
@@ -72,7 +76,8 @@ uint16_t C2Amass::data_to_msg(std::vector<uint8_t> & msg,
     mf_begin = maximum_tries_1.data_to_msg(msg, mf_begin);
     mf_begin = normal_interval_1.data_to_msg(msg, mf_begin);
     mf_begin = squelch_interval_1.data_to_msg(msg, mf_begin);
-    mf_begin = sensor_control_bitmap_1.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_active_high_1.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_map_1.data_to_msg(msg, mf_begin);
     mf_begin = pulse_duration_1.data_to_msg(msg, mf_begin);
     mf_begin = tolerance_2a.data_to_msg(msg, mf_begin);
     mf_begin = tolerance_2b.data_to_msg(msg, mf_begin);
@@ -80,7 +85,8 @@ uint16_t C2Amass::data_to_msg(std::vector<uint8_t> & msg,
     mf_begin = maximum_tries_2.data_to_msg(msg, mf_begin);
     mf_begin = normal_interval_2.data_to_msg(msg, mf_begin);
     mf_begin = squelch_interval_2.data_to_msg(msg, mf_begin);
-    mf_begin = sensor_control_bitmap_2.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_active_high_2.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_map_2.data_to_msg(msg, mf_begin);
     mf_begin = pulse_duration_2.data_to_msg(msg, mf_begin);
 
     return mf_begin;
@@ -101,7 +107,9 @@ std::ostream & C2Amass::os_print(std::ostream & cmd_os) const {
 
     cmd_os << "\nsquelch_interval_1: "; cmd_os << squelch_interval_1;
 
-    cmd_os << "\nsensor_control_bitmap_1: "; cmd_os << sensor_control_bitmap_1;
+    cmd_os << "\nsensor_control_active_high_1: "; cmd_os << sensor_control_active_high_1;
+
+    cmd_os << "\nsensor_control_map_1: "; cmd_os << sensor_control_map_1;
 
     cmd_os << "\npulse_duration_1: "; cmd_os << pulse_duration_1;
 
@@ -117,7 +125,9 @@ std::ostream & C2Amass::os_print(std::ostream & cmd_os) const {
 
     cmd_os << "\nsquelch_interval_2: "; cmd_os << squelch_interval_2;
 
-    cmd_os << "\nsensor_control_bitmap_2: "; cmd_os << sensor_control_bitmap_2;
+    cmd_os << "\nsensor_control_active_high_2: "; cmd_os << sensor_control_active_high_2;
+
+    cmd_os << "\nsensor_control_map_2: "; cmd_os << sensor_control_map_2;
 
     cmd_os << "\npulse_duration_2: "; cmd_os << pulse_duration_2;
     cmd_os << std::endl;

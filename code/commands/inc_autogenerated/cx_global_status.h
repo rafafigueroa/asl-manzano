@@ -37,7 +37,8 @@ public:
     CmdField<uint32_t> total_number_of_re_syncs;
     CmdField<int16_t> gps_status;
     BmStatCalibratorStatus calibrator_status;
-    BmStatSensorControlBitmap sensor_control_bitmap;
+    CmdField<bool, 1> sensor_control_active_high;
+    BmSensorControlMap sensor_control_map;
     CmdField<int16_t> current_vco;
     CmdField<uint16_t> data_sequence_number;
     BmPllState pll_running;
