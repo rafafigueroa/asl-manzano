@@ -561,8 +561,12 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
         // status
         C1Stat cmd_stat;
 
-        // needs to be registered
-        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+        try {
+            // needs to be registered
+            md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+        } catch (InfoException const & e) {
+            // show nothing for info, breaks the plot continuity, store?
+        }
 
         // get global status
         CxBoomPositions * bp =
@@ -667,7 +671,7 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
     // using centi directly assures there is no truncation, using milliseconds
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
-    auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(95);
+    auto constexpr pulse_duration = std::chrono::seconds(2);
 
     C2Samass cmd_samass;
 
@@ -758,15 +762,17 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     // using centi directly assures there is no truncation, using milliseconds
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
-    auto constexpr pulse_duration = std::chrono::seconds(9);
-    // std::chrono::duration<int, std::centi>(90);
+    auto constexpr pulse_duration = std::chrono::seconds(8);
 
     cmd_pulse.pulse_duration(pulse_duration);
-    cmd_pulse.sensor_control_bitmap.active_high(true);
+
+    // TODO: test 
+    cmd_pulse.sensor_control_bitmap.active_high(false);
 
     if (s.config.input == Sensor::Input::a) {
         cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_centering);
+            // TODO: test 
+            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_calibration);
     } else {
         cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
             BmStatSensorControlBitmap::SensorControlMapping::sensor_b_centering);
