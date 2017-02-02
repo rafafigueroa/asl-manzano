@@ -47,7 +47,9 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
                                           Kind::plan,
                                           Kind::status};
 
-    if ( ta.scope_is_q() ) {
+    auto const scope = ta.scope();
+
+    if (scope == Scope::digitizer) {
 
         switch (action) {
 
@@ -63,6 +65,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
                           Kind::center,
                           Kind::global,
                           Kind::ping,
+                          Kind::reg,
                           Kind::dev,
                           Kind::stat};
 
@@ -82,7 +85,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
         }
     }
 
-    if ( ta.scope_is_s() ) {
+    if (scope == Scope::sensor) {
 
         switch (action) {
             case Action::set: return VK{Kind::center};
@@ -92,12 +95,71 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
         }
     }
 
-    if ( ta.scope_is_dp() ) {
+    if (scope == Scope::data_processor) {
         if (action == Action::get) return VK{Kind::uptime};
     }
 
     return VK{};
 }
+
+// -------------------------------------------------------------------------- //
+std::vector<std::string>
+InstructionMap::filter_options(Action const action,
+                                        Kind const kind) {
+
+    using VS = std::vector<std::string>;
+
+    switch (action) {
+
+        case Action::get: {
+
+            switch (kind) {
+                case Kind::stat: return VS{"boom", "gps", "gpssat", "power",
+                                           "dataport", "pll", "thread"};
+                default: return VS{};
+            }
+        }
+
+        case Action::set: {
+
+            switch (kind) {
+                case Kind::ctrl: return VS{"save", "reboot", "resync", "gps_on",
+                                           "gps_off", "gps_cold_start"};
+                default: return VS{};
+            }
+        }
+
+        case Action::start: {
+
+            switch (kind) {
+                case Kind::cal: return VS{"sine", "step",
+                                          "longsine", "longstep"};
+                default: return VS{};
+            }
+        }
+
+        case Action::auto_: {
+
+            switch (kind) {
+                case Kind::stat: return VS{"boom"};
+                default: return VS{};
+            }
+        }
+
+        default: return VS{};
+    }
+}
+
+// -------------------------------------------------------------------------- //
+bool InstructionMap::has_empty_option(Action const action, Kind const kind) {
+
+    if (action == Action::set    and kind == Kind::ctrl)   return false;
+    if (action == Action::start  and kind == Kind::cal)    return false;
+    if (action == Action::auto_  and kind == Kind::stat)   return false;
+
+    return true;
+}
+
 
 // -------------------------------------------------------------------------- //
 std::vector<Action>
@@ -183,64 +245,6 @@ InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) 
     }
 
     return VK{};
-}
-
-// -------------------------------------------------------------------------- //
-std::vector<std::string>
-InstructionMap::filter_options(Action const action,
-                                        Kind const kind) {
-
-    using VS = std::vector<std::string>;
-
-    switch (action) {
-
-        case Action::get: {
-
-            switch (kind) {
-                case Kind::stat: return VS{"boom", "gps", "gpssat", "power",
-                                           "dataport", "pll", "thread"};
-                default: return VS{};
-            }
-        }
-
-        case Action::set: {
-
-            switch (kind) {
-                case Kind::ctrl: return VS{"save", "reboot", "resync", "gps_on",
-                                           "gps_off", "gps_cold_start"};
-                default: return VS{};
-            }
-        }
-
-        case Action::start: {
-
-            switch (kind) {
-                case Kind::cal: return VS{"sine", "step",
-                                          "longsine", "longstep"};
-                default: return VS{};
-            }
-        }
-
-        case Action::auto_: {
-
-            switch (kind) {
-                case Kind::stat: return VS{"boom"};
-                default: return VS{};
-            }
-        }
-
-        default: return VS{};
-    }
-}
-
-// -------------------------------------------------------------------------- //
-bool InstructionMap::has_empty_option(Action const action, Kind const kind) {
-
-    if (action == Action::set    and kind == Kind::ctrl)   return false;
-    if (action == Action::start  and kind == Kind::cal)    return false;
-    if (action == Action::auto_  and kind == Kind::stat)   return false;
-
-    return true;
 }
 
 } // <- mzn

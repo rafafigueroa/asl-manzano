@@ -380,11 +380,11 @@ void StreamOutput::show_prompt(TargetAddress const & ta) const {
 
     if (ta.sn_child.scope == Scope::station) {
 
-        os << std::endl
+        os << std::endl << "\n"
             << sn_.st[ta.sn_child.index] << ":" << ta << " » ";
 
     } else {
-        os << std::endl << ta << " » ";
+        os << std::endl << "\n" << ta << " » ";
     }
 }
 

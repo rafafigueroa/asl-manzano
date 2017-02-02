@@ -15,8 +15,10 @@
 #include "dummy_q_port.h"
 
 #include "mzn_time.h"
-// -------------------------------------------------------------------------- //
+#include "system_calls.h"
+#include "stream_plotter.h"
 
+// -------------------------------------------------------------------------- //
 class FixtureCore : public ::testing::Test {
 public:
 
@@ -25,8 +27,18 @@ public:
 };
 
 // -------------------------------------------------------------------------- //
+TEST_F(FixtureCore, stream_plotter) {
+
+    using namespace mzn;
+
+    StreamPlotter<int> sp;
+
+}
+
+// -------------------------------------------------------------------------- //
 TEST_F(FixtureCore, msg_task) {
 
+    /*
     using namespace mzn;
 
     SeismicNetwork sn{};
@@ -48,6 +60,7 @@ TEST_F(FixtureCore, msg_task) {
      }
 
     msg_tasks[0].stream<C1Qcal>(std::cout);
+    */
 }
 
 // -------------------------------------------------------------------------- //

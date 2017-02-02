@@ -16,6 +16,7 @@
 #include "output_store.h"
 #include "input_store.h"
 #include "stream_output.h"
+#include "stream_plotter.h"
 #include "message_dispatch.h"
 
 // external libraries
@@ -59,6 +60,8 @@ public:
     //! streams output to console
     StreamOutput stream_output;
 
+    //! holds this computer ip as seen by digitizer registrations
+    std::atomic<uint32_t> ip_address_number;
 
 private:
 
@@ -85,6 +88,7 @@ public:
     }
 
 private:
+
     //! for use with a q. send a requests, gets a response
     //! @see Digitizer (q)
     // --------------------------------------------------------------------- //
@@ -110,6 +114,52 @@ private:
         // Co needs to be move_constructible
         output_store.cmd_map[task_id] =
             std::make_unique<Co>( std::move(cmd_output) );
+    }
+
+
+    // --------------------------------------------------------------------- //
+    bool q_is_reg(Digitizer & q) {
+        C2Regresp cmd_regresp;
+        return q_is_reg(q, cmd_regresp);
+    }
+
+    // --------------------------------------------------------------------- //
+    bool q_is_reg(Digitizer & q, C2Regresp & cmd_regresp) {
+
+        if (ip_address_number == 0) {
+            cmd_regresp.registered(false);
+            return false;
+        }
+
+        C2Regchk cmd_regchk;
+        cmd_regchk.ip_address(ip_address_number);
+
+        // turns out you can't ask if registered after de-registering
+        // maybe because it had a specific purpose related to the balers
+        // it should be used internally sparingly, in auto_ instructions only
+        // when it doesn't work, the digitizer sends a C1Cerr message which
+        // provides the same function, although using error handling
+
+        try {
+
+            md.send_recv(q.port_config, cmd_regchk, cmd_regresp, false);
+
+        } catch (WarningException const & e) {
+
+            std::string const e_msg = e.what();
+
+            if (e_msg.find("you_are_not_registered") != std::string::npos) {
+                // C1Cerr with you_are_not_registered code
+                cmd_regresp.registered(false);
+                q.port_config.registered = false;
+                return false;
+
+            } else throw e;
+        }
+
+        auto const reg_status = cmd_regresp.registered();
+        q.port_config.registered = reg_status;
+        return reg_status;
     }
 
     /*
