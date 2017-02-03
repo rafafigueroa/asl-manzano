@@ -593,6 +593,8 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
     try {
 
         StreamPlotter<int16_t, 3, int8_t> sp;
+        // just changes the plot looks
+        sp.min_limit = -126; sp.max_limit = 126;
 
         auto constexpr loop_limit = 100;
         auto constexpr period = std::chrono::milliseconds(900);
@@ -907,6 +909,7 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
         StreamPlotter<int32_t, 1, int32_t, 2> sp;
         sp.add(qview_values);
+        sp.plot_lines();
     }
 
     // time_start_++;

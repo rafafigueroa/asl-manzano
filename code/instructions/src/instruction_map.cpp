@@ -90,7 +90,9 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
         switch (action) {
             case Action::set: return VK{Kind::center};
             case Action::start: return VK{Kind::cal, Kind::pulse};
-            case Action::auto_: return VK{Kind::cal, Kind::stat};
+            case Action::auto_: return VK{Kind::cal,
+                                          Kind::stat,
+                                          Kind::qview};
             default : return VK{};
         }
     }
@@ -142,6 +144,7 @@ InstructionMap::filter_options(Action const action,
 
             switch (kind) {
                 case Kind::stat: return VS{"boom"};
+                case Kind::qview: return VS{"1", "2", "3", "4", "5", "6"};
                 default: return VS{};
             }
         }

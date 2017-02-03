@@ -33,40 +33,44 @@ template <typename T, int N = 3, typename Tc = T, int ppl = 2>
 class StreamPlotter {
 
     static_assert(ppl % 2 == 0, "StreamPlotter ppl should be even");
+    static_assert(ppl > 0, "StreamPlotter ppl should be positivie");
 
     using Point = std::array<T, N>;
-
     std::vector<Point> data_;
     int plot_pos_ = 0;
 
 public:
 
-    void plot_line(int const i);
-
-    void plot_lines();
-
-    void plot_all();
-
-    explicit
-    StreamPlotter() : data_{} {};
-
-    ~StreamPlotter();
-
+    // ---------------------------------------------------------------------- //
+    T min_limit;
+    T max_limit;
+    // ---------------------------------------------------------------------- //
     void show_summary() const;
-
     void add(Point const & point);
     void add(std::vector<Point> const & points);
-
     void reset_plot() {plot_pos_ = 0;}
+    void plot_line(int const i);
+    void plot_lines();
+    void plot_all();
+
+    // ---------------------------------------------------------------------- //
+    explicit
+    StreamPlotter() : data_{} {
+        auto constexpr v_max = std::numeric_limits<Tc>::max();
+        auto constexpr v_min = std::numeric_limits<Tc>::min();
+        max_limit = static_cast<T>(v_max);
+        min_limit = static_cast<T>(v_min);
+    };
+
+    ~StreamPlotter();
 
 private:
 
     //! winsize is an struct from C
+    // ---------------------------------------------------------------------- //
     winsize terminal_window_size_;
 
     std::ostream & os = std::cout;
-
-    void show_margins(std::vector<bool> const & margins) const;
 };
 
 
@@ -95,12 +99,13 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
     // +1 to include space for a space in between (+3 total)
     auto constexpr v_digits = std::numeric_limits<Tc>::digits10 + 3;
     // 2 chars for [], other 2 for scroll bars and wiggle (-4 total)
-    auto const plot_width = axis_stream_width - v_digits - 4;
+    auto const plot_width = axis_stream_width - v_digits - 8;
     // round down to closest even number (clear last bit)
     int const plot_end = plot_width & ~1;
     int const plot_middle = plot_end / 2;
-    auto constexpr v_max = std::numeric_limits<Tc>::max();
-    auto constexpr v_max_float = static_cast<float>(v_max);
+
+    T const v_plot_range = std::abs(max_limit - min_limit);
+    float const pos_scalar = plot_end / static_cast<float>(v_plot_range);
 
     os <<"\n";
 
@@ -119,7 +124,7 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
         // ----------------------------------------------------------------- //
         // allow for truncation, limit to range of Tc if Tc != T
         // stream as T, specially in the case of Tc int8_t
-        T const v = static_cast<Tc>( (sum_fh + sum_sh) / ppl);
+        T v = static_cast<Tc>( (sum_fh + sum_sh) / ppl);
 
         // stream average
         os  << std::setfill(' ') << std::setw(v_digits) << v;
@@ -134,41 +139,58 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
         if (sum_fh > sum_sh) c = '\\';
         if (sum_fh < sum_sh) c = '/';
 
-        // position in the plot
-        int const v_pos = std::round( plot_middle * (1.0 + v/v_max_float) );
-        if (v_pos < 0 or v_pos > plot_end) throw std::logic_error("v_pos");
+        // only applies with user provided min_ max_ limits, allow plot loss
+        // v real value already streamed, this is only for the plot
+        // ----------------------------------------------------------------- //
+        if (v < min_limit) {v = min_limit; c = '<';}
+        if (v > max_limit) {v = max_limit; c = '>';}
 
-        os << "[";
+        // from real values (v) to char position (pos) in the plot
+        // ----------------------------------------------------------------- //
+        int const pos = std::round( pos_scalar * (v - min_limit) );
 
+        if (pos < 0  or pos > plot_end) {
+
+            std::cout << "\npos: " << pos << " v: " << v
+                      << "ps: " << pos_scalar;
+
+            throw std::logic_error("plot pos");
+        }
+
+        // ready to stream
+        // ----------------------------------------------------------------- //
         int l_spaces;
         int m_spaces;
         int r_spaces;
 
-        // relation to middle (:), plot_end is always even
-        if (v_pos == plot_middle) {
+        char middle_char = ':';
+
+        os << "[";
+
+        // relation to middle, plot_end is always even
+        if (pos == plot_middle) {
 
             // [ l_spaces |  r_spaces ]
-            os << std::string(v_pos, ' ') << c << std::string(v_pos, ' ');
+            os << std::string(pos, ' ') << c << std::string(pos, ' ');
 
-        } else if (v_pos < plot_middle) {
+        } else if (pos < plot_middle) {
 
             // [ l_spaces | m_spaces : r_spaces ]
-            l_spaces = v_pos;
-            m_spaces = plot_middle - v_pos - 1;
+            l_spaces = pos;
+            m_spaces = plot_middle - pos - 1;
             r_spaces = plot_middle;
 
             os << std::string(l_spaces, ' ') << c
-               << std::string(m_spaces, ' ') << ":"
+               << std::string(m_spaces, ' ') << middle_char
                << std::string(r_spaces, ' ');
 
         } else {
 
             // [ l_spaces : m_spaces | r_spaces ]
             l_spaces = plot_middle;
-            m_spaces = v_pos - plot_middle - 1;
-            r_spaces = plot_end - v_pos;
+            m_spaces = pos - plot_middle - 1; r_spaces = plot_end - pos;
 
-            os << std::string(l_spaces, ' ') << ":"
+            os << std::string(l_spaces, ' ') << middle_char
                << std::string(m_spaces, ' ') << c
                << std::string(r_spaces, ' ');
         }
@@ -182,9 +204,18 @@ template <typename T, int N, typename Tc, int ppl>
 inline
 void StreamPlotter<T, N, Tc, ppl>::plot_lines() {
 
-    auto const points_to_plot = data_.size() - plot_pos_;
+    auto round_down_to_multiple = [](auto const & n, auto const & multiple) {
 
-    if (points_to_plot % ppl != 0) return;
+        auto const r = n % multiple;
+        if (r == 0) return n;
+        return n - r;
+    };
+
+    // make sure we have points multiple of ppl to plot
+    auto points_to_plot = data_.size() - plot_pos_;
+    points_to_plot = round_down_to_multiple(points_to_plot, ppl);
+
+    if (points_to_plot == 0) return;
 
     for (int i = plot_pos_; i < data_.size(); i += ppl) plot_line(i);
 
@@ -198,6 +229,7 @@ void StreamPlotter<T, N, Tc, ppl>::plot_all() {
 
     if ( data_.empty() ) return;
 
+    // min / max same for all, find them
     auto const temp = plot_pos_;
     plot_pos_ = 0;
     plot_lines();
@@ -209,22 +241,6 @@ template <typename T, int N, typename Tc, int ppl>
 inline
 void StreamPlotter<T, N, Tc, ppl>::show_summary() const {
 
-}
-
-// show margins
-// -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
-void StreamPlotter<T, N, Tc, ppl>::
-show_margins(std::vector<bool> const & margins) const {
-
-    // used in show_target
-    for (auto const & m : margins) {
-        if (m) {
-            os << "│   ";
-        } else {
-            os << "    ";
-        }
-    }
 }
 
 // -------------------------------------------------------------------------- //
