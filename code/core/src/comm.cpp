@@ -596,29 +596,20 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
         // just changes the plot looks
         sp.min_limit = -126; sp.max_limit = 126;
 
-        auto constexpr loop_limit = 100;
-        auto constexpr period = std::chrono::milliseconds(900);
-
         if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
-        std::cout << std::endl << " ### now: "
-                  << Time::sys_time_of_day() << " ###\n";
+        auto constexpr loop_limit = 60*3;
+        auto constexpr period = std::chrono::seconds(1);
 
-        // can't use delay since delay is meant for independently sent cals
         for (int i = 0; i < loop_limit; i++) {
 
             Point const bp = boom_positions();
 
             sp.add(bp);
             sp.plot_lines();
-
-            std::this_thread::sleep_for(period);
+            std::cout << std::flush;
+            if ( Utility::cin_cancel(period) ) break;
         }
-
-        //Comm::run<Action::set, Kind::dereg>(ta);
-
-        std::cout << std::endl << " ### now: "
-                  << Time::sys_time_of_day() << " ###\n";
 
     } catch (Exception const & e) {
 
@@ -826,6 +817,8 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
 
+    if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
+
     auto time_count_ = 0;
     auto seq_number_ = q_current_seq_number(q);
 
@@ -909,7 +902,7 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
         StreamPlotter<int32_t, 1, int32_t, 2> sp;
         sp.add(qview_values);
-        sp.plot_lines();
+        sp.plot_all();
     }
 
     // time_start_++;

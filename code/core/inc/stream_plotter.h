@@ -17,6 +17,8 @@
 //! round
 #include <cmath>
 
+#include "mzn_except.h"
+
 namespace mzn {
 
 
@@ -34,6 +36,7 @@ class StreamPlotter {
 
     static_assert(ppl % 2 == 0, "StreamPlotter ppl should be even");
     static_assert(ppl > 0, "StreamPlotter ppl should be positivie");
+    static_assert(N > 0, "StreamPlotter N should be positivie");
 
     using Point = std::array<T, N>;
     std::vector<Point> data_;
@@ -69,6 +72,8 @@ private:
     //! winsize is an struct from C
     // ---------------------------------------------------------------------- //
     winsize terminal_window_size_;
+
+    std::pair<T, T> minmax(std::vector<Point> const & vec) const;
 
     std::ostream & os = std::cout;
 };
@@ -151,8 +156,11 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
 
         if (pos < 0  or pos > plot_end) {
 
-            std::cout << "\npos: " << pos << " v: " << v
-                      << "ps: " << pos_scalar;
+            std::cout << "\npos: " << pos
+                      << " v: " << v
+                      << " sfh: " << sum_fh
+                      << " ssh: " << sum_sh
+                      << " ps: " << pos_scalar;
 
             throw std::logic_error("plot pos");
         }
@@ -229,11 +237,29 @@ void StreamPlotter<T, N, Tc, ppl>::plot_all() {
 
     if ( data_.empty() ) return;
 
-    // min / max same for all, find them
-    auto const temp = plot_pos_;
+    // save current settings just in case used in the middle of incoming data
+    auto const temp_pp = plot_pos_;
+    auto const temp_min_limit = min_limit;
+    auto const temp_max_limit = max_limit;
+
+    auto reset_settings = [&,this]() { plot_pos_ = temp_pp;
+                                       min_limit = temp_min_limit;
+                                       max_limit = temp_max_limit; };
+
+    // plot from the beginning of the data
     plot_pos_ = 0;
-    plot_lines();
-    plot_pos_ = temp;
+
+    // modify min / max
+    auto const result = minmax(data_);
+    min_limit = result.first;
+    max_limit = result.second;
+
+    std::cout << std::endl << "Plot and data range: min " << min_limit
+              << " max: " << max_limit;
+
+    try {plot_lines();}
+    catch (std::exception const & e) {reset_settings(); throw e;}
+    reset_settings();
 }
 
 // -------------------------------------------------------------------------- //
@@ -268,6 +294,78 @@ StreamPlotter<T, N, Tc, ppl>::~StreamPlotter() {
     }
     */
 }
+
+// -------------------------------------------------------------------------- //
+template <typename T, int N, typename Tc, int ppl>
+inline
+std::pair<T, T>
+StreamPlotter<T, N, Tc, ppl>::minmax(std::vector<Point> const & vec) const {
+
+    if ( vec.empty() ) throw std::logic_error{"minmax empty vector"};
+
+    // std::min_element might need one more min/max than necessary
+    // since it would provide the Point from data_, but the min/max inside
+    // the point, taking one more go.
+    // So far this is only used for N == 1, for which there is an specialization
+    // if this is used in a more general way, this should be rewritten
+
+    // there is also the minmax_element but that one does not seem to fit our
+    // caser where min is the min of the next one, max is the max of the next
+    // one, so different comparisons are used (Point a > Point b would make
+    // no sense).
+
+    // another way to improve performance of this operation is having the axis
+    // separated std::array<std::vector<T>, N> but that would make the rest
+    // of the code less readable.
+
+    // modify min / max
+    // compare points functions
+    auto comp_min = [](Point const & a, Point const & b) {
+        auto const min_a = *std::min_element(a.begin(), a.end());
+        auto const min_b = *std::min_element(b.begin(), b.end());
+        return  min_a < min_b;
+    };
+
+    auto comp_max = [](Point const & a, Point const & b) {
+        auto const max_a = *std::max_element(a.begin(), a.end());
+        auto const max_b = *std::max_element(b.begin(), b.end());
+        return  max_a < max_b;
+    };
+
+    auto const min_p = *std::min_element(data_.begin(), data_.end(), comp_min);
+    auto const max_p = *std::max_element(data_.begin(), data_.end(), comp_max);
+
+    return std::pair<T, T>( *std::min_element(min_p.begin(), min_p.end()),
+                            *std::max_element(max_p.begin(), max_p.end()) );
+
+    // TODO specialize for N == 1
+    /*
+
+    if (comp(*first, *result.first)) {
+        result.first = first;
+    } else {
+        result.second = first;
+    }
+    while (++first != last) {
+        ForwardIt i = first;
+        if (++first == last) {
+            if (comp(*i, *result.first)) result.first = i;
+            else if (!(comp(*i, *result.second))) result.second = i;
+            break;
+        } else {
+            if (comp(*first, *i)) {
+                if (comp(*first, *result.first)) result.first = first;
+                if (!(comp(*i, *result.second))) result.second = i;
+            } else {
+                if (comp(*i, *result.first)) result.first = i;
+                if (!(comp(*first, *result.second))) result.second = first;
+            }
+        }
+    }
+    */
+}
+
+
 
 } // end namespace
 

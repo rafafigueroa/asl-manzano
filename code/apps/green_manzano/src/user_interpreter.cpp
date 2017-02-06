@@ -254,6 +254,8 @@ void UserInterpreter::user_input_loop() {
 
         getline(std::cin, user_input);
 
+        std::cout << std::flush << "### " << Time::sys_time_of_day() << " ###";
+
         try {
 
             if (user_input == "") {

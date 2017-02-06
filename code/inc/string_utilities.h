@@ -9,12 +9,15 @@
 #include <stdexcept>
 #include <iomanip>
 #include "mzn_except.h"
+#include <chrono>
+#include <cstdio>
+#include <future>
 
 namespace mzn {
 
 namespace Utility {
 
-// --------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 inline
 std::vector<std::string> get_tokens(std::string const & line,
                                     char const delimiter = ',') {
@@ -29,9 +32,10 @@ std::vector<std::string> get_tokens(std::string const & line,
     return tokens;
 }
 
-// --------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 inline
-void expect_string(std::string const & expected, std::string const & token) {
+void expect_string(std::string const & expected,
+                   std::string const & token) {
 
     if (token != expected) {
         std::stringstream ss;
@@ -41,7 +45,7 @@ void expect_string(std::string const & expected, std::string const & token) {
 }
 
 // used to underline the problematic token in the error message
-// --------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 inline
 std::string underline_error(std::string const & token, int e_index) {
 
@@ -50,13 +54,14 @@ std::string underline_error(std::string const & token, int e_index) {
     if (token.size() > e_index) {
         token_underlined << "\n    " << token
                          << "\n    " << std::string(e_index, '~')
-                         << "^" << std::string(token.size() - e_index - 1, '~');
+                         << "^"
+                         << std::string(token.size() - e_index - 1, '~');
     }
 
     return token_underlined.str();
 }
 
-// --------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
 inline
 int match_positive_number(std::string const & token,
                           std::size_t & token_index) {
@@ -75,7 +80,8 @@ int match_positive_number(std::string const & token,
 
         std::stringstream error_msg;
 
-        error_msg << "expected positive number in token \'" << token << "\' \n";
+        error_msg << "expected positive number in token \'"
+                  << token << "\' \n";
 
         if (token.size() > 1) {
             error_msg << "at:" << underline_error(token, token_index);
@@ -89,9 +95,9 @@ int match_positive_number(std::string const & token,
     token_index += token_number.size();
 
     return std::stoi(token_number);
+}
 
 } // <- Utility
 } // <- mzn
 
-}
 #endif // _MZN_STRING_UTILITIES_H_

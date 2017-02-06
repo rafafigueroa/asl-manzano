@@ -31,8 +31,7 @@ TEST_F(FixtureCore, stream_plotter) {
 
     using namespace mzn;
 
-    StreamPlotter<int> sp;
-
+    std::cout << std::endl << "start\n";
 }
 
 // -------------------------------------------------------------------------- //
