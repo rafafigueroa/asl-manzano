@@ -26,20 +26,19 @@ namespace mzn {
 /*!
     @tparam T Point type.
     @tparam N number coordinates on a point
+    @tparam pps = points_per_second, could be generalized to period
     @tparam Tc type to cast, when the value is more limited than the range of T
-    @tparam ppl = points_per_line
     @author rfigueroa@usgs.gov
  */
 // -------------------------------------------------------------------------- //
-template <typename T, int N = 3, typename Tc = T, int ppl = 2>
+template <typename T, int N = 3, int pps = 2, typename Tc = T>
 class StreamPlotter {
 
-    static_assert(ppl % 2 == 0, "StreamPlotter ppl should be even");
-    static_assert(ppl > 0, "StreamPlotter ppl should be positivie");
-    static_assert(N > 0, "StreamPlotter N should be positivie");
+    static_assert(N > 0, "StreamPlotter N should be positive");
 
     using Point = std::array<T, N>;
     std::vector<Point> data_;
+    int ppl_ = 2;
     int plot_pos_ = 0;
 
 public:
@@ -47,6 +46,7 @@ public:
     // ---------------------------------------------------------------------- //
     T min_limit;
     T max_limit;
+
     // ---------------------------------------------------------------------- //
     void show_summary() const;
     void add(Point const & point);
@@ -57,12 +57,20 @@ public:
     void plot_all();
 
     // ---------------------------------------------------------------------- //
+    void set_ppl(int const ppl) {
+        if (ppl % 2 != 0) throw std::logic_error{"@StreamPlotter odd ppl"};
+        if (ppl <= 0) throw std::logic_error{"@StreamPlotter ppl not positive"};
+        ppl_ = ppl;
+    }
+
+    // ---------------------------------------------------------------------- //
     explicit
-    StreamPlotter() : data_{} {
+    StreamPlotter(int const ppl) : data_{} {
         auto constexpr v_max = std::numeric_limits<Tc>::max();
         auto constexpr v_min = std::numeric_limits<Tc>::min();
         max_limit = static_cast<T>(v_max);
         min_limit = static_cast<T>(v_min);
+        set_ppl(ppl);
     };
 
     ~StreamPlotter();
@@ -80,22 +88,22 @@ private:
 
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
-void StreamPlotter<T, N, Tc, ppl>::add(Point const & point) {
+template <typename T, int N, int pps, typename Tc>
+void StreamPlotter<T, N, pps, Tc>::add(Point const & point) {
     data_.push_back(point);
 }
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
+template <typename T, int N, int pps, typename Tc>
 inline
-void StreamPlotter<T, N, Tc, ppl>::add(std::vector<Point> const & points) {
+void StreamPlotter<T, N, pps, Tc>::add(std::vector<Point> const & points) {
     data_.insert( data_.end(), points.begin(), points.end() );
 }
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
+template <typename T, int N, int pps, typename Tc>
 inline
-void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
+void StreamPlotter<T, N, pps, Tc>::plot_line(int const i) {
 
     // get terminal window size
     ioctl(0, TIOCGWINSZ, &terminal_window_size_);
@@ -103,8 +111,9 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
     // +1 to move from 1..99 to 1..255, +1 to include space for sign
     // +1 to include space for a space in between (+3 total)
     auto constexpr v_digits = std::numeric_limits<Tc>::digits10 + 3;
-    // 2 chars for [], other 2 for scroll bars and wiggle (-4 total)
-    auto const plot_width = axis_stream_width - v_digits - 12;
+    // -2 chars for [], -2 for scroll bars and wiggle
+    // -4 for comments (seconds on  qview) (-8 total)
+    auto const plot_width = axis_stream_width - v_digits - 8;
     // round down to closest even number (clear last bit)
     int const plot_end = plot_width & ~1;
     int const plot_middle = plot_end / 2;
@@ -118,20 +127,18 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
 
         // divide sum in two to get a rough trend, used in choosing plot c
         // ----------------------------------------------------------------- //
-        // ppl is even, this is half of the sum index
-        auto const hsi = i + ppl/2;
+        // ppl_ is even, this is half of the sum index
+        auto const hsi = i + ppl_/2;
         // sum first and second halfs
         int j;
-        T sum_fh = 0; for (j = i  ; j < hsi    ; j++) sum_fh += data_[j][axis];
-        T sum_sh = 0; for (j = hsi; j < i + ppl; j++) sum_sh += data_[j][axis];
+        T sum_f = 0; for (j = i  ; j < hsi     ; j++) sum_f += data_[j][axis];
+        T sum_s = 0; for (j = hsi; j < i + ppl_; j++) sum_s += data_[j][axis];
 
         // calculate average coordinate value
         // ----------------------------------------------------------------- //
         // limit to range of Tc if Tc != T
         // stream as T, specially in the case of Tc int8_t
-        T v = static_cast<Tc>( (sum_fh + sum_sh) / static_cast<float>(ppl) );
-        os << "i." << i << "ds." << data_.size() << "x." << axis
-           << "hsi." << hsi;
+        T v = static_cast<Tc>( (sum_f + sum_s) / static_cast<float>(ppl_) );
 
         // stream average
         os  << std::setfill(' ') << std::setw(v_digits) << v;
@@ -143,8 +150,8 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
         // ----------------------------------------------------------------- //
         // choose char for plot
         char c = '|';
-        if (sum_fh > sum_sh) c = '\\';
-        if (sum_fh < sum_sh) c = '/';
+        if (sum_f > sum_s) c = '\\';
+        if (sum_f < sum_s) c = '/';
 
         // only applies with user provided min_ max_ limits, allow plot loss
         // v real value already streamed, this is only for the plot
@@ -160,8 +167,8 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
 
             std::cout << "\npos: " << pos
                       << " v: " << v
-                      << " sfh: " << sum_fh
-                      << " ssh: " << sum_sh
+                      << " sf: " << sum_f
+                      << " ss: " << sum_s
                       << " ps: " << pos_scalar;
 
             throw std::logic_error("plot pos");
@@ -211,19 +218,30 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
 }
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
+template <typename T, int N, int pps, typename Tc>
 inline
-void StreamPlotter<T, N, Tc, ppl>::plot_lines() {
+void StreamPlotter<T, N, pps, Tc>::plot_lines() {
 
-    for (; plot_pos_ + ppl <= data_.size(); plot_pos_ += ppl) {
+    // put a marker _# roughly every second, but plot_pos_ values
+    // might not be a multiple of one second, so it gets approximated
+    // to multiples of ppl_
+    auto const lines_per_second = static_cast<int>(pps / ppl_);
+    auto const pos_marker = ppl_ * lines_per_second;
+
+    for ( ; plot_pos_ + ppl_ <= data_.size(); plot_pos_ += ppl_) {
         plot_line(plot_pos_);
+        // put marker roughly every second
+        if (plot_pos_ % pos_marker == 0) {
+            auto const pos_seconds = plot_pos_ / pps;
+            std::cout << "_" << pos_seconds;
+        }
     }
 }
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
+template <typename T, int N, int pps, typename Tc>
 inline
-void StreamPlotter<T, N, Tc, ppl>::plot_all() {
+void StreamPlotter<T, N, pps, Tc>::plot_all() {
 
     if ( data_.empty() ) return;
 
@@ -253,15 +271,15 @@ void StreamPlotter<T, N, Tc, ppl>::plot_all() {
 }
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
+template <typename T, int N, int pps, typename Tc>
 inline
-void StreamPlotter<T, N, Tc, ppl>::show_summary() const {
+void StreamPlotter<T, N, pps, Tc>::show_summary() const {
 
 }
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
-StreamPlotter<T, N, Tc, ppl>::~StreamPlotter() {
+template <typename T, int N, int pps, typename Tc>
+StreamPlotter<T, N, pps, Tc>::~StreamPlotter() {
 
     /*
     // catch everything
@@ -286,10 +304,10 @@ StreamPlotter<T, N, Tc, ppl>::~StreamPlotter() {
 }
 
 // -------------------------------------------------------------------------- //
-template <typename T, int N, typename Tc, int ppl>
+template <typename T, int N, int pps, typename Tc>
 inline
 T
-StreamPlotter<T, N, Tc, ppl>::abs_max(std::vector<Point> const & vec) const {
+StreamPlotter<T, N, pps, Tc>::abs_max(std::vector<Point> const & vec) const {
 
     if ( vec.empty() ) throw std::logic_error{"minmax empty vector"};
 

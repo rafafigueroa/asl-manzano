@@ -50,6 +50,7 @@ public:
 
     //! TODO: use chap
     void check(std::string const & msg, std::string const expected) const;
+
     std::string send_recv(std::string const msg);
 
     //! send msgs to e300 server running on dp
@@ -93,7 +94,6 @@ public:
 private:
 
     std::mutex registration_mutex_;
-
 };
 
 } // end mzn

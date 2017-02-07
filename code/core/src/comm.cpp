@@ -340,6 +340,7 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
     // with start cal as individual action for when printing individual msg_task
     // since auto cal is a series of start cal
     auto const start_cal_ui = UserInstruction(Action::start, Kind::cal);
+
     auto msg_tasks =
         cmd_file_reader_.construct_msg_tasks<Action::start, Kind::cal>(
             start_cal_ui,
@@ -562,12 +563,8 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
         // status
         C1Stat cmd_stat;
 
-        try {
-            // needs to be registered
-            md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
-        } catch (InfoException const & e) {
-            // show nothing for info, breaks the plot continuity, store?
-        }
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
 
         // get global status
         CxBoomPositions * bp =
@@ -591,41 +588,27 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
     };
 
     // ---------------------------------------------------------------------- //
-    try {
+    auto constexpr number_of_axis = 3;
+    auto constexpr period = std::chrono::milliseconds(500);
+    auto constexpr pps = 2; // points per second (changes with period)
+    auto constexpr ppl = 2;  // points per line, changes plot looks
 
-        StreamPlotter<int16_t, 3, int8_t> sp;
-        // just changes the plot looks
-        sp.min_limit = -126; sp.max_limit = 126;
+    StreamPlotter<int16_t, number_of_axis, pps, int8_t> sp(ppl);
 
-        auto constexpr loop_limit = 60*3;
-        auto constexpr period = std::chrono::seconds(1);
+    // changes the plot looks, adding a > when value at 127
+    sp.min_limit = -126; sp.max_limit = 126;
 
-        for (int i = 0; i < loop_limit; i++) {
+    auto constexpr loop_limit = 60*3;
 
-            Point const bp = boom_positions();
+    for (int i = 0; i < loop_limit; i++) {
 
-            sp.add(bp);
-            sp.plot_lines();
-            std::cout << std::flush;
-            if ( Utility::cin_cancel(period) ) break;
-        }
+        Point const bp = boom_positions();
 
-    } catch (Exception const & e) {
-
-        //std::cout.rdbuf(cout_buffer);
-
-        // cancel keep alive thread and rethrow exception
-        std::cerr << std::endl << "caught @Comm::run<auto, stat:boom>";
-        std::cerr << std::endl << "cancelling auto stat:boom"
-                  << "\n deregistering: \n";
-        std::cerr << "\n cancelling keep alive for e300: \n";
-        // ok to set even if keep_alive(...)  was not called here
-        if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
-        std::cerr << std::endl << "rethrow";
-        throw e;
+        sp.add(bp);
+        sp.plot_lines();
+        std::cout << std::flush;
+        if ( Utility::cin_cancel(period) ) break;
     }
-
-    //std::cout.rdbuf(cout_buffer);
 }
 
 // -------------------------------------------------------------------------- //
@@ -755,7 +738,7 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     // using centi directly assures there is no truncation, using milliseconds
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
-    auto constexpr pulse_duration = std::chrono::seconds(8);
+    auto constexpr pulse_duration = std::chrono::seconds(2);
 
     cmd_pulse.pulse_duration(pulse_duration);
 
@@ -818,51 +801,29 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
     if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
-    std::size_t token_pos = 0;
-    int channel = Utility::match_positive_number(oi.option, token_pos);
-
     C2Rqqv cmd_rqqv;
     C2Qv cmd_qv;
 
-    switch (channel) {
-        case 1 : cmd_rqqv.channel_map.channel_1(true); break;
-        case 2 : cmd_rqqv.channel_map.channel_2(true); break;
-        case 3 : cmd_rqqv.channel_map.channel_3(true); break;
-        case 4 : cmd_rqqv.channel_map.channel_4(true); break;
-        case 5 : cmd_rqqv.channel_map.channel_5(true); break;
-        case 6 : cmd_rqqv.channel_map.channel_6(true); break;
+    auto const & s = sn.s_const_ref(ta);
+
+    if (s.config.input == Sensor::Input::a) {
+        cmd_rqqv.channel_map.channel_1(true);
+        cmd_rqqv.channel_map.channel_2(true);
+        cmd_rqqv.channel_map.channel_3(true);
+    } else {
+        cmd_rqqv.channel_map.channel_4(true);
+        cmd_rqqv.channel_map.channel_5(true);
+        cmd_rqqv.channel_map.channel_6(true);
+
     }
 
-    using Point = std::array<int32_t, 1>;
+    using Point = std::array<int32_t, 3>;
 
     // initialized with current, updated with the received ones
     int qv_seq_number = q_current_seq_number(q);
 
     // ---------------------------------------------------------------------- //
     auto qview_values = [&]() {
-
-        // you can get data from before seq_number_
-        // then you get several qv values
-        // now we would have to deal either with overlap or a small gap
-        cmd_rqqv.lowest_sequence_number(qv_seq_number);
-
-        md.send_recv(q.port_config, cmd_rqqv, cmd_qv, false);
-
-        // since we are taking just one, make sure period is one second
-        auto & cmd_cx_qv = cmd_qv.inner_commands[0];
-
-        CxQv * qv = dynamic_cast<CxQv *>( cmd_cx_qv.get() );
-
-        if (qv == nullptr) throw std::logic_error{"@Comm::qview"};
-
-        // update values for next qv, assuming one
-        qv_seq_number = cmd_qv.starting_sequence_number() +
-                        cmd_qv.seconds_count().count();
-
-        // "Each [byte] difference must be multiplied by (1 << shift count)"
-        // CmdField<uint16_t, 2> shift_count;
-        auto const shift_count = qv -> shift_count();
-        auto const multiplier = 1 << shift_count;
 
         // "39 byte differences from starting value (40 bytes actually used)"
         // the last point in the bit difference vector is always zero.
@@ -871,55 +832,78 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
         // starting value, the other 39 are calculated using the differences
         auto constexpr N = 40;
         std::vector<Point> qview_values(N);
-        auto const starting_value = qv -> starting_value();
 
-        qview_values[0] = Point{starting_value};
+        // you can get data from before seq_number_
+        // then you get several qv values
+        // now we would have to deal either with overlap or a small gap
+        cmd_rqqv.lowest_sequence_number(qv_seq_number);
 
-        // takes data differences, which are signed bytes
-        // CmdField<std::array<int8_t, 40>, 40> byte_difference;
-        int8_t data_point;
+        md.send_recv(q.port_config, cmd_rqqv, cmd_qv, false);
 
-        // first point already taken
-        for (int i = 1; i < N; i++) {
-            data_point = qv -> byte_difference()[i];
-            Point const point = { starting_value + (data_point * multiplier) };
-            qview_values[i] = point;
+        // update values for next qv, assuming one
+        qv_seq_number = cmd_qv.starting_sequence_number() +
+                        cmd_qv.seconds_count().count();
+
+        // get the values
+        for (int axis = 0; axis < cmd_qv.inner_commands.size(); axis++) {
+
+            auto & cmd_cx_qv = cmd_qv.inner_commands[axis];
+            CxQv * qv = dynamic_cast<CxQv *>( cmd_cx_qv.get() );
+
+            if (qv == nullptr) throw std::logic_error{"@Comm::qview"};
+
+            // "Each [byte] difference must be multiplied by (1 << shift count)"
+            // CmdField<uint16_t, 2> shift_count;
+            auto const shift_count = qv -> shift_count();
+            auto const multiplier = 1 << shift_count;
+
+            auto const starting_value = qv -> starting_value();
+
+            qview_values[0][axis] = starting_value;
+
+            // takes data differences, which are signed bytes
+            // CmdField<std::array<int8_t, 40>, 40> byte_difference;
+            int8_t data_point;
+
+            // first point already taken
+            for (int i = 1; i < N; i++) {
+                data_point = qv -> byte_difference()[i];
+                auto const starting_diff = data_point * multiplier;
+                qview_values[i][axis] = starting_value + starting_diff;
+            }
         }
 
         return qview_values;
+
     };
 
+    // number is 26 bit signed integer, T and Tc both int32_t
     // ---------------------------------------------------------------------- //
-    try {
+    auto constexpr number_of_axis = 3;
+    auto constexpr ppl = 20;  // points per line, changes plot looks
+    auto constexpr pps = 40; // points per second (property of qview)
+    StreamPlotter<int32_t, number_of_axis, pps> sp(ppl);
 
-        // number is 26 bit signed integer, T and Tc both int32_t
-        auto constexpr number_of_axis = 1;
-        auto constexpr points_per_line = 6;
-        StreamPlotter<int32_t, number_of_axis, int32_t, points_per_line> sp;
+    // just changes the plot looks
+    sp.min_limit = -33'000'000; sp.max_limit = 33'000'000;
 
-        // just changes the plot looks
-        sp.min_limit = -33'000'000; sp.max_limit = 33'000'000;
+    auto constexpr loop_limit = 60*15; // 16 minutes, less than 999 seconds
+    // do not change the period
+    auto constexpr period = std::chrono::seconds(1);
 
-        auto constexpr loop_limit = 60*5;
-        auto constexpr period = std::chrono::seconds(1);
+    for (int i = 0; i < loop_limit; i++) {
 
-        for (int i = 0; i < loop_limit; i++) {
+        auto const qvv = qview_values();
 
-            auto const qvv = qview_values();
-
-            sp.add(qvv);
-            sp.plot_lines();
-            std::cout << std::flush;
-            if ( Utility::cin_cancel(period) ) break;
-        }
-
-        std::cout << std::endl << "plot_all:\n";
-
-        sp.plot_all();
-
-    } catch (InfoException const & e) {
-        // do nothing
+        sp.add(qvv);
+        sp.plot_lines();
+        if ( Utility::cin_cancel(period) ) break;
     }
+
+    std::cout << std::endl << "plot_all:\n";
+    // TODO: set ppl depending on terminal height?
+    sp.set_ppl(8);
+    sp.plot_all();
 
 }
 
