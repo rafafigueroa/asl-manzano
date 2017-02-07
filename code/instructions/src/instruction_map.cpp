@@ -14,6 +14,7 @@ InstructionMap::filter_actions(TargetAddress const & ta) {
         case Scope::digitizer:      return VA{Action::show,
                                               Action::edit,
                                               Action::get,
+                                              Action::auto_,
                                               Action::set,
                                               Action::stop};
 
@@ -78,6 +79,10 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
             case Action::stop:
 
                 return VK{Kind::cal};
+
+            case Action::auto_:
+
+                return VK{Kind::qview};
 
             default :
 

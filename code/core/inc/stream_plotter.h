@@ -73,7 +73,7 @@ private:
     // ---------------------------------------------------------------------- //
     winsize terminal_window_size_;
 
-    std::pair<T, T> minmax(std::vector<Point> const & vec) const;
+    T abs_max(std::vector<Point> const & vec) const;
 
     std::ostream & os = std::cout;
 };
@@ -104,7 +104,7 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
     // +1 to include space for a space in between (+3 total)
     auto constexpr v_digits = std::numeric_limits<Tc>::digits10 + 3;
     // 2 chars for [], other 2 for scroll bars and wiggle (-4 total)
-    auto const plot_width = axis_stream_width - v_digits - 8;
+    auto const plot_width = axis_stream_width - v_digits - 12;
     // round down to closest even number (clear last bit)
     int const plot_end = plot_width & ~1;
     int const plot_middle = plot_end / 2;
@@ -127,9 +127,11 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
 
         // calculate average coordinate value
         // ----------------------------------------------------------------- //
-        // allow for truncation, limit to range of Tc if Tc != T
+        // limit to range of Tc if Tc != T
         // stream as T, specially in the case of Tc int8_t
-        T v = static_cast<Tc>( (sum_fh + sum_sh) / ppl);
+        T v = static_cast<Tc>( (sum_fh + sum_sh) / static_cast<float>(ppl) );
+        os << "i." << i << "ds." << data_.size() << "x." << axis
+           << "hsi." << hsi;
 
         // stream average
         os  << std::setfill(' ') << std::setw(v_digits) << v;
@@ -196,7 +198,8 @@ void StreamPlotter<T, N, Tc, ppl>::plot_line(int const i) {
 
             // [ l_spaces : m_spaces | r_spaces ]
             l_spaces = plot_middle;
-            m_spaces = pos - plot_middle - 1; r_spaces = plot_end - pos;
+            m_spaces = pos - plot_middle - 1;
+            r_spaces = plot_end - pos;
 
             os << std::string(l_spaces, ' ') << middle_char
                << std::string(m_spaces, ' ') << c
@@ -212,22 +215,9 @@ template <typename T, int N, typename Tc, int ppl>
 inline
 void StreamPlotter<T, N, Tc, ppl>::plot_lines() {
 
-    auto round_down_to_multiple = [](auto const & n, auto const & multiple) {
-
-        auto const r = n % multiple;
-        if (r == 0) return n;
-        return n - r;
-    };
-
-    // make sure we have points multiple of ppl to plot
-    auto points_to_plot = data_.size() - plot_pos_;
-    points_to_plot = round_down_to_multiple(points_to_plot, ppl);
-
-    if (points_to_plot == 0) return;
-
-    for (int i = plot_pos_; i < data_.size(); i += ppl) plot_line(i);
-
-    plot_pos_ += points_to_plot;
+    for (; plot_pos_ + ppl <= data_.size(); plot_pos_ += ppl) {
+        plot_line(plot_pos_);
+    }
 }
 
 // -------------------------------------------------------------------------- //
@@ -250,9 +240,9 @@ void StreamPlotter<T, N, Tc, ppl>::plot_all() {
     plot_pos_ = 0;
 
     // modify min / max
-    auto const result = minmax(data_);
-    min_limit = result.first;
-    max_limit = result.second;
+    auto const result = abs_max(data_) - 1;
+    min_limit = -result;
+    max_limit = result;
 
     std::cout << std::endl << "Plot and data range: min " << min_limit
               << " max: " << max_limit;
@@ -298,74 +288,21 @@ StreamPlotter<T, N, Tc, ppl>::~StreamPlotter() {
 // -------------------------------------------------------------------------- //
 template <typename T, int N, typename Tc, int ppl>
 inline
-std::pair<T, T>
-StreamPlotter<T, N, Tc, ppl>::minmax(std::vector<Point> const & vec) const {
+T
+StreamPlotter<T, N, Tc, ppl>::abs_max(std::vector<Point> const & vec) const {
 
     if ( vec.empty() ) throw std::logic_error{"minmax empty vector"};
 
-    // std::min_element might need one more min/max than necessary
-    // since it would provide the Point from data_, but the min/max inside
-    // the point, taking one more go.
-    // So far this is only used for N == 1, for which there is an specialization
-    // if this is used in a more general way, this should be rewritten
+    T am = std::abs(vec[0][0]);
 
-    // there is also the minmax_element but that one does not seem to fit our
-    // caser where min is the min of the next one, max is the max of the next
-    // one, so different comparisons are used (Point a > Point b would make
-    // no sense).
-
-    // another way to improve performance of this operation is having the axis
-    // separated std::array<std::vector<T>, N> but that would make the rest
-    // of the code less readable.
-
-    // modify min / max
-    // compare points functions
-    auto comp_min = [](Point const & a, Point const & b) {
-        auto const min_a = *std::min_element(a.begin(), a.end());
-        auto const min_b = *std::min_element(b.begin(), b.end());
-        return  min_a < min_b;
-    };
-
-    auto comp_max = [](Point const & a, Point const & b) {
-        auto const max_a = *std::max_element(a.begin(), a.end());
-        auto const max_b = *std::max_element(b.begin(), b.end());
-        return  max_a < max_b;
-    };
-
-    auto const min_p = *std::min_element(data_.begin(), data_.end(), comp_min);
-    auto const max_p = *std::max_element(data_.begin(), data_.end(), comp_max);
-
-    return std::pair<T, T>( *std::min_element(min_p.begin(), min_p.end()),
-                            *std::max_element(max_p.begin(), max_p.end()) );
-
-    // TODO specialize for N == 1
-    /*
-
-    if (comp(*first, *result.first)) {
-        result.first = first;
-    } else {
-        result.second = first;
-    }
-    while (++first != last) {
-        ForwardIt i = first;
-        if (++first == last) {
-            if (comp(*i, *result.first)) result.first = i;
-            else if (!(comp(*i, *result.second))) result.second = i;
-            break;
-        } else {
-            if (comp(*first, *i)) {
-                if (comp(*first, *result.first)) result.first = first;
-                if (!(comp(*i, *result.second))) result.second = i;
-            } else {
-                if (comp(*i, *result.first)) result.first = i;
-                if (!(comp(*first, *result.second))) result.second = first;
-            }
+    for (auto const & point : vec) {
+        for (auto const & coordinate : point) {
+            if (std::abs(coordinate) > am) am = std::abs(coordinate);
         }
     }
-    */
+
+    return am;
 }
-
-
 
 } // end namespace
 

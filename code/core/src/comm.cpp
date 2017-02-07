@@ -544,7 +544,8 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
     auto & q = sn.q_ref(ta);
     auto & s = sn.s_ref(ta);
 
-    // e300 keep alive setup
+    if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
+
     // ---------------------------------------------------------------------- //
     if (s.config.has_e300) { std::cout << "\nTODO E300 auto stat"; return;}
 
@@ -595,8 +596,6 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
         StreamPlotter<int16_t, 3, int8_t> sp;
         // just changes the plot looks
         sp.min_limit = -126; sp.max_limit = 126;
-
-        if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
         auto constexpr loop_limit = 60*3;
         auto constexpr period = std::chrono::seconds(1);
@@ -775,12 +774,12 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     */
 
     //auto const current_active_high = cmd_sc.sensor_control_active_high();
-    cmd_pulse.sensor_control_active_high(true);
+    cmd_pulse.sensor_control_active_high(false);
 
     if (s.config.input == Sensor::Input::a) {
-        cmd_pulse.sensor_control_map.lines(SCML::sensor_a_centering);
+        cmd_pulse.sensor_control_map.lines(SCML::sensor_a_calibration);
     } else {
-        cmd_pulse.sensor_control_map.lines(SCML::sensor_b_centering);
+        cmd_pulse.sensor_control_map.lines(SCML::sensor_b_calibration);
     }
 
     C1Cack cmd_cack;
@@ -819,16 +818,11 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
     if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
-    auto time_count_ = 0;
-    auto seq_number_ = q_current_seq_number(q);
-
-    // TODO: try lowest numbers of data_sequence_number
-    // can you get qview data from before the initial request?
-    C2Rqqv cmd_rqqv;
-    cmd_rqqv.lowest_sequence_number(seq_number_);
-
     std::size_t token_pos = 0;
     int channel = Utility::match_positive_number(oi.option, token_pos);
+
+    C2Rqqv cmd_rqqv;
+    C2Qv cmd_qv;
 
     switch (channel) {
         case 1 : cmd_rqqv.channel_map.channel_1(true); break;
@@ -839,24 +833,31 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
         case 6 : cmd_rqqv.channel_map.channel_6(true); break;
     }
 
-    C2Qv cmd_qv;
-    md.send_recv(q.port_config, cmd_rqqv, cmd_qv, false);
+    using Point = std::array<int32_t, 1>;
 
-    // ------ From command to vector --------- //
-    // TODO make const? read only one?
-    for (auto & cmd_cx_qv : cmd_qv.inner_commands) {
+    // initialized with current, updated with the received ones
+    int qv_seq_number = q_current_seq_number(q);
+
+    // ---------------------------------------------------------------------- //
+    auto qview_values = [&]() {
+
+        // you can get data from before seq_number_
+        // then you get several qv values
+        // now we would have to deal either with overlap or a small gap
+        cmd_rqqv.lowest_sequence_number(qv_seq_number);
+
+        md.send_recv(q.port_config, cmd_rqqv, cmd_qv, false);
+
+        // since we are taking just one, make sure period is one second
+        auto & cmd_cx_qv = cmd_qv.inner_commands[0];
 
         CxQv * qv = dynamic_cast<CxQv *>( cmd_cx_qv.get() );
 
         if (qv == nullptr) throw std::logic_error{"@Comm::qview"};
 
-        // quotes from manual (Communication Protocol)
-
-        // TODO:use this
-        // "The seconds offset added to the starting sequence number
-        // in the header gives you the actual sequence number for
-        // this second of data"
-        // CmdField<uint16_t, 2> seconds_offset;
+        // update values for next qv, assuming one
+        qv_seq_number = cmd_qv.starting_sequence_number() +
+                        cmd_qv.seconds_count().count();
 
         // "Each [byte] difference must be multiplied by (1 << shift count)"
         // CmdField<uint16_t, 2> shift_count;
@@ -866,26 +867,13 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
         // "39 byte differences from starting value (40 bytes actually used)"
         // the last point in the bit difference vector is always zero.
         // it provides 40 points but only 39 are usable.
-
-        // a new vector with 40 absolute values is needed
         // the first point (absolute value) of the 40 is actually given by
-        // starting value
-        // the other 39 are calculated using the difference vector and
-        // multiplier
-
-        // start with one axis
-        using Point = std::array<int32_t, 1>;
-
+        // starting value, the other 39 are calculated using the differences
         auto constexpr N = 40;
         std::vector<Point> qview_values(N);
-        std::array<int32_t, N> qview_times{};
-
-        // "The starting value is a signed 32 bit value"
-        // CmdField<int32_t, 4> starting_value;
         auto const starting_value = qv -> starting_value();
 
         qview_values[0] = Point{starting_value};
-        qview_times[0] = time_count_;
 
         // takes data differences, which are signed bytes
         // CmdField<std::array<int8_t, 40>, 40> byte_difference;
@@ -894,18 +882,44 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
         // first point already taken
         for (int i = 1; i < N; i++) {
             data_point = qv -> byte_difference()[i];
-            // need to check for overflow?
             Point const point = { starting_value + (data_point * multiplier) };
             qview_values[i] = point;
-            qview_times[i] =  ++time_count_;
         }
 
-        StreamPlotter<int32_t, 1, int32_t, 2> sp;
-        sp.add(qview_values);
-        sp.plot_all();
-    }
+        return qview_values;
+    };
 
-    // time_start_++;
+    // ---------------------------------------------------------------------- //
+    try {
+
+        // number is 26 bit signed integer, T and Tc both int32_t
+        auto constexpr number_of_axis = 1;
+        auto constexpr points_per_line = 6;
+        StreamPlotter<int32_t, number_of_axis, int32_t, points_per_line> sp;
+
+        // just changes the plot looks
+        sp.min_limit = -33'000'000; sp.max_limit = 33'000'000;
+
+        auto constexpr loop_limit = 60*5;
+        auto constexpr period = std::chrono::seconds(1);
+
+        for (int i = 0; i < loop_limit; i++) {
+
+            auto const qvv = qview_values();
+
+            sp.add(qvv);
+            sp.plot_lines();
+            std::cout << std::flush;
+            if ( Utility::cin_cancel(period) ) break;
+        }
+
+        std::cout << std::endl << "plot_all:\n";
+
+        sp.plot_all();
+
+    } catch (InfoException const & e) {
+        // do nothing
+    }
 
 }
 
