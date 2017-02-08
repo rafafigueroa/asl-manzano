@@ -175,9 +175,7 @@ template <typename Rep>
 inline
 std::ostream & operator<<(std::ostream & os,
                           std::chrono::duration<Rep, std::ratio<1, 1> > const d) {
-
     // relatively expensive function, however the formatting should be useful
-
     if (d.count() < 60) {
         os << d.count() << "s";
         return os;

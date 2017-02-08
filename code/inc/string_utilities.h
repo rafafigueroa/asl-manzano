@@ -97,6 +97,16 @@ int match_positive_number(std::string const & token,
     return std::stoi(token_number);
 }
 
+// -------------------------------------------------------------------------- //
+inline
+std::chrono::seconds match_duration(std::string const & token) {
+    std::chrono::seconds d(0);
+    std::size_t token_index = 0;
+    auto seconds_count = match_positive_number(token, token_index);
+    d += std::chrono::seconds(seconds_count);
+    return d;
+}
+
 } // <- Utility
 } // <- mzn
 

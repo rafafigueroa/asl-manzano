@@ -14,7 +14,6 @@ InstructionMap::filter_actions(TargetAddress const & ta) {
         case Scope::digitizer:      return VA{Action::show,
                                               Action::edit,
                                               Action::get,
-                                              Action::auto_,
                                               Action::set,
                                               Action::stop};
 
@@ -46,6 +45,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
                                           Kind::command,
                                           Kind::config,
                                           Kind::plan,
+                                          Kind::wait,
                                           Kind::status};
 
     auto const scope = ta.scope();
@@ -80,10 +80,6 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
 
                 return VK{Kind::cal};
 
-            case Action::auto_:
-
-                return VK{Kind::qview};
-
             default :
 
                 return VK{};
@@ -94,7 +90,11 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
 
         switch (action) {
             case Action::set: return VK{Kind::center};
-            case Action::start: return VK{Kind::cal, Kind::pulse};
+
+            case Action::start: return VK{Kind::cal,
+                                          Kind::pulse,
+                                          Kind::link};
+
             case Action::auto_: return VK{Kind::cal,
                                           Kind::stat,
                                           Kind::qview};

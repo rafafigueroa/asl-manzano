@@ -48,6 +48,8 @@ void InstructionInterpreter::match(UserInstruction const & ui,
         case Kind::uptime:  cm.run<action, Kind::uptime>(ta, oi);  break;
         case Kind::mzn:     cm.run<action, Kind::mzn>(ta, oi);     break;
         case Kind::plan:    cm.run<action, Kind::plan>(ta, oi);    break;
+        case Kind::link:    cm.run<action, Kind::link>(ta, oi);    break;
+        case Kind::wait:    cm.run<action, Kind::wait>(ta, oi);    break;
         default:
             throw std::logic_error{"at InstructionInterpreter::run_instruction"};
     }

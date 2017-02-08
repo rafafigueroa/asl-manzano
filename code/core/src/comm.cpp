@@ -961,27 +961,66 @@ void Comm::run<Action::show, Kind::config>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::config>(ta);
 }
 
+// -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::show, Kind::status>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::status>(ta);
 }
 
+// -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::show, Kind::command>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::command>(ta);
 }
 
-/*
+// -------------------------------------------------------------------------- //
 template<>
-void Comm::data_recv(Digitizer & q) {
+void Comm::run<Action::start, Kind::link>(TA const & ta, OI const & oi) {
 
-    auto & q = sn.q_ref(ta);
+    auto & s = sn.s_ref(ta);
 
-    DtOpen cmd_data_open; // start data stream
+    // --------- E300 registration ----------- //
+    if (not s.config.has_e300) {
+        throw WarningException("Comm",
+                               "run<start, link>",
+                               "this sensor does not have E300 setup");
+    }
 
-    md.data_recv(q, cmd_data_open, data_msg);
+    auto & e300 = s.port_e300_ref();
+
+    e300.connect();
+
+    std::cout << std::endl << "input commands for E300, type quit to quit";
+    std::string input{};
+
+    while (true) {
+        std::cout << "\n_______________________________________";
+        std::cout << std::endl << "E300> ";
+        std::getline(std::cin, input);
+        if (input == "quit") break;
+        auto const response = e300.send_recv(input);
+        std::cout << response;
+    }
+}
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
+
+    auto const duration_pos = oi.option.find('&');
+
+    if (duration_pos == std::string::npos or
+        duration_pos == oi.option.size() - 1 ) {
+
+        throw WarningException("Comm",
+                               "run<show, wait>",
+                               "provide a waiting time");
+    }
+
+    auto const duration_str = oi.option.substr(duration_pos + 1);
+    std::chrono::seconds const d = Utility::match_duration(duration_str);
+    std::cout << d;
+    std::this_thread::sleep_for(d);
 }
 
-*/
 } // << mzn
 

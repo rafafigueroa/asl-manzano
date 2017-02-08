@@ -43,13 +43,12 @@ enum class Action {
 // -------------------------------------------------------------------------- //
 enum class Kind {
 
-    // ta show/edit *
     target,
     command,
     config,
     status,
+    wait,
 
-    // quit
     mzn,
 
     // q get *
@@ -60,25 +59,15 @@ enum class Kind {
     dev,
     stat,
 
-    // dp get *
     uptime,
-
-    // q set *
     ctrl,
     reg,
     dereg,
-
-    // s get *
     center,
-
-    // s start *
     pulse,
-
-    // s start/plan *
     cal,
-
-    // * edit/show *
     plan,
+    link,
 };
 
 // operator<<
@@ -112,6 +101,7 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
         case Kind::command       : os << "command"; break;
         case Kind::config        : os << "config"; break;
         case Kind::status        : os << "status"; break;
+        case Kind::wait          : os << "wait"; break;
 
         case Kind::poll          : os << "poll"; break;
         case Kind::ping          : os << "ping"; break;
@@ -130,6 +120,7 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
         case Kind::mzn           : os << "manzano"; break;
 
         case Kind::plan           : os << "plan"; break;
+        case Kind::link           : os << "link"; break;
 
         default : throw std::logic_error{"@UserInstruction::operator<< kind"};
     }
