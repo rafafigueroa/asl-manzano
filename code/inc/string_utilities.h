@@ -98,12 +98,52 @@ int match_positive_number(std::string const & token,
 }
 
 // -------------------------------------------------------------------------- //
+template <typename Period>
+using DurationInt = std::chrono::duration<int, Period>;
+
+// -------------------------------------------------------------------------- //
 inline
 std::chrono::seconds match_duration(std::string const & token) {
-    std::chrono::seconds d(0);
+
     std::size_t token_index = 0;
-    auto seconds_count = match_positive_number(token, token_index);
-    d += std::chrono::seconds(seconds_count);
+
+    auto match_duration_char = [&]() {
+
+        if ( token_index >= token.size() ) {
+            throw WarningException("Utility",
+                                   "match_duration",
+                                   "provide s, m or h with number");
+        }
+
+        char c;
+
+        if (token.find("s", token_index) == token_index) c = 's'; else
+        if (token.find("m", token_index) == token_index) c = 'm'; else
+        if (token.find("h", token_index) == token_index) c = 'h';
+        else throw WarningException("Utility",
+                                    "match_duration",
+                                    "s m h not found");
+
+        token_index += 1;
+        return c;
+    };
+
+    // return seconds only
+    std::chrono::seconds d(0);
+
+    // allow for composite 2m30s for example
+    while (token_index < token.size() ) {
+
+        auto const d_count = match_positive_number(token, token_index);
+        auto const d_char = match_duration_char();
+
+        switch (d_char) {
+            case 's': {d += DurationInt<std::ratio<1>>(d_count);    break;}
+            case 'm': {d += DurationInt<std::ratio<60>>(d_count);   break;}
+            case 'h': {d += DurationInt<std::ratio<3600>>(d_count); break;}
+        }
+    }
+
     return d;
 }
 
