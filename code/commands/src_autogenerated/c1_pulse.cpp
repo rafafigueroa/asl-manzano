@@ -3,8 +3,7 @@
 namespace mzn {
 C1Pulse::C1Pulse():
     Command(0x22, 4),
-    sensor_control_active_high(),
-    sensor_control_map(),
+    sensor_control_enable(),
     pulse_duration() { }
 
 uint16_t C1Pulse::msg_to_data(std::vector<uint8_t> const & msg,
@@ -20,8 +19,7 @@ uint16_t C1Pulse::msg_to_data(std::vector<uint8_t> const & msg,
         );
     }
 
-    mf_begin = sensor_control_active_high.msg_to_data(msg, mf_begin);
-    mf_begin = sensor_control_map.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_enable.msg_to_data(msg, mf_begin);
     mf_begin = pulse_duration.msg_to_data(msg, mf_begin);
 
     return mf_begin;
@@ -40,8 +38,7 @@ uint16_t C1Pulse::data_to_msg(std::vector<uint8_t> & msg,
         );
     }
 
-    mf_begin = sensor_control_active_high.data_to_msg(msg, mf_begin);
-    mf_begin = sensor_control_map.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_enable.data_to_msg(msg, mf_begin);
     mf_begin = pulse_duration.data_to_msg(msg, mf_begin);
 
     return mf_begin;
@@ -50,9 +47,7 @@ uint16_t C1Pulse::data_to_msg(std::vector<uint8_t> & msg,
 std::ostream & C1Pulse::os_print(std::ostream & cmd_os) const {
     cmd_os << "\n --- C1_PULSE ---  \n";
 
-    cmd_os << "\nsensor_control_active_high: "; cmd_os << sensor_control_active_high;
-
-    cmd_os << "\nsensor_control_map: "; cmd_os << sensor_control_map;
+    cmd_os << "\nsensor_control_enable: "; cmd_os << sensor_control_enable;
 
     cmd_os << "\npulse_duration: "; cmd_os << pulse_duration;
     cmd_os << std::endl;

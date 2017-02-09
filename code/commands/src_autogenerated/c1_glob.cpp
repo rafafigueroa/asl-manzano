@@ -16,8 +16,7 @@ C1Glob::C1Glob():
     jump_filter(),
     jump_threshold(),
     calibrator_offset(),
-    sensor_control_active_high(),
-    sensor_control_map(),
+    sensor_control_enable(),
     sampling_phase(),
     gps_cold_start_seconds(),
     kmi_user_tag(),
@@ -109,8 +108,7 @@ uint16_t C1Glob::msg_to_data(std::vector<uint8_t> const & msg,
     mf_begin = jump_filter.msg_to_data(msg, mf_begin);
     mf_begin = jump_threshold.msg_to_data(msg, mf_begin);
     mf_begin = calibrator_offset.msg_to_data(msg, mf_begin);
-    mf_begin = sensor_control_active_high.msg_to_data(msg, mf_begin);
-    mf_begin = sensor_control_map.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_enable.msg_to_data(msg, mf_begin);
     mf_begin = sampling_phase.msg_to_data(msg, mf_begin);
     mf_begin = gps_cold_start_seconds.msg_to_data(msg, mf_begin);
     mf_begin = kmi_user_tag.msg_to_data(msg, mf_begin);
@@ -205,8 +203,7 @@ uint16_t C1Glob::data_to_msg(std::vector<uint8_t> & msg,
     mf_begin = jump_filter.data_to_msg(msg, mf_begin);
     mf_begin = jump_threshold.data_to_msg(msg, mf_begin);
     mf_begin = calibrator_offset.data_to_msg(msg, mf_begin);
-    mf_begin = sensor_control_active_high.data_to_msg(msg, mf_begin);
-    mf_begin = sensor_control_map.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_enable.data_to_msg(msg, mf_begin);
     mf_begin = sampling_phase.data_to_msg(msg, mf_begin);
     mf_begin = gps_cold_start_seconds.data_to_msg(msg, mf_begin);
     mf_begin = kmi_user_tag.data_to_msg(msg, mf_begin);
@@ -304,9 +301,7 @@ std::ostream & C1Glob::os_print(std::ostream & cmd_os) const {
 
     cmd_os << "\ncalibrator_offset: "; cmd_os << calibrator_offset;
 
-    cmd_os << "\nsensor_control_active_high: "; cmd_os << sensor_control_active_high;
-
-    cmd_os << "\nsensor_control_map: "; cmd_os << sensor_control_map;
+    cmd_os << "\nsensor_control_enable: "; cmd_os << sensor_control_enable;
 
     cmd_os << "\nsampling_phase: "; cmd_os << sampling_phase;
 

@@ -630,8 +630,6 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
     auto constexpr normal_interval = Minutes(2);
     auto constexpr squelch_interval = Minutes(3);
     using SCM = BmSensorControlMap;
-    auto constexpr scm_a = SCM::Lines::sensor_a_centering;
-    auto constexpr scm_b = SCM::Lines::sensor_b_centering;
 
 
     // TODO !!!! get stat:boom and check which ones have 20,
@@ -658,8 +656,8 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
         cmd_samass.maximum_tries_1(maximum_tries);
         cmd_samass.normal_interval_1(normal_interval);
         cmd_samass.squelch_interval_1(squelch_interval);
-        cmd_samass.sensor_control_active_high_1(true);
-        cmd_samass.sensor_control_map_1.lines(scm_a);
+        //TODO
+//        cmd_samass.sensor_control_map_1.lines(scm_a);
     } else {
         cmd_samass.pulse_duration_2(pulse_duration);
         cmd_samass.tolerance_2a(tolerance);
@@ -668,8 +666,8 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
         cmd_samass.maximum_tries_2(maximum_tries);
         cmd_samass.normal_interval_2(normal_interval);
         cmd_samass.squelch_interval_2(squelch_interval);
-        cmd_samass.sensor_control_active_high_2(true);
-        cmd_samass.sensor_control_map_2.lines(scm_b);
+        //TODO
+        //cmd_samass.sensor_control_map_2.lines(scm_b);
     }
 
     C1Cack cmd_cack;
@@ -689,8 +687,6 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
     auto const & s = sn.s_ref(ta);
-
-    using SCML = BmSensorControlMap::Lines;
 
     // ---------------------------------------------------------------------- //
     auto centering_is_running = [&]() {
@@ -712,13 +708,9 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
                                                 "autocal",
                                                 "global stat nullptr");
 
-        auto const & scm = gs -> sensor_control_map.lines();
+        auto const & scm = gs -> sensor_control_enable();
 
-
-        return (scm == SCML::sensor_a_centering or
-                scm == SCML::sensor_b_centering or
-                scm == SCML::sensor_a_calibration or
-                scm == SCML::sensor_b_calibration);
+        return ( static_cast<bool>( scm.to_ulong() ) );
     };
 
     // make sure another centering is not running
@@ -756,13 +748,10 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     auto pulse_scm = [](SCML & lines) { return lines; }
     */
 
-    //auto const current_active_high = cmd_sc.sensor_control_active_high();
-    cmd_pulse.sensor_control_active_high(false);
-
     if (s.config.input == Sensor::Input::a) {
-        cmd_pulse.sensor_control_map.lines(SCML::sensor_a_calibration);
+     //   cmd_pulse.sensor_control_map.lines(SCML::sensor_a_calibration);
     } else {
-        cmd_pulse.sensor_control_map.lines(SCML::sensor_b_calibration);
+     //   cmd_pulse.sensor_control_map.lines(SCML::sensor_b_calibration);
     }
 
     C1Cack cmd_cack;

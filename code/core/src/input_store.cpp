@@ -96,8 +96,8 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     } else if (option == "longsine") {
 
         cmd.waveform.waveform(BmCalWaveform::Waveform::sine);
-        cmd.amplitude(-12);
-        cmd.settling_time( Minutes(5) );
+        cmd.amplitude(-6);
+        cmd.settling_time( Minutes(2) );
         cmd.cal_duration( Minutes(10) );
         cmd.trailer_time( Minutes(5) );
 
@@ -108,18 +108,16 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     // Need to setup basic command before choosing options
     auto const & s = sn_.s_const_ref(ta);
 
-    cmd.sensor_control_active_high(true);
-
-    using SCML = BmSensorControlMap::Lines;
-
     // sensor calibration channel first
     if (s.config.input == Sensor::Input::a) {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::a);
-        //cmd.sensor_control_map.lines(SCML::sensor_a_centering);
+        //TODO
+    //    cmd.sensor_control_map.lines(SCML::sensor_a_unlock);
         cmd.monitor_channel_bitmap.channel_5(true);
     } else {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::b);
-        cmd.sensor_control_map.lines(SCML::sensor_b_calibration);
+        // TODO
+       // cmd.sensor_control_map.lines(SCML::sensor_b_calibration);
         cmd.monitor_channel_bitmap.channel_2(true);
     }
 

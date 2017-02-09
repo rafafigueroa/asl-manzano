@@ -32,8 +32,7 @@ public:
     CmdFieldDuration<uint16_t> settling_time;
     BmCalibrationBitmap calibration_bitmap;
     CmdFieldDuration<uint16_t> trailer_time;
-    CmdField<bool, 1> sensor_control_active_high;
-    BmSensorControlMap sensor_control_map;
+    BmSensorControlEnable sensor_control_enable;
     BmCalMonitorChannel monitor_channel_bitmap;
     CmdField<uint16_t> frequency_divider;
     CmdFieldIgnore<uint16_t> spare_0;
