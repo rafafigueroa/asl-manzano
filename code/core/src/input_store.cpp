@@ -111,13 +111,9 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     // sensor calibration channel first
     if (s.config.input == Sensor::Input::a) {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::a);
-        //TODO
-    //    cmd.sensor_control_map.lines(SCML::sensor_a_unlock);
         cmd.monitor_channel_bitmap.channel_5(true);
     } else {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::b);
-        // TODO
-       // cmd.sensor_control_map.lines(SCML::sensor_b_calibration);
         cmd.monitor_channel_bitmap.channel_2(true);
     }
 
@@ -131,6 +127,9 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     cmd.coupling_bytes(coupling_bytes);
 
     cmd.starting_time( std::chrono::system_clock::now() + cmd.settling_time() );
+
+    //! Important: sensor control enable missing
+    //! done in Comm::run, needs to check curreng digitizer configuration
 
     return cmd;
 }

@@ -1912,12 +1912,12 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlEnable con
 }
 
 // -------------------------------------------------------------------------- //
-class BmSensorControlMap : public CmdFieldBitmap<1> {
+class BmSensorControlOutput : public CmdFieldBitmap<1> {
 
-friend std::ostream & operator<<(std::ostream & bm_os, BmSensorControlMap const & bm);
+friend std::ostream & operator<<(std::ostream & bm_os, BmSensorControlOutput const & bm);
 
 public:
-    explicit BmSensorControlMap() : CmdFieldBitmap<1>{} {};
+    explicit BmSensorControlOutput() : CmdFieldBitmap<1>{} {};
 
     enum class Line {
         idle = 0,
@@ -1942,8 +1942,8 @@ public:
 };
 
 //! special operator<< for enum class (codes) in bm
-inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlMap::Line const & bmc) {
-    using Line = BmSensorControlMap::Line;
+inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlOutput::Line const & bmc) {
+    using Line = BmSensorControlOutput::Line;
     bm_os << "\n   line : ";
     switch(bmc) {
 
@@ -2009,7 +2009,7 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlMap::Line 
     } // end switch
     return bm_os;
 }
-inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlMap const & bm) {
+inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlOutput const & bm) {
     bm_os << "\n";
     bm_os << bm.line();
     bm_os << "\n";

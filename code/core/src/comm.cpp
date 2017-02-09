@@ -105,6 +105,13 @@ void Comm::run<Action::get, Kind::dev>(TA const & ta, OI const & oi) {
     q_send_recv<Action::get, Kind::dev>(ta, oi);
 }
 
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::stop, Kind::cal>(TA const & ta, OI const & oi) {
+
+    // C1Stop, C1Cack
+    q_send_recv<Action::stop, Kind::cal>(ta, oi);
+}
 
 // -------------------------------------------------------------------------- //
 template<>
@@ -133,6 +140,10 @@ void Comm::run<Action::get, Kind::reg>(TA const & ta, OI const & oi) {
 template<>
 void Comm::run<Action::start, Kind::cal>(TA const & ta, OI const & oi) {
 
+    auto constexpr action = Action::start;
+    auto constexpr kind = Kind::cal;
+
+    auto & q = sn.q_ref(ta);
     auto & s = sn.s_ref(ta);
 
     // --------- E300 registration ----------- //
@@ -142,19 +153,24 @@ void Comm::run<Action::start, Kind::cal>(TA const & ta, OI const & oi) {
         s.port_e300_ref().cal_connect();
     }
 
-    // qcal, C1Qcal, C1Cack, no default option
-    q_send_recv<Action::start, Kind::cal>(ta, oi);
-}
-// -------------------------------------------------------------------------- //
-template<>
-void Comm::run<Action::stop, Kind::cal>(TA const & ta, OI const & oi) {
+    // send and receive commands
+    auto cmd_input = input_store.get_input_cmd<action, kind>(ta, oi);
 
-    //TODO: move to q_send_recv
-    auto & q = sn.q_ref(ta);
+    auto const sce = sensor_control_cal(q, s);
+    cmd_input.sensor_control_enable = sce;
 
-    C1Stop cmd_stop; // Calibration Stop
-    C1Cack cack;
-    md.send_recv(q.port_config, cmd_stop, cack);
+    // empty (default constructed) cmd for receiving
+    using Co = typename Co<action, kind>::type;
+    Co cmd_output{};
+
+    md.send_recv(q.port_config, cmd_input, cmd_output, true);
+
+    auto constexpr ui_id = UserInstruction::hash(action, kind);
+    auto const task_id = ta.hash() + ui_id;
+
+    // Co needs to be move_constructible
+    output_store.cmd_map[task_id] =
+        std::make_unique<Co>( std::move(cmd_output) );
 }
 
 // -------------------------------------------------------------------------- //
@@ -346,6 +362,8 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
             start_cal_ui,
             ta);
 
+    auto const sce = sensor_control_cal(q, s);
+
     // the cal times depend on the digitizer time (seconds since epoch)
     // ---------------------------------------------------------------------- //
     for (auto & msg_task : msg_tasks) {
@@ -356,6 +374,7 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
 
         // settling_time is a duration, named following manual
         cal->starting_time( msg_task.exec_time() + cal->settling_time() );
+        cal->sensor_control_enable = sce;
     }
 
     // stream full sequence
@@ -625,18 +644,12 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
     using Minutes = std::chrono::minutes;
 
     // mass centering set
-    // TODO experiment with these values
     auto constexpr maximum_tries = 5;
     auto constexpr normal_interval = Minutes(2);
     auto constexpr squelch_interval = Minutes(3);
-    using SCM = BmSensorControlMap;
 
-
-    // TODO !!!! get stat:boom and check which ones have 20,
-    // skips those with tolerance = 0, or else this will try to center it.
-    // the digitizer seems to setup to 20 all invalid sensors.
-    // can a legitimate sensor ALSO take the value 20? Leo indicates yes.
-    // this C2Samass might not be a good idea
+    // how does this work with invalid sensors (boom at 20)?
+    // legitimate sensors can also take the value 20
     auto constexpr tolerance = 0;
 
     // the pulse needs to be in CentiSeconds.
@@ -648,6 +661,8 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
 
     C2Samass cmd_samass;
 
+    auto const sce = sensor_control_center(q, s);
+
     if (s.config.input == Sensor::Input::a) {
         cmd_samass.pulse_duration_1(pulse_duration);
         cmd_samass.tolerance_1a(tolerance);
@@ -656,8 +671,7 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
         cmd_samass.maximum_tries_1(maximum_tries);
         cmd_samass.normal_interval_1(normal_interval);
         cmd_samass.squelch_interval_1(squelch_interval);
-        //TODO
-//        cmd_samass.sensor_control_map_1.lines(scm_a);
+        cmd_samass.sensor_control_enable_1 = sce;
     } else {
         cmd_samass.pulse_duration_2(pulse_duration);
         cmd_samass.tolerance_2a(tolerance);
@@ -666,9 +680,9 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
         cmd_samass.maximum_tries_2(maximum_tries);
         cmd_samass.normal_interval_2(normal_interval);
         cmd_samass.squelch_interval_2(squelch_interval);
-        //TODO
-        //cmd_samass.sensor_control_map_2.lines(scm_b);
+        cmd_samass.sensor_control_enable_2 = sce;
     }
+
 
     C1Cack cmd_cack;
     md.send_recv(q.port_config, cmd_samass, cmd_cack);
@@ -731,28 +745,10 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
     auto constexpr pulse_duration = std::chrono::seconds(2);
-
     cmd_pulse.pulse_duration(pulse_duration);
 
-    // ---------------------------------------------------------------------- //
-    // C1_PULSE seems to have a weird behaviour with SCM.
-    // instead of saying what you want, you find what it is and you send to
-    // C1_PULSE what you dont want from the current SCM (sensor control map)
-
-    /*
-    // sensor_control_map, C1Rqsc , C1Sc
-    C1Rqsc cmd_rqsc;
-    C1Sc cmd_sc;
-    md.send_recv(q.port_config, cmd_rqsc, cmd_sc);
-
-    auto pulse_scm = [](SCML & lines) { return lines; }
-    */
-
-    if (s.config.input == Sensor::Input::a) {
-     //   cmd_pulse.sensor_control_map.lines(SCML::sensor_a_calibration);
-    } else {
-     //   cmd_pulse.sensor_control_map.lines(SCML::sensor_b_calibration);
-    }
+    auto const sce = sensor_control_center(q, s);
+    cmd_pulse.sensor_control_enable = sce;
 
     C1Cack cmd_cack;
     md.send_recv(q.port_config, cmd_pulse, cmd_cack);
@@ -889,9 +885,8 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
         if ( Utility::cin_cancel(period) ) break;
     }
 
-    std::cout << std::endl << "plot_all:\n";
-    // TODO: set ppl depending on terminal height?
     sp.set_ppl(4);
+    std::cout << std::endl;
     sp.plot_all();
 
 }
@@ -1006,25 +1001,35 @@ void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
                                "provide a waiting time");
     }
 
-    auto const duration_str = oi.option.substr(duration_pos + 1);
-    auto const wait_duration = Utility::match_duration(duration_str);
-    std::cout << std::endl << wait_duration;
-    auto const cols = Utility::get_terminal_cols() - 4;
-    auto const seconds_count = wait_duration.count();
-
     // using sleep_until to discard the time streaming to cout
     auto const now = std::chrono::system_clock::now();
 
-    //
+    auto const duration_str = oi.option.substr(duration_pos + 1);
+    auto const wait_seconds = Utility::match_duration(duration_str);
+    std::cout << std::endl << wait_seconds << std::flush;
 
+    int const cols = Utility::get_terminal_cols() - 4;
+    auto const limit = static_cast<float>( wait_seconds.count() );
 
+    std::cout << std::endl << "[";
 
-    for (std::chrono::seconds d(1); d <= wait_duration; d++) {
+    int pos = 0;
+    int new_pos;
 
-        // print = symbol in the screen with the current terminal columns
+    for (std::chrono::seconds d(1); d <= wait_seconds; d++) {
 
         std::this_thread::sleep_until(now + d);
+
+        float const progress = d.count() / limit;
+        new_pos = static_cast<int>(progress * cols);
+
+        if (new_pos > pos) {
+            std::cout << std::string(new_pos - pos, '=') << std::flush;
+            pos = new_pos;
+        }
     }
+
+    std::cout << "]";
 }
 
 } // << mzn

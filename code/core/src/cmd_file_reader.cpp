@@ -87,6 +87,7 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
             cal.monitor_channel_bitmap.channel_2(true);
         }
 
+
         // ------------- WAVEFORM -------------------- //
         std::string const waveform_json = sensor_cals_json[i]["wave_form"];
 
@@ -170,6 +171,8 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
             { {'r','e','s','i','s','t','i','v','e'} };
 
         cal.coupling_bytes(coupling_bytes);
+
+        // Important: sensor control enable is being done in Comm::run
 
         // add to vector of calibrations
         cmds.push_back(cal);

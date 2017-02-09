@@ -88,7 +88,6 @@ public:
     using data_type = T;
 
     //! TODO: remove n from here? document where it is being used
-    std::size_t const n = N;
 
     //! used only in operator<<
     //! TODO: units should be done with template meta-programming

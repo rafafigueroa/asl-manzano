@@ -185,6 +185,67 @@ private:
         return gs -> current_data_sequence_number();
     }
 
+    //! These two functions can be generalized for any of the 14 output
+    //! definitions. cal/center are currently used. In general, more than
+    //! one output can be set in the sce, but this is not needed or tested.
+    // --------------------------------------------------------------------- //
+    BmSensorControlEnable sensor_control_cal(Digitizer & q,
+                                             Sensor const & s) {
+        // sensor_control_map, C1Rqsc , C1Sc
+        C1Rqsc cmd_rqsc;
+        C1Sc cmd_sc;
+        md.send_recv(q.port_config, cmd_rqsc, cmd_sc, false);
+
+        auto const sco = (s.config.input == Sensor::Input::a) ?
+                         BmSensorControlOutput::Line::sensor_a_calibration :
+                         BmSensorControlOutput::Line::sensor_b_calibration;
+
+        BmSensorControlEnable sce;
+
+        if (cmd_sc.sensor_output_1.line() == sco) sce.output_1(true); else
+        if (cmd_sc.sensor_output_2.line() == sco) sce.output_2(true); else
+        if (cmd_sc.sensor_output_3.line() == sco) sce.output_3(true); else
+        if (cmd_sc.sensor_output_4.line() == sco) sce.output_4(true); else
+        if (cmd_sc.sensor_output_5.line() == sco) sce.output_5(true); else
+        if (cmd_sc.sensor_output_6.line() == sco) sce.output_6(true); else
+        if (cmd_sc.sensor_output_7.line() == sco) sce.output_7(true); else
+        if (cmd_sc.sensor_output_8.line() == sco) sce.output_8(true); else
+        throw WarningException("Comm",
+                               "sensor_control_cal",
+                               "No sensor control configured for calibration");
+
+        return sce;
+    }
+
+    // --------------------------------------------------------------------- //
+    BmSensorControlEnable sensor_control_center(Digitizer & q,
+                                                Sensor const & s) {
+        // sensor_control_map, C1Rqsc , C1Sc
+        C1Rqsc cmd_rqsc;
+        C1Sc cmd_sc;
+        md.send_recv(q.port_config, cmd_rqsc, cmd_sc, false);
+
+        auto const sco = (s.config.input == Sensor::Input::a) ?
+                         BmSensorControlOutput::Line::sensor_a_centering :
+                         BmSensorControlOutput::Line::sensor_b_centering;
+
+        BmSensorControlEnable sce;
+
+        if (cmd_sc.sensor_output_1.line() == sco) sce.output_1(true); else
+        if (cmd_sc.sensor_output_2.line() == sco) sce.output_2(true); else
+        if (cmd_sc.sensor_output_3.line() == sco) sce.output_3(true); else
+        if (cmd_sc.sensor_output_4.line() == sco) sce.output_4(true); else
+        if (cmd_sc.sensor_output_5.line() == sco) sce.output_5(true); else
+        if (cmd_sc.sensor_output_6.line() == sco) sce.output_6(true); else
+        if (cmd_sc.sensor_output_7.line() == sco) sce.output_7(true); else
+        if (cmd_sc.sensor_output_8.line() == sco) sce.output_8(true); else
+        throw WarningException("Comm",
+                               "sensor_control_center",
+                               "No sensor control configured for centering");
+
+        return sce;
+    }
+
     /*
     // --------------------------------------------------------------------- //
     template <class Cs, Action action, Kind kind>
