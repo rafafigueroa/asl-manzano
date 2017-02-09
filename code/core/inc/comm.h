@@ -19,6 +19,7 @@
 #include "stream_plotter.h"
 #include "message_dispatch.h"
 #include "string_utilities.h"
+#include "system_calls.h"
 
 // external libraries
 #include "md5.h" // jason holland's (usgs) md5 library

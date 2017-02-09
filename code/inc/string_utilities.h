@@ -8,10 +8,11 @@
 #include <string>
 #include <stdexcept>
 #include <iomanip>
-#include "mzn_except.h"
 #include <chrono>
 #include <cstdio>
 #include <future>
+
+#include "mzn_except.h"
 
 namespace mzn {
 

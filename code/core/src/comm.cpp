@@ -902,7 +902,7 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << "plot_all:\n";
     // TODO: set ppl depending on terminal height?
-    sp.set_ppl(8);
+    sp.set_ppl(4);
     sp.plot_all();
 
 }
@@ -1006,6 +1006,7 @@ void Comm::run<Action::start, Kind::link>(TA const & ta, OI const & oi) {
 template<>
 void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
 
+
     auto const duration_pos = oi.option.find('&');
 
     if (duration_pos == std::string::npos or
@@ -1017,9 +1018,24 @@ void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
     }
 
     auto const duration_str = oi.option.substr(duration_pos + 1);
-    std::chrono::seconds const d = Utility::match_duration(duration_str);
-    std::cout << d;
-    std::this_thread::sleep_for(d);
+    auto const wait_duration = Utility::match_duration(duration_str);
+    std::cout << std::endl << wait_duration;
+    auto const cols = Utility::get_terminal_cols() - 4;
+    auto const seconds_count = wait_duration.count();
+
+    // using sleep_until to discard the time streaming to cout
+    auto const now = std::chrono::system_clock::now();
+
+    //
+
+
+
+    for (std::chrono::seconds d(1); d <= wait_duration; d++) {
+
+        // print = symbol in the screen with the current terminal columns
+
+        std::this_thread::sleep_until(now + d);
+    }
 }
 
 } // << mzn
