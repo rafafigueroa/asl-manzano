@@ -17,6 +17,12 @@ void Sensor::stream_config(std::ostream & os) const {
 // -------------------------------------------------------------------------- //
 void Sensor::stream_status(std::ostream & os) const {
 
+    if (config.has_e300) {
+        os << "E300:";
+        os << std::boolalpha
+           << "\n    " << "connected  : " << port_e300_const_ref().connected()
+           << "\n    " << "registered : " << port_e300_const_ref().registered;
+    }
 }
 
 } // <- mzn

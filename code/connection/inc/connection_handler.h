@@ -68,6 +68,8 @@ public:
     //! connects when it needs to
     void connect();
 
+    bool connected() const {return connected_;}
+
     //! should debug messages be printed to cout?
     //! prints the bytes of the messages sent and received
     bool debug_ = false;

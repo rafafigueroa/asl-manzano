@@ -14,6 +14,9 @@ void Digitizer::stream_config(std::ostream & os) const {
 // -------------------------------------------------------------------------- //
 void Digitizer::stream_status(std::ostream & os) const {
 
+    os << std::boolalpha
+       << "\n    " << "connected  : " << port_config.connected()
+       << "\n    " << "registered : " << port_config.registered;
 }
 
 } // <- mzn

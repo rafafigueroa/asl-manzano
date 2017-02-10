@@ -124,8 +124,6 @@ Sensor & SeismicNetwork::s_ref(TargetAddress const & ta) {
 // -------------------------------------------------------------------------- //
 void SeismicNetwork::stream_config(std::ostream & os) const {
 
-    os << std::endl << std::uppercase;
-
     // copy st parts, don't modify st
     struct StConfig {
         std::string name;
@@ -155,6 +153,38 @@ void SeismicNetwork::stream_config(std::ostream & os) const {
 // -------------------------------------------------------------------------- //
 void SeismicNetwork::stream_status(std::ostream & os) const {
 
+    os << "stations (digitizer) registration status:";
+
+    // copy st parts, don't modify st
+    struct StConfig {
+        std::string name;
+        int index;
+        bool with_q_reg = false;
+    };
+
+    std::vector<StConfig> stcs( st.size() );
+
+    for (int i = 0; i < st.size(); i++) {
+        stcs[i].name  = st[i].config.station_name;
+        stcs[i].index = i;
+        for (auto const & q : st[i].q) {
+            if (q.port_config.registered) stcs[i].with_q_reg = true;
+        }
+    }
+
+    auto alpha_order = [](auto const & lhs, auto const & rhs) {
+        return lhs.name < rhs.name;
+    };
+
+    std::sort(stcs.begin(), stcs.end(), alpha_order);
+
+    for (auto const & stc : stcs) {
+        os << "\n " ;
+        os << std::setw(5) << std::left << std::setfill('_') << stc.name;
+        os << ":";
+        os << std::setw(3) << std::left << std::setfill(' ') << stc.index;
+        os << " reg status: " << std::boolalpha << stc.with_q_reg;
+    }
 }
 
 } // << mzn

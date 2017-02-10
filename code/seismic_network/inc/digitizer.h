@@ -40,9 +40,6 @@ private:
         std::string const model;
     };
 
-    struct Status {
-    };
-
 public:
     //! currently using port_config due to current mzn functionality
     //! the configuration with data/control works if mzn needs data directly
@@ -51,9 +48,7 @@ public:
               ConnectionHandler port_config) :
 
     port_config( std::move(port_config) ),
-
-    config(serial_number),
-    status() {}
+    config(serial_number) {}
 
     ~Digitizer() = default;
 
@@ -65,16 +60,13 @@ public:
     std::vector<Sensor> s;
     //! configuration set at construction
     Config const config;
-    //! current status
-    Status status;
 
     // move constructor
     // ---------------------------------------------------------------------- //
     Digitizer(Digitizer && rhs) noexcept :
             port_config(  std::move(rhs.port_config) ),
             s( std::move(rhs.s) ),
-            config(rhs.config),
-            status(rhs.status) {}
+            config(rhs.config) {}
 
     // ---------------------------------------------------------------------- //
     void stream_config(std::ostream & os) const;

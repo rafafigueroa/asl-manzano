@@ -171,16 +171,16 @@ void StreamOutput::show<Kind::status>(TargetAddress const & ta) const {
 
     auto scope = ta.scope();
 
+    using S = Scope;
     os << "\nStatus:\n";
-    switch (scope) {
-        /*
-        case Scope::seismic_network: os << sn_.status;                  break;
-        case Scope::station:         os << sn_.st_const_ref(ta).status; break;
-        // case Scope::digitizer:       os << sn_.q_const_ref(ta).status;  break;
-        case Scope::data_processor:  os << sn_.dp_const_ref(ta).status; break;
-        case Scope::sensor:          os << sn_.s_const_ref(ta).status;  break;
 
-        */
+    switch (scope) {
+        case S::seismic_network: sn_.stream_status(os);                  break;
+        case S::digitizer:       sn_.q_const_ref(ta).stream_status(os);  break;
+        case S::station:         sn_.st_const_ref(ta).stream_status(os); break;
+        case S::data_processor:  sn_.dp_const_ref(ta).stream_status(os); break;
+        case S::sensor:          sn_.s_const_ref(ta).stream_status(os);  break;
+
         default: throw std::logic_error{"@StreamOutput::show_status"};
     }
 
