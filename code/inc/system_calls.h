@@ -8,7 +8,7 @@
 #include <sys/ioctl.h>
 // posix function
 #include "poll.h"
-
+#include <unistd.h>
 #include "mzn_cmake_config.h"
 #include "mzn_except.h"
 
