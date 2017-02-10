@@ -61,6 +61,7 @@ enum class Kind {
 
     uptime,
     ctrl,
+    output,
     reg,
     dereg,
     center,
@@ -113,6 +114,7 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
         case Kind::uptime        : os << "uptime"; break;
 
         case Kind::ctrl          : os << "ctrl"; break;
+        case Kind::output        : os << "output"; break;
         case Kind::cal           : os << "cal"; break;
         case Kind::pulse         : os << "pulse"; break;
         case Kind::reg           : os << "reg"; break;

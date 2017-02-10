@@ -93,9 +93,9 @@ void Comm::run<Action::get, Kind::center>(TA const & ta, OI const & oi) {
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::ctrl>(TA const & ta, OI const & oi) {
+void Comm::run<Action::get, Kind::output>(TA const & ta, OI const & oi) {
     // sensor_control_map, C1Rqsc , C1Sc
-    q_send_recv<Action::get, Kind::ctrl>(ta, oi);
+    q_send_recv<Action::get, Kind::output>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
@@ -778,22 +778,6 @@ void Comm::run<Action::start, Kind::center>(TA const & ta, OI const & oi) {
 // *** QUICK VIEW *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::qview>(TA const & ta, OI const & oi) {
-    // no option yet in green_manzano
-    // handled completely by red_manzano, no common library worked
-    /*
-    // create task_id
-    auto constexpr ui_id = UserInstruction::hash(Action::get, Kind::qview);
-    auto const task_id = ta.hash() + ui_id;
-
-    // move to cmd store
-     output_store.cmd_map[task_id] =
-        std::make_unique<C2Qv>( std::move(cmd_qv) );
-        */
-}
-
-// -------------------------------------------------------------------------- //
-template<>
 void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
@@ -873,7 +857,6 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
         }
 
         return qview_values;
-
     };
 
     // number is 26 bit signed integer, T and Tc both int32_t
@@ -886,11 +869,17 @@ void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
     // just changes the plot looks
     sp.min_limit = -33'000'000; sp.max_limit = 33'000'000;
 
-    auto constexpr loop_limit = 60*15; // 16 minutes, less than 999 seconds
+    // 16 minutes, less than 999 seconds
+    auto constexpr max_loop_limit = std::chrono::minutes(15);
+
+    std::chrono::seconds loop_limit;
+    if (oi.option.find('&') == std::string::npos) loop_limit = max_loop_limit;
+    else loop_limit = Utility::match_duration(oi.option);
+
     // do not change the period
     auto constexpr period = std::chrono::seconds(1);
 
-    for (int i = 0; i < loop_limit; i++) {
+    for (std::chrono::seconds i(0); i < loop_limit; i += period) {
 
         auto const qvv = qview_values();
 

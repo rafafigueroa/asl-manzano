@@ -51,6 +51,7 @@ Kind UserInterpreter::match_kind(std::string const & token) {
     if (token == "link")    return Kind::link;
     if (token == "wait")    return Kind::wait;
     if (token == "dev")     return Kind::dev;
+    if (token == "output")  return Kind::output;
 
     // no kind found for that token
     //TODO: use InstructionMap
@@ -58,7 +59,7 @@ Kind UserInterpreter::match_kind(std::string const & token) {
     error_msg << "mismatch in kind token \'" << token << "\' \n"
               << "\nkinds: "
               << "\ntarget config status command poll global ping stat qview dev"
-              << "\nctrl reg dereg center cal pulse  plan";
+              << "\nctrl reg dereg center cal pulse plan output";
 
     throw WarningException("UserInterpreter",
                            "match_kind",

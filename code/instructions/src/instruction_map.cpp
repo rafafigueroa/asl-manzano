@@ -59,8 +59,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
             case Action::get:
 
                 return VK{Kind::poll,
-                          Kind::qview,
-                          Kind::ctrl,
+                          Kind::output,
                           Kind::center,
                           Kind::global,
                           Kind::ping,
@@ -155,6 +154,7 @@ InstructionMap::filter_options(Action const action, Kind const kind) {
 
             switch (kind) {
                 case Kind::stat: return VS{"boom"};
+                case Kind::qview: return VS{"&qview_duration"};
                 default: return VS{};
             }
         }
@@ -216,7 +216,7 @@ InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) 
                 return VK{Kind::poll,
                           Kind::ping,
                           Kind::center,
-                          Kind::ctrl,
+                          Kind::output,
                           Kind::global,
                           Kind::dev,
                           Kind::stat};
@@ -226,10 +226,6 @@ InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) 
                 return VK{Kind::ctrl,
                           Kind::reg,
                           Kind::dereg};
-
-            case Action::start:
-
-                 return VK{Kind::qview};
 
             case Action::stop:
 
