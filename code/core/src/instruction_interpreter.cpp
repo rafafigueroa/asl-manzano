@@ -44,7 +44,6 @@ void InstructionInterpreter::match(UserInstruction const & ui,
         case Kind::dereg:   cm.run<action, Kind::dereg>(ta, oi);   break;
         case Kind::cal:     cm.run<action, Kind::cal>(ta, oi);     break;
         case Kind::center:  cm.run<action, Kind::center>(ta, oi);  break;
-        case Kind::pulse:   cm.run<action, Kind::pulse>(ta, oi);   break;
         case Kind::uptime:  cm.run<action, Kind::uptime>(ta, oi);  break;
         case Kind::mzn:     cm.run<action, Kind::mzn>(ta, oi);     break;
         case Kind::plan:    cm.run<action, Kind::plan>(ta, oi);    break;

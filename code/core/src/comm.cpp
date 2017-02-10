@@ -697,7 +697,7 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
+void Comm::run<Action::start, Kind::center>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
     auto const & s = sn.s_ref(ta);
@@ -744,7 +744,21 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     // using centi directly assures there is no truncation, using milliseconds
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
-    auto constexpr pulse_duration = std::chrono::seconds(2);
+    std::chrono::duration<uint16_t, std::centi> pulse_duration;
+
+    if (oi.option.find('&') != std::string::npos) {
+        pulse_duration = Utility::match_duration(oi.option);
+    } else {
+        pulse_duration = std::chrono::seconds(2);
+    }
+
+    auto constexpr consensus_max_pulse_duration = std::chrono::seconds(10);
+    if (pulse_duration > consensus_max_pulse_duration) {
+        throw WarningException("Comm",
+                               "run <start, center>",
+                               "pulse duration > 10 seconds");
+    }
+
     cmd_pulse.pulse_duration(pulse_duration);
 
     auto const sce = sensor_control_center(q, s);
@@ -754,7 +768,7 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     md.send_recv(q.port_config, cmd_pulse, cmd_cack);
 
     // create task_id
-    auto constexpr ui_id = UserInstruction::hash(Action::set, Kind::center);
+    auto constexpr ui_id = UserInstruction::hash(Action::start, Kind::center);
     auto const task_id = ta.hash() + ui_id;
 
     output_store.cmd_map[task_id] =
@@ -990,22 +1004,10 @@ void Comm::run<Action::start, Kind::link>(TA const & ta, OI const & oi) {
 template<>
 void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
 
-
-    auto const duration_pos = oi.option.find('&');
-
-    if (duration_pos == std::string::npos or
-        duration_pos == oi.option.size() - 1 ) {
-
-        throw WarningException("Comm",
-                               "run<show, wait>",
-                               "provide a waiting time");
-    }
-
     // using sleep_until to discard the time streaming to cout
     auto const now = std::chrono::system_clock::now();
 
-    auto const duration_str = oi.option.substr(duration_pos + 1);
-    auto const wait_seconds = Utility::match_duration(duration_str);
+    auto const wait_seconds = Utility::match_duration(oi.option);
     std::cout << std::endl << wait_seconds << std::flush;
 
     int const cols = Utility::get_terminal_cols() - 4;

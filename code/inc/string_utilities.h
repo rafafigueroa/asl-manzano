@@ -106,7 +106,18 @@ using DurationInt = std::chrono::duration<int, Period>;
 inline
 std::chrono::seconds match_duration(std::string const & token) {
 
-    std::size_t token_index = 0;
+
+    auto const duration_pos = token.find('&');
+
+    if (duration_pos == std::string::npos or
+        duration_pos == token.size() - 1 ) {
+
+        throw WarningException("Utility",
+                               "match_duration",
+                               "provide a waiting time");
+    }
+
+    std::size_t token_index = duration_pos + 1;
 
     auto match_duration_char = [&]() {
 
