@@ -38,13 +38,11 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
 
     using VK = std::vector<Kind>;
 
-    if (action == Action::edit) return VK{Kind::target,
-                                          Kind::plan};
+    if (action == Action::edit) return VK{Kind::target};
 
     if (action == Action::show) return VK{Kind::target,
                                           Kind::command,
                                           Kind::config,
-                                          Kind::plan,
                                           Kind::wait,
                                           Kind::status};
 
@@ -111,12 +109,19 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
 
 // -------------------------------------------------------------------------- //
 std::vector<std::string>
-InstructionMap::filter_options(Action const action,
-                                        Kind const kind) {
+InstructionMap::filter_options(Action const action, Kind const kind) {
 
     using VS = std::vector<std::string>;
 
     switch (action) {
+
+        case Action::show: {
+
+            switch (kind) {
+                case Kind::wait: return VS{"&wait_duration"};
+                default: return VS{};
+            }
+        }
 
         case Action::get: {
 
@@ -187,8 +192,7 @@ InstructionMap::filter_actions_gui(TargetAddress const & ta) {
         case Scope::sensor:
             return VA{Action::get,
                       Action::set,
-                      Action::start,
-                      Action::plan};
+                      Action::start};
 
         case Scope::data_processor:
             return VA{Action::get};
@@ -243,7 +247,6 @@ InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) 
             case Action::get: return VK{Kind::center};
             case Action::set: return VK{Kind::center};
             case Action::start: return VK{Kind::cal, Kind::pulse};
-            case Action::plan: return VK{Kind::cal};
             default : return VK{};
         }
     }

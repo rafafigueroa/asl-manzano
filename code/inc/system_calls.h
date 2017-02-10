@@ -77,12 +77,11 @@ bool cin_cancel(std::chrono::duration<Rep, Period> timeout) {
     pfd.revents = 0;
 
     auto constexpr number_of_pfd = 1;
-
-    auto const timeout_ms_count = std::chrono::milliseconds(timeout).count();
+    auto const timeout_ms = date::floor<std::chrono::milliseconds>(timeout);
+    auto const timeout_ms_count = timeout_ms.count();
 
     // Poll one descriptor with a five second timeout
     auto const poll_result = poll(&pfd, number_of_pfd, timeout_ms_count);
-
 
     if (poll_result == 0) {
         // Timeout
@@ -102,6 +101,13 @@ bool cin_cancel(std::chrono::duration<Rep, Period> timeout) {
         std::cin.clear();
         throw WarningException("Manzano", "cin_cancel", ss.str() );
     }
+}
+
+// -------------------------------------------------------------------------- //
+template <typename Clock, typename Duration>
+inline
+bool cin_cancel(std::chrono::time_point<Clock, Duration> tp) {
+    return cin_cancel( tp - std::chrono::system_clock::now() );
 }
 
 } // <- Utility

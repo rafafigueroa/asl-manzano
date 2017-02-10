@@ -1005,9 +1005,16 @@ template<>
 void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
 
     // using sleep_until to discard the time streaming to cout
-    auto const now = std::chrono::system_clock::now();
+    auto const start_time = std::chrono::system_clock::now();
 
-    auto const wait_seconds = Utility::match_duration(oi.option);
+    std::chrono::seconds wait_seconds;
+
+    if (oi.option.find('&') != std::string::npos) {
+        wait_seconds = Utility::match_duration(oi.option);
+    } else {
+        wait_seconds = std::chrono::minutes(1);
+    }
+
     std::cout << std::endl << wait_seconds << std::flush;
 
     int const cols = Utility::get_terminal_cols() - 4;
@@ -1020,7 +1027,8 @@ void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
 
     for (std::chrono::seconds d(1); d <= wait_seconds; d++) {
 
-        std::this_thread::sleep_until(now + d);
+        // std::this_thread::sleep_until(now + d);
+        if ( Utility::cin_cancel(start_time + d) ) break;
 
         float const progress = d.count() / limit;
         new_pos = static_cast<int>(progress * cols);
