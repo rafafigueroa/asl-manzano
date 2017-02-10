@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "mzn_cmake_config.h"
 #include "mzn_except.h"
+#include "date.h"
 
 namespace mzn {
 
