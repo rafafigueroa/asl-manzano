@@ -21,6 +21,9 @@ include_directories(${DIR_seismic_network}/inc/)
 set(SOURCES_seismic_network
     ${SOURCES_instructions}
     ${SOURCES_connection}
+    ${DIR_seismic_network}/src/digitizer.cpp
+    ${DIR_seismic_network}/src/station.cpp
+    ${DIR_seismic_network}/src/sensor.cpp
     ${DIR_seismic_network}/src/data_processor.cpp
     ${DIR_seismic_network}/src/connection_handler_e300.cpp
     ${DIR_seismic_network}/src/seismic_network.cpp

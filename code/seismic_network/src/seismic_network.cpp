@@ -4,6 +4,7 @@
 #include "system_calls.h"
 #include "json.h"
 #include "json_sn.h"
+#include <algorithm>
 
 namespace mzn {
 
@@ -118,6 +119,42 @@ Sensor & SeismicNetwork::s_ref(TargetAddress const & ta) {
     auto q_index = ta.st_child.index;
     auto s_index = ta.q_child.index;
     return st[st_index].q[q_index].s[s_index];
+}
+
+// -------------------------------------------------------------------------- //
+void SeismicNetwork::stream_config(std::ostream & os) const {
+
+    os << std::endl << std::uppercase;
+
+    // copy st parts, don't modify st
+    struct StConfig {
+        std::string name;
+        int index;
+    };
+
+    std::vector<StConfig> stcs( st.size() );
+
+    for (int i = 0; i < st.size(); i++) {
+        stcs[i].name  = st[i].config.station_name;
+        stcs[i].index = i;
+    }
+
+    auto alpha_order = [](auto const & lhs, auto const & rhs) {
+        return lhs.name < rhs.name;
+    };
+
+    std::sort(stcs.begin(), stcs.end(), alpha_order);
+
+    for (auto const & stc : stcs) {
+        os << "\n " ;
+        os << std::setw(5) << std::left << std::setfill('_') << stc.name;
+        os << ":" << stc.index;
+    }
+}
+
+// -------------------------------------------------------------------------- //
+void SeismicNetwork::stream_status(std::ostream & os) const {
+
 }
 
 } // << mzn

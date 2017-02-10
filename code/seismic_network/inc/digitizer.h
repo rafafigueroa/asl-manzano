@@ -77,11 +77,8 @@ public:
             status(rhs.status) {}
 
     // ---------------------------------------------------------------------- //
-    friend
-    std::ostream & operator<<(std::ostream & os, Config const & c);
-
-    friend
-    std::ostream & operator<<(std::ostream & os, Status const & c);
+    void stream_config(std::ostream & os) const;
+    void stream_status(std::ostream & os) const;
 };
 
 // -------------------------------------------------------------------------- //
@@ -94,23 +91,6 @@ std::ostream & operator<<(std::ostream & q_os, Digitizer const & q) {
          <<  std::dec << std::nouppercase
          << ")";
     return q_os;
-};
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Digitizer::Config const & c) {
-
-    os << "\n    " << "serial  : " << c.serial_number
-       << "\n    " << "model   : " << c.model;
-    return os;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Digitizer::Status const & s) {
-    return os;
 }
 
 } // end mzn

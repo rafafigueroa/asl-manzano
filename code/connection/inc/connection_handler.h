@@ -94,7 +94,8 @@ public:
     int acknowledge_number() const {return acknowledge_number_;}
 
     void inc_sequence_number() {
-        (sequence_number_ < 65536) ? (sequence_number_++) : (sequence_number_ = 1);
+        (sequence_number_ < 65536) ?  (sequence_number_++) :
+                                      (sequence_number_ = 1);
     }
 
     void set_sequence_number(int const sequence_number) {
@@ -110,7 +111,11 @@ public:
 inline
 std::ostream & operator<<(std::ostream & os,
                           ConnectionHandler const & ch) {
-    //TODO
+
+    os << "\n    " << "ip      : " << ch.ip_remote
+       << "\n    " << "port    : " << ch.port_remote
+       << "\n    " << "auth    : " << std::hex << ch.auth_code << std::dec;
+
     return os;
 }
 
