@@ -188,6 +188,48 @@ void Comm::run<Action::show, Kind::plan>(TA const & ta, OI const & oi) {
 
 // -------------------------------------------------------------------------- //
 template<>
+void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
+
+    // using sleep_until to discard the time streaming to cout
+    auto const start_time = std::chrono::system_clock::now();
+
+    std::chrono::seconds wait_seconds;
+
+    if (oi.option.find('&') != std::string::npos) {
+        wait_seconds = Utility::match_duration(oi.option);
+    } else {
+        wait_seconds = std::chrono::minutes(1);
+    }
+
+    std::cout << std::endl << wait_seconds << std::flush;
+
+    int const cols = Utility::get_terminal_cols() - 4;
+    auto const limit = static_cast<float>( wait_seconds.count() );
+
+    std::cout << std::endl << "[";
+
+    int pos = 0;
+    int new_pos;
+
+    for (std::chrono::seconds d(1); d <= wait_seconds; d++) {
+
+        // std::this_thread::sleep_until(now + d);
+        if ( Utility::cin_cancel(start_time + d) ) break;
+
+        float const progress = d.count() / limit;
+        new_pos = static_cast<int>(progress * cols);
+
+        if (new_pos > pos) {
+            std::cout << std::string(new_pos - pos, '=') << std::flush;
+            pos = new_pos;
+        }
+    }
+
+    std::cout << "]";
+}
+
+// -------------------------------------------------------------------------- //
+template<>
 void Comm::run<Action::edit, Kind::plan>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << "edit plan";
@@ -562,7 +604,7 @@ template<>
 void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
-    auto & s = sn.s_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
 
     if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
@@ -571,40 +613,6 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
 
     // ---------------------------------------------------------------------- //
     using Point = std::array<int16_t, 3>;
-
-    // make sure cals are coordinated (not send a cal when there is one)
-    // ---------------------------------------------------------------------- //
-    auto boom_positions = [&]() {
-
-        // request status
-        C1Rqstat cmd_rqstat;
-        cmd_rqstat.request_bitmap.boom_positions(true);
-        // status
-        C1Stat cmd_stat;
-
-        // needs to be registered
-        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
-
-        // get global status
-        CxBoomPositions * bp =
-            dynamic_cast<CxBoomPositions  *>( cmd_stat.inner_commands[0].get() );
-
-        if (bp == nullptr) throw FatalException("Comm",
-                                                "run",
-                                                "boom positions nullptr");
-
-        if (s.config.input == Sensor::Input::a) {
-
-            return Point { bp -> channel_1_boom(),
-                           bp -> channel_2_boom(),
-                           bp -> channel_3_boom() };
-        } else {
-
-            return Point { bp -> channel_4_boom(),
-                           bp -> channel_5_boom(),
-                           bp -> channel_6_boom() };
-        }
-    };
 
     // ---------------------------------------------------------------------- //
     auto constexpr number_of_axis = 3;
@@ -617,11 +625,11 @@ void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
     // changes the plot looks, adding a > when value at 127
     sp.min_limit = -126; sp.max_limit = 126;
 
-    auto constexpr loop_limit = 60*3;
+    std::chrono::seconds loop_limit = std::chrono::minutes(2);
 
-    for (int i = 0; i < loop_limit; i++) {
+    for (std::chrono::milliseconds i(0); i < loop_limit; i += period) {
 
-        Point const bp = boom_positions();
+        Point const bp = boom_positions<Point>(q, s);
 
         sp.add(bp);
         sp.plot_lines();
@@ -635,7 +643,7 @@ template<>
 void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
-    auto const & s = sn.s_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
 
     // --------- E300 registration ----------- //
     if (s.config.has_e300) throw InfoException("Comm",
@@ -700,7 +708,7 @@ template<>
 void Comm::run<Action::start, Kind::center>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
-    auto const & s = sn.s_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
 
     // ---------------------------------------------------------------------- //
     auto centering_is_running = [&]() {
@@ -773,6 +781,99 @@ void Comm::run<Action::start, Kind::center>(TA const & ta, OI const & oi) {
 
     output_store.cmd_map[task_id] =
         std::make_unique<C1Cack>( std::move(cmd_cack) );
+}
+
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::auto_, Kind::center>(TA const & ta, OI const & oi) {
+
+
+    auto & q = sn.q_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
+
+    if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
+
+    // ---------------------------------------------------------------------- //
+    if (s.config.has_e300) { std::cout << "\nTODO E300 auto center"; return;}
+
+    // ---------------------------------------------------------------------- //
+    using Point = std::array<int16_t, 3>;
+
+    auto constexpr tolerance = 10;
+    // ---------------------------------------------------------------------- //
+    auto centered = [](Point const & bp, auto const & tolerance) {
+        for (auto const & bp_axis : bp) {
+            if (std::abs(bp_axis) > tolerance) return false;
+        }
+        return true;
+    };
+
+    // ---------------------------------------------------------------------- //
+    auto stream_bp = [](auto const & bp) {
+        std::cout << "[";
+        for (auto const & bp_axis : bp) {
+            std::cout << std::setw(5) << bp_axis << " ";
+        }
+        std::cout << "]";
+    };
+
+    std::vector<Point> bps;
+    auto constexpr max_attempts = 5;
+    bool success = false;
+
+    OptionInput const oi_show_wait("&2m");
+    OptionInput const oi_auto_stat("boom");
+    // should match show wait (2m) and auto stat (2m)
+    auto constexpr sleep_duration = std::chrono::minutes(4);
+
+    // ---------------------------------------------------------------------- //
+    for (int i = 0; i < max_attempts; i++) {
+
+        Point const bp = boom_positions<Point>(q, s);
+        bps.push_back(bp);
+        success = centered(bp, tolerance);
+        if (success) break;
+
+        auto const start_time = std::chrono::system_clock::now();
+
+        std::cout << std::endl << "## "
+                  << Time::sys_time_of_day(start_time) << " ## "
+                  << Time::sys_year_month_day(start_time) << " ## "
+                  << "julian( " << Time::julian_day() << ") ##\n";
+
+        std::cout << "\ntolerance      : " << tolerance;
+        std::cout << "\nmass positions : "; stream_bp(bp);
+
+
+        // lets try to center this
+        run<Action::start, Kind::center>(ta, oi);
+        std::cout << std::endl << "mass center updates:";
+        run<Action::auto_, Kind::stat>(ta, oi_auto_stat);
+        std::cout << std::endl << "wait before checking centers again";
+        run<Action::show,  Kind::wait>(ta, oi_show_wait);
+        // force the wait even without stream output, if both previous
+        // instructions are not interrupted, this should sleep almost nothing
+        std::this_thread::sleep_until(start_time + sleep_duration);
+        std::cout << std::flush;
+    }
+
+    // ---------------------------------------------------------------------- //
+    auto const & st = sn.st[ta.st_child.index];
+
+    std::cout << "\nstation   : " << st.config.station_name;
+    std::cout << "\ndigitizer : " << q;
+    std::cout << "\nsensor    : " << s;
+    std::cout << "\nmass positions :\n";
+
+    for (auto const bp : bps) {
+        std::cout << "\n";
+        stream_bp(bp);
+    }
+
+    std::cout << std::endl << " ### now: "
+              << Time::sys_time_of_day() << " ###\n";
+    std::cout << "\n\nresult    : " << (success ? "centered" : "!! failure");
+    std::cout <<   "\ntolerance : " << tolerance;
 }
 
 // *** QUICK VIEW *** //
@@ -988,47 +1089,6 @@ void Comm::run<Action::start, Kind::link>(TA const & ta, OI const & oi) {
         auto const response = e300.send_recv(input);
         std::cout << response;
     }
-}
-// -------------------------------------------------------------------------- //
-template<>
-void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
-
-    // using sleep_until to discard the time streaming to cout
-    auto const start_time = std::chrono::system_clock::now();
-
-    std::chrono::seconds wait_seconds;
-
-    if (oi.option.find('&') != std::string::npos) {
-        wait_seconds = Utility::match_duration(oi.option);
-    } else {
-        wait_seconds = std::chrono::minutes(1);
-    }
-
-    std::cout << std::endl << wait_seconds << std::flush;
-
-    int const cols = Utility::get_terminal_cols() - 4;
-    auto const limit = static_cast<float>( wait_seconds.count() );
-
-    std::cout << std::endl << "[";
-
-    int pos = 0;
-    int new_pos;
-
-    for (std::chrono::seconds d(1); d <= wait_seconds; d++) {
-
-        // std::this_thread::sleep_until(now + d);
-        if ( Utility::cin_cancel(start_time + d) ) break;
-
-        float const progress = d.count() / limit;
-        new_pos = static_cast<int>(progress * cols);
-
-        if (new_pos > pos) {
-            std::cout << std::string(new_pos - pos, '=') << std::flush;
-            pos = new_pos;
-        }
-    }
-
-    std::cout << "]";
 }
 
 } // << mzn

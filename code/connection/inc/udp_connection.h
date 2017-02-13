@@ -42,7 +42,7 @@ namespace mzn {
         the message is received from."
 
     internet socket address
-    SockAddr defined with AddressInfoHandler same as linux sockaddr_in
+    SockAddr defined with AddressInfoHandler same as posix sockaddr_in
 
     IMPORTANT:
         Updates the socket address of the remote when a message

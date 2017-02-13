@@ -246,6 +246,40 @@ private:
         return sce;
     }
 
+    // ---------------------------------------------------------------------- //
+    template <typename Point>
+    Point boom_positions(Digitizer & q, Sensor const & s) {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.boom_positions(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxBoomPositions * bp =
+            dynamic_cast<CxBoomPositions *>( cmd_stat.inner_commands[0].get() );
+
+        if (bp == nullptr) throw FatalException("Comm",
+                                                "boom_positions",
+                                                "boom positions nullptr");
+
+        if (s.config.input == Sensor::Input::a) {
+
+            return Point { bp -> channel_1_boom(),
+                           bp -> channel_2_boom(),
+                           bp -> channel_3_boom() };
+        } else {
+
+            return Point { bp -> channel_4_boom(),
+                           bp -> channel_5_boom(),
+                           bp -> channel_6_boom() };
+        }
+    }
+
     /*
     // --------------------------------------------------------------------- //
     template <class Cs, Action action, Kind kind>

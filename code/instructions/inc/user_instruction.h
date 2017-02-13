@@ -140,7 +140,7 @@ struct OptionInput {
     OptionInput() = default;
     ~OptionInput() = default;
 
-    OptionInput(std::string const & option, bool const live) :
+    OptionInput(std::string const & option, bool const live = false) :
             option{option},
             live{live} {}
 };

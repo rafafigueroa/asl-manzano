@@ -138,7 +138,7 @@ uint32_t constexpr k_shift_seconds_1970_2000 =
 // as in january 1 is 1
 // ---------------------------------------------------------------------- //
 inline
-int julian_day(YearMonthDay const & ymd_data) {
+int julian_day( YearMonthDay const & ymd_data = sys_year_month_day() ) {
 
     auto ymd_start = date::year{ ymd_data.year() }/1/1;
 

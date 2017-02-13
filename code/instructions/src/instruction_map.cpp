@@ -94,6 +94,7 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
 
             case Action::auto_: return VK{Kind::cal,
                                           Kind::stat,
+                                          Kind::center,
                                           Kind::qview};
             default : return VK{};
         }

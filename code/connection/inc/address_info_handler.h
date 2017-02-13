@@ -33,10 +33,10 @@ struct Addr {
 //! sockaddr_in
 // -------------------------------------------------------------------------- //
 struct SockAddr {
-    int16_t  sin_family;
+    int16_t  sin_family = 0;
     uint16_t sin_port = 0;
     Addr     sin_addr;
-    char     sin_zero[8];
+    char     sin_zero[8] = {0};
 };
 
 //! timeval, with std::chrono::duration converting constructor for timeout

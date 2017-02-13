@@ -133,6 +133,9 @@ void MessageDispatch::send_recv(ConnectionHandler & q_port,
             if (retry + 1 != max_retry) {
                 continue; // try again
             } else {
+
+                std::cerr << e.what();
+
                 throw WarningException(
                     "MessageDispatch",
                     "send_recv",
