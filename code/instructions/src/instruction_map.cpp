@@ -156,6 +156,7 @@ InstructionMap::filter_options(Action const action, Kind const kind) {
             switch (kind) {
                 case Kind::stat: return VS{"boom"};
                 case Kind::qview: return VS{"&qview_duration"};
+                case Kind::center: return VS{"&pulse_duration"};
                 default: return VS{};
             }
         }

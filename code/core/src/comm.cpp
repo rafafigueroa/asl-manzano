@@ -825,9 +825,10 @@ void Comm::run<Action::auto_, Kind::center>(TA const & ta, OI const & oi) {
     OptionInput const oi_auto_stat("boom");
     // should match show wait (2m) and auto stat (2m)
     auto constexpr sleep_duration = std::chrono::minutes(4);
+    auto attempt = 0;
 
     // ---------------------------------------------------------------------- //
-    for (int i = 0; i < max_attempts; i++) {
+    for (attempt = 0; attempt < max_attempts; attempt++) {
 
         Point const bp = boom_positions<Point>(q, s);
         bps.push_back(bp);
@@ -836,14 +837,8 @@ void Comm::run<Action::auto_, Kind::center>(TA const & ta, OI const & oi) {
 
         auto const start_time = std::chrono::system_clock::now();
 
-        std::cout << std::endl << "## "
-                  << Time::sys_time_of_day(start_time) << " ## "
-                  << Time::sys_year_month_day(start_time) << " ## "
-                  << "julian( " << Time::julian_day() << ") ##\n";
-
         std::cout << "\ntolerance      : " << tolerance;
         std::cout << "\nmass positions : "; stream_bp(bp);
-
 
         // lets try to center this
         run<Action::start, Kind::center>(ta, oi);
@@ -860,20 +855,30 @@ void Comm::run<Action::auto_, Kind::center>(TA const & ta, OI const & oi) {
     // ---------------------------------------------------------------------- //
     auto const & st = sn.st[ta.st_child.index];
 
-    std::cout << "\nstation   : " << st.config.station_name;
-    std::cout << "\ndigitizer : " << q;
-    std::cout << "\nsensor    : " << s;
-    std::cout << "\nmass positions :\n";
+     std::cout << "\n---------------------------------------"
+               << "\n      *** auto center summary ***      "
+               << "\n---------------------------------------";
+
+    std::cout << "\nstation   : " << st.config.station_name
+              << "\ndigitizer : " << q
+              << "\nsensor    : " << s;
+
+
+    std::cout << "\n\nresult    : " << (success ? "centered" : "!! failure")
+              <<   "\nattempts  : " << attempt
+              <<   "\ntolerance : " << tolerance;
+
+    std::cout << "\n\nmass positions :";
 
     for (auto const bp : bps) {
         std::cout << "\n";
         stream_bp(bp);
     }
 
-    std::cout << std::endl << " ### now: "
-              << Time::sys_time_of_day() << " ###\n";
-    std::cout << "\n\nresult    : " << (success ? "centered" : "!! failure");
-    std::cout <<   "\ntolerance : " << tolerance;
+    std::cout << std::endl << "\n### "
+              << Time::sys_year_month_day() << " "
+              << "julian(" << Time::julian_day() << ") "
+              << Time::sys_time_of_day() << " ###";
 }
 
 // *** QUICK VIEW *** //

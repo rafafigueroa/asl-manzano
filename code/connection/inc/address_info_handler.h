@@ -119,7 +119,7 @@ class AddressInfoHandler {
 
     // the function getaddrinfo allocates memory for ai
     // the memory gets freed after use in setup_socket
-    bool debug_ = true;
+    bool debug_ = false;
 
 public:
 
