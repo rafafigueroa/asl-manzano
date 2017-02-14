@@ -158,7 +158,7 @@ template<typename M>
 void UdpConnection::send(M const & msg) {
 
     // send message
-    if (debug_) std::cout << "\nsending message\n";
+    if (debug_) std::cout << std::endl << "sending message\n";
 
     // sendto signature from linux man
     // ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
