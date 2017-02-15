@@ -15,7 +15,7 @@ CxGlobalStatus::CxGlobalStatus():
     total_number_of_re_syncs(),
     gps_status(),
     calibrator_status(),
-    sensor_control_bitmap(),
+    sensor_control_enable(),
     current_vco(),
     data_sequence_number(),
     pll_running(),
@@ -48,7 +48,7 @@ uint16_t CxGlobalStatus::msg_to_data(std::vector<uint8_t> const & msg,
     mf_begin = total_number_of_re_syncs.msg_to_data(msg, mf_begin);
     mf_begin = gps_status.msg_to_data(msg, mf_begin);
     mf_begin = calibrator_status.msg_to_data(msg, mf_begin);
-    mf_begin = sensor_control_bitmap.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_enable.msg_to_data(msg, mf_begin);
     mf_begin = current_vco.msg_to_data(msg, mf_begin);
     mf_begin = data_sequence_number.msg_to_data(msg, mf_begin);
     mf_begin = pll_running.msg_to_data(msg, mf_begin);
@@ -84,7 +84,7 @@ uint16_t CxGlobalStatus::data_to_msg(std::vector<uint8_t> & msg,
     mf_begin = total_number_of_re_syncs.data_to_msg(msg, mf_begin);
     mf_begin = gps_status.data_to_msg(msg, mf_begin);
     mf_begin = calibrator_status.data_to_msg(msg, mf_begin);
-    mf_begin = sensor_control_bitmap.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_enable.data_to_msg(msg, mf_begin);
     mf_begin = current_vco.data_to_msg(msg, mf_begin);
     mf_begin = data_sequence_number.data_to_msg(msg, mf_begin);
     mf_begin = pll_running.data_to_msg(msg, mf_begin);
@@ -122,7 +122,7 @@ std::ostream & CxGlobalStatus::os_print(std::ostream & cmd_os) const {
 
     cmd_os << "\ncalibrator_status: "; cmd_os << calibrator_status;
 
-    cmd_os << "\nsensor_control_bitmap: "; cmd_os << sensor_control_bitmap;
+    cmd_os << "\nsensor_control_enable: "; cmd_os << sensor_control_enable;
 
     cmd_os << "\ncurrent_vco: "; cmd_os << current_vco;
 

@@ -45,7 +45,6 @@ private:
         std::string uptime;
     };
 
-
 public:
     //! constructor
     DataProcessor(std::string const in_user,
@@ -61,13 +60,12 @@ public:
     //! time that this dp has been without rebooting
     std::string uptime();
 
-    friend std::ostream & operator<<(std::ostream & os,
-                                     Config const & c);
-
-    friend std::ostream & operator<<(std::ostream & os,
-                                     Status const & c);
+    // ---------------------------------------------------------------------- //
+    void stream_config(std::ostream & os) const;
+    void stream_status(std::ostream & os) const;
 };
 
+// -------------------------------------------------------------------------- //
 inline
 std::ostream & operator<<(std::ostream & dp_os,
                           DataProcessor const & dp) {
@@ -75,23 +73,6 @@ std::ostream & operator<<(std::ostream & dp_os,
     dp_os << "data_processor(" << dp.config.ip << ")";
     return dp_os;
 };
-
-inline
-std::ostream & operator<<(std::ostream & os,
-                          DataProcessor::Config const & c) {
-
-    os << "\n    ip: " << c.ip;
-    return os;
-}
-
-
-inline
-std::ostream & operator<<(std::ostream & os,
-                          DataProcessor::Status const & c) {
-
-    os << "\n    uptime : " << c.uptime;
-    return os;
-}
 
 } // end namespace
 #endif // _MZN_DATAPROCESSOR_H_

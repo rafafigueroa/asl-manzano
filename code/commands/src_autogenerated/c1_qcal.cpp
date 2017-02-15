@@ -10,7 +10,7 @@ C1Qcal::C1Qcal():
     settling_time(),
     calibration_bitmap(),
     trailer_time(),
-    sensor_control_bitmap(),
+    sensor_control_enable(),
     monitor_channel_bitmap(),
     frequency_divider(),
     spare_0(),
@@ -36,7 +36,7 @@ uint16_t C1Qcal::msg_to_data(std::vector<uint8_t> const & msg,
     mf_begin = settling_time.msg_to_data(msg, mf_begin);
     mf_begin = calibration_bitmap.msg_to_data(msg, mf_begin);
     mf_begin = trailer_time.msg_to_data(msg, mf_begin);
-    mf_begin = sensor_control_bitmap.msg_to_data(msg, mf_begin);
+    mf_begin = sensor_control_enable.msg_to_data(msg, mf_begin);
     mf_begin = monitor_channel_bitmap.msg_to_data(msg, mf_begin);
     mf_begin = frequency_divider.msg_to_data(msg, mf_begin);
     mf_begin = mf_begin + 2; // ignore type
@@ -65,7 +65,7 @@ uint16_t C1Qcal::data_to_msg(std::vector<uint8_t> & msg,
     mf_begin = settling_time.data_to_msg(msg, mf_begin);
     mf_begin = calibration_bitmap.data_to_msg(msg, mf_begin);
     mf_begin = trailer_time.data_to_msg(msg, mf_begin);
-    mf_begin = sensor_control_bitmap.data_to_msg(msg, mf_begin);
+    mf_begin = sensor_control_enable.data_to_msg(msg, mf_begin);
     mf_begin = monitor_channel_bitmap.data_to_msg(msg, mf_begin);
     mf_begin = frequency_divider.data_to_msg(msg, mf_begin);
     mf_begin = mf_begin + 2; // ignore type
@@ -91,7 +91,7 @@ std::ostream & C1Qcal::os_print(std::ostream & cmd_os) const {
 
     cmd_os << "\ntrailer_time: "; cmd_os << trailer_time;
 
-    cmd_os << "\nsensor_control_bitmap: "; cmd_os << sensor_control_bitmap;
+    cmd_os << "\nsensor_control_enable: "; cmd_os << sensor_control_enable;
 
     cmd_os << "\nmonitor_channel_bitmap: "; cmd_os << monitor_channel_bitmap;
 

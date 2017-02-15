@@ -38,16 +38,17 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
 
     using VK = std::vector<Kind>;
 
-    if (action == Action::edit) return VK{Kind::target,
-                                          Kind::plan};
+    if (action == Action::edit) return VK{Kind::target};
 
     if (action == Action::show) return VK{Kind::target,
                                           Kind::command,
                                           Kind::config,
-                                          Kind::plan,
+                                          Kind::wait,
                                           Kind::status};
 
-    if ( ta.scope_is_q() ) {
+    auto const scope = ta.scope();
+
+    if (scope == Scope::digitizer) {
 
         switch (action) {
 
@@ -58,11 +59,11 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
             case Action::get:
 
                 return VK{Kind::poll,
-                          Kind::qview,
-                          Kind::ctrl,
+                          Kind::output,
                           Kind::center,
                           Kind::global,
                           Kind::ping,
+                          Kind::reg,
                           Kind::dev,
                           Kind::stat};
 
@@ -82,103 +83,24 @@ InstructionMap::filter_kinds(TargetAddress const & ta, Action const action) {
         }
     }
 
-    if ( ta.scope_is_s() ) {
+    if (scope == Scope::sensor) {
 
         switch (action) {
             case Action::set: return VK{Kind::center};
-            case Action::start: return VK{Kind::cal, Kind::pulse};
-            case Action::auto_: return VK{Kind::cal, Kind::stat};
+
+            case Action::start: return VK{Kind::cal,
+                                          Kind::center,
+                                          Kind::link};
+
+            case Action::auto_: return VK{Kind::cal,
+                                          Kind::stat,
+                                          Kind::center,
+                                          Kind::qview};
             default : return VK{};
         }
     }
 
-    if ( ta.scope_is_dp() ) {
-        if (action == Action::get) return VK{Kind::uptime};
-    }
-
-    return VK{};
-}
-
-// -------------------------------------------------------------------------- //
-std::vector<Action>
-InstructionMap::filter_actions_gui(TargetAddress const & ta) {
-
-    using VA = std::vector<Action>;
-
-    Scope scope = ta.scope();
-
-    switch (scope) {
-        case Scope::digitizer:
-            return VA{Action::get,
-                      Action::set,
-                      Action::start,
-                      Action::stop};
-
-        case Scope::sensor:
-            return VA{Action::get,
-                      Action::set,
-                      Action::start,
-                      Action::plan};
-
-        case Scope::data_processor:
-            return VA{Action::get};
-
-        default : return VA{};
-    }
-}
-
-// -------------------------------------------------------------------------- //
-std::vector<Kind>
-InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) {
-
-    using VK = std::vector<Kind>;
-
-    if ( ta.scope_is_q() ) {
-
-        switch (action) {
-
-            case Action::get:
-
-                return VK{Kind::poll,
-                          Kind::ping,
-                          Kind::center,
-                          Kind::ctrl,
-                          Kind::global,
-                          Kind::dev,
-                          Kind::stat};
-
-            case Action::set:
-
-                return VK{Kind::ctrl,
-                          Kind::reg,
-                          Kind::dereg};
-
-            case Action::start:
-
-                 return VK{Kind::qview};
-
-            case Action::stop:
-
-                return VK{Kind::cal};
-
-            default :
-
-                return VK{};
-        }
-    }
-
-    if ( ta.scope_is_s() ) {
-
-        switch (action) {
-            case Action::get: return VK{Kind::center};
-            case Action::set: return VK{Kind::center};
-            case Action::start: return VK{Kind::cal, Kind::pulse};
-            case Action::plan: return VK{Kind::cal};
-            default : return VK{};
-        }
-    }
-
-    if ( ta.scope_is_dp() ) {
+    if (scope == Scope::data_processor) {
         if (action == Action::get) return VK{Kind::uptime};
     }
 
@@ -187,12 +109,19 @@ InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) 
 
 // -------------------------------------------------------------------------- //
 std::vector<std::string>
-InstructionMap::filter_options(Action const action,
-                                        Kind const kind) {
+InstructionMap::filter_options(Action const action, Kind const kind) {
 
     using VS = std::vector<std::string>;
 
     switch (action) {
+
+        case Action::show: {
+
+            switch (kind) {
+                case Kind::wait: return VS{"&wait_duration"};
+                default: return VS{};
+            }
+        }
 
         case Action::get: {
 
@@ -217,6 +146,7 @@ InstructionMap::filter_options(Action const action,
             switch (kind) {
                 case Kind::cal: return VS{"sine", "step",
                                           "longsine", "longstep"};
+                case Kind::center: return VS{"&pulse_duration"};
                 default: return VS{};
             }
         }
@@ -225,6 +155,8 @@ InstructionMap::filter_options(Action const action,
 
             switch (kind) {
                 case Kind::stat: return VS{"boom"};
+                case Kind::qview: return VS{"&qview_duration"};
+                case Kind::center: return VS{"&pulse_duration"};
                 default: return VS{};
             }
         }
@@ -241,6 +173,87 @@ bool InstructionMap::has_empty_option(Action const action, Kind const kind) {
     if (action == Action::auto_  and kind == Kind::stat)   return false;
 
     return true;
+}
+
+
+// -------------------------------------------------------------------------- //
+std::vector<Action>
+InstructionMap::filter_actions_gui(TargetAddress const & ta) {
+
+    using VA = std::vector<Action>;
+
+    Scope scope = ta.scope();
+
+    switch (scope) {
+        case Scope::digitizer:
+            return VA{Action::get,
+                      Action::set,
+                      Action::start,
+                      Action::stop};
+
+        case Scope::sensor:
+            return VA{Action::get,
+                      Action::set,
+                      Action::start};
+
+        case Scope::data_processor:
+            return VA{Action::get};
+
+        default : return VA{};
+    }
+}
+
+// -------------------------------------------------------------------------- //
+std::vector<Kind>
+InstructionMap::filter_kinds_gui(TargetAddress const & ta, Action const action) {
+
+    using VK = std::vector<Kind>;
+
+    if ( ta.scope_is_q() ) {
+
+        switch (action) {
+
+            case Action::get:
+
+                return VK{Kind::poll,
+                          Kind::ping,
+                          Kind::center,
+                          Kind::output,
+                          Kind::global,
+                          Kind::dev,
+                          Kind::stat};
+
+            case Action::set:
+
+                return VK{Kind::ctrl,
+                          Kind::reg,
+                          Kind::dereg};
+
+            case Action::stop:
+
+                return VK{Kind::cal};
+
+            default :
+
+                return VK{};
+        }
+    }
+
+    if ( ta.scope_is_s() ) {
+
+        switch (action) {
+            case Action::get: return VK{Kind::center};
+            case Action::set: return VK{Kind::center};
+            case Action::start: return VK{Kind::cal, Kind::pulse};
+            default : return VK{};
+        }
+    }
+
+    if ( ta.scope_is_dp() ) {
+        if (action == Action::get) return VK{Kind::uptime};
+    }
+
+    return VK{};
 }
 
 } // <- mzn

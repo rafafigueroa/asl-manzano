@@ -40,9 +40,6 @@ private:
         std::string const model;
     };
 
-    struct Status {
-    };
-
 public:
     //! currently using port_config due to current mzn functionality
     //! the configuration with data/control works if mzn needs data directly
@@ -51,9 +48,7 @@ public:
               ConnectionHandler port_config) :
 
     port_config( std::move(port_config) ),
-
-    config(serial_number),
-    status() {}
+    config(serial_number) {}
 
     ~Digitizer() = default;
 
@@ -65,23 +60,17 @@ public:
     std::vector<Sensor> s;
     //! configuration set at construction
     Config const config;
-    //! current status
-    Status status;
 
     // move constructor
     // ---------------------------------------------------------------------- //
     Digitizer(Digitizer && rhs) noexcept :
             port_config(  std::move(rhs.port_config) ),
             s( std::move(rhs.s) ),
-            config(rhs.config),
-            status(rhs.status) {}
+            config(rhs.config) {}
 
     // ---------------------------------------------------------------------- //
-    friend
-    std::ostream & operator<<(std::ostream & os, Config const & c);
-
-    friend
-    std::ostream & operator<<(std::ostream & os, Status const & c);
+    void stream_config(std::ostream & os) const;
+    void stream_status(std::ostream & os) const;
 };
 
 // -------------------------------------------------------------------------- //
@@ -94,23 +83,6 @@ std::ostream & operator<<(std::ostream & q_os, Digitizer const & q) {
          <<  std::dec << std::nouppercase
          << ")";
     return q_os;
-};
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Digitizer::Config const & c) {
-
-    os << "\n    " << "serial  : " << c.serial_number
-       << "\n    " << "model   : " << c.model;
-    return os;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Digitizer::Status const & s) {
-    return os;
 }
 
 } // end mzn

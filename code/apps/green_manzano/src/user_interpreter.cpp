@@ -48,7 +48,10 @@ Kind UserInterpreter::match_kind(std::string const & token) {
     if (token == "pulse")   return Kind::pulse;
     if (token == "uptime")  return Kind::uptime;
     if (token == "plan")    return Kind::plan;
+    if (token == "link")    return Kind::link;
+    if (token == "wait")    return Kind::wait;
     if (token == "dev")     return Kind::dev;
+    if (token == "output")  return Kind::output;
 
     // no kind found for that token
     //TODO: use InstructionMap
@@ -56,7 +59,7 @@ Kind UserInterpreter::match_kind(std::string const & token) {
     error_msg << "mismatch in kind token \'" << token << "\' \n"
               << "\nkinds: "
               << "\ntarget config status command poll global ping stat qview dev"
-              << "\nctrl reg dereg center cal pulse  plan";
+              << "\nctrl reg dereg center cal pulse plan output";
 
     throw WarningException("UserInterpreter",
                            "match_kind",
@@ -93,7 +96,7 @@ Scope UserInterpreter::match_scope(std::string const & token,
         error_msg << "mismatch in token \'" << token << "\' \n";
 
         if (token.size() > 1) {
-            error_msg << "at:" << underline_error(token, token_index);
+            error_msg << "at:" << Utility::underline_error(token, token_index);
         }
 
         error_msg << "\noptions: "
@@ -130,7 +133,7 @@ UserInterpreter::match_target_address(std::string const & token) {
         Target target;
 
         target.scope = match_scope(token, token_index);
-        target.index = match_positive_number(token, token_index);
+        target.index = Utility::match_positive_number(token, token_index);
 
         ta.add_target(target);
     }
@@ -199,8 +202,7 @@ void UserInterpreter::run_user_input(std::string & user_input) {
 // -------------------------------------------------------------------------- //
 void UserInterpreter::user_input_loop(std::string const & qrun_fname) {
 
-
-    auto const runtime_config_path = get_runtime_config_path();
+    auto const runtime_config_path = Utility::get_runtime_config_path();
     std::string const qrun_path = runtime_config_path + "/" + qrun_fname;
 
     std::ifstream qrun_fs(qrun_path);
@@ -254,6 +256,8 @@ void UserInterpreter::user_input_loop() {
         instruction_interpreter.show_prompt();
 
         getline(std::cin, user_input);
+
+        std::cout << std::flush << "### " << Time::sys_time_of_day() << " ###";
 
         try {
 

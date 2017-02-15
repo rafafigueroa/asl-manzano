@@ -80,7 +80,7 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     } else if (option == "sine") {
 
         cmd.waveform.waveform(BmCalWaveform::Waveform::sine);
-        cmd.amplitude(-30);
+        cmd.amplitude(-6);
         cmd.settling_time( Minutes(2) );
         cmd.cal_duration( Minutes(2) );
         cmd.trailer_time( Minutes(1) );
@@ -96,8 +96,8 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     } else if (option == "longsine") {
 
         cmd.waveform.waveform(BmCalWaveform::Waveform::sine);
-        cmd.amplitude(-30);
-        cmd.settling_time( Minutes(5) );
+        cmd.amplitude(-6);
+        cmd.settling_time( Minutes(2) );
         cmd.cal_duration( Minutes(10) );
         cmd.trailer_time( Minutes(5) );
 
@@ -111,11 +111,9 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
     // sensor calibration channel first
     if (s.config.input == Sensor::Input::a) {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::a);
-        cmd.sensor_control_bitmap.calen_a(true);
-        cmd.monitor_channel_bitmap.channel_4(true);
+        cmd.monitor_channel_bitmap.channel_5(true);
     } else {
         cmd.calibration_bitmap.input(BmCalibrationBitmap::Input::b);
-        cmd.sensor_control_bitmap.calen_b(true);
         cmd.monitor_channel_bitmap.channel_2(true);
     }
 
@@ -127,6 +125,11 @@ get_default_cmd<Action::start, Kind::cal>(TargetAddress const & ta,
         coupling_bytes {{'r','e','s','i','s','t','i','v','e'}};
 
     cmd.coupling_bytes(coupling_bytes);
+
+    cmd.starting_time( std::chrono::system_clock::now() + cmd.settling_time() );
+
+    //! Important: sensor control enable missing
+    //! done in Comm::run, needs to check curreng digitizer configuration
 
     return cmd;
 }

@@ -42,7 +42,7 @@ namespace mzn {
         the message is received from."
 
     internet socket address
-    SockAddr defined with AddressInfoHandler same as linux sockaddr_in
+    SockAddr defined with AddressInfoHandler same as posix sockaddr_in
 
     IMPORTANT:
         Updates the socket address of the remote when a message
@@ -158,7 +158,7 @@ template<typename M>
 void UdpConnection::send(M const & msg) {
 
     // send message
-    if (debug_) std::cout << "\nsending message\n";
+    if (debug_) std::cout << std::endl << "sending message\n";
 
     // sendto signature from linux man
     // ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,

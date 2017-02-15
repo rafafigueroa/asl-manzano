@@ -65,22 +65,11 @@ public:
     Sensor & s_ref(TargetAddress const & ta);
     Station & st_ref(TargetAddress const & ta);
     DataProcessor & dp_ref(TargetAddress const & ta) ;
+
+    // ---------------------------------------------------------------------- //
+    void stream_config(std::ostream & os) const;
+    void stream_status(std::ostream & os) const;
 };
-
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          SeismicNetwork::Config const & config) {
-    return os;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          SeismicNetwork::Status const & status) {
-    return os;
-}
 
 } // << mzn
 #endif // _MZN_SEISMIC_NETWORK_H_

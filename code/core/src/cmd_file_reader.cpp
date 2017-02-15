@@ -22,7 +22,7 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
 
     std::ifstream cals_fs;
 
-    auto const runtime_config_path = get_runtime_config_path();
+    auto const runtime_config_path = Utility::get_runtime_config_path();
     std::string const cal_sequences_path{"/cal_sequences.json"};
 
     cals_fs.open(runtime_config_path + cal_sequences_path);
@@ -70,24 +70,25 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
 
         // ------------- CALIBRATION CHANNEL -------------------- //
         // ------------- MONITOR CHANNEL -------------------- //
-
         // monitor channel is being defaulted (for autocals)
         // to the middle channel of the other input
         if (s.config.input == Sensor::Input::a) {
 
             cal.calibration_bitmap.input(BmCalibrationBitmap::Input::a);
-            cal.sensor_control_bitmap.calen_a(true);
+            // TODO: I need the current SCM
+            // cal.sensor_control_enable.;
             cal.monitor_channel_bitmap.channel_5(true);
 
         } else if (s.config.input == Sensor::Input::b)  {
 
             cal.calibration_bitmap.input(BmCalibrationBitmap::Input::b);
-            cal.sensor_control_bitmap.calen_b(true);
+            // TODO: I need the current SCM
+            // cal.sensor_control_map.lines(SCML::sensor_b_calibration);
             cal.monitor_channel_bitmap.channel_2(true);
         }
 
-        // ------------- WAVEFORM -------------------- //
 
+        // ------------- WAVEFORM -------------------- //
         std::string const waveform_json = sensor_cals_json[i]["wave_form"];
 
         // in this case, no match = sine, since Waveform::sine = 0
@@ -115,9 +116,7 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
         cal.amplitude(amplitude_json);
 
         // ------------- DURATIONS -------------------- //
-        auto duration_in_seconds = [](unsigned int h,
-                                      unsigned int m) {
-
+        auto duration_in_seconds = [](unsigned int h, unsigned int m) {
             return std::chrono::seconds(h*3600 + m*60);
         };
 
@@ -172,6 +171,8 @@ CmdFileReader::construct_cmds(TargetAddress const & ta) {
             { {'r','e','s','i','s','t','i','v','e'} };
 
         cal.coupling_bytes(coupling_bytes);
+
+        // Important: sensor control enable is being done in Comm::run
 
         // add to vector of calibrations
         cmds.push_back(cal);

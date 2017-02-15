@@ -23,6 +23,7 @@ set(SOURCES_core ${SOURCES_md5}
                  ${DIR_CORE}/src/cmd_file_reader.cpp
                  ${DIR_CORE}/src/comm.cpp
                  ${DIR_CORE}/src/stream_output.cpp
+                 ${DIR_CORE}/src/stream_plotter.cpp
                  ${DIR_CORE}/src/ui_to_cmd_type.cpp
                  ${DIR_CORE}/src/input_store.cpp
                  ${DIR_CORE}/src/output_store.cpp

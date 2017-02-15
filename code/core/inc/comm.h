@@ -16,7 +16,10 @@
 #include "output_store.h"
 #include "input_store.h"
 #include "stream_output.h"
+#include "stream_plotter.h"
 #include "message_dispatch.h"
+#include "string_utilities.h"
+#include "system_calls.h"
 
 // external libraries
 #include "md5.h" // jason holland's (usgs) md5 library
@@ -59,6 +62,8 @@ public:
     //! streams output to console
     StreamOutput stream_output;
 
+    //! holds this computer ip as seen by digitizer registrations
+    std::atomic<uint32_t> ip_address_number;
 
 private:
 
@@ -85,6 +90,7 @@ public:
     }
 
 private:
+
     //! for use with a q. send a requests, gets a response
     //! @see Digitizer (q)
     // --------------------------------------------------------------------- //
@@ -110,6 +116,168 @@ private:
         // Co needs to be move_constructible
         output_store.cmd_map[task_id] =
             std::make_unique<Co>( std::move(cmd_output) );
+    }
+
+
+    // --------------------------------------------------------------------- //
+    bool q_is_reg(Digitizer & q) {
+        C2Regresp cmd_regresp;
+        return q_is_reg(q, cmd_regresp);
+    }
+
+    // --------------------------------------------------------------------- //
+    bool q_is_reg(Digitizer & q, C2Regresp & cmd_regresp) {
+
+        if (ip_address_number == 0) {
+            cmd_regresp.registered(false);
+            return false;
+        }
+
+        C2Regchk cmd_regchk;
+        cmd_regchk.ip_address(ip_address_number);
+
+        // turns out you can't ask if registered after de-registering
+        // maybe because it had a specific purpose related to the balers
+        // it should be used internally sparingly, in auto_ instructions only
+        // when it doesn't work, the digitizer sends a C1Cerr message which
+        // provides the same function, although using error handling
+
+        try {
+
+            md.send_recv(q.port_config, cmd_regchk, cmd_regresp, false);
+
+        } catch (WarningException const & e) {
+
+            std::string const e_msg = e.what();
+
+            if (e_msg.find("you_are_not_registered") != std::string::npos) {
+                // C1Cerr with you_are_not_registered code
+                cmd_regresp.registered(false);
+                q.port_config.registered = false;
+                return false;
+
+            } else throw e;
+        }
+
+        auto const reg_status = cmd_regresp.registered();
+        q.port_config.registered = reg_status;
+        return reg_status;
+    }
+
+    // --------------------------------------------------------------------- //
+    uint32_t q_current_seq_number(Digitizer & q) {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.global_status(true);
+        // status
+        C1Stat cmd_stat; // Status
+
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        CxGlobalStatus * gs =
+            dynamic_cast<CxGlobalStatus *>( cmd_stat.inner_commands[0].get() );
+
+        if (gs == nullptr) throw FatalException("Comm",
+                                                "q_current_seq_number",
+                                                "gs nullptr");
+
+        return gs -> current_data_sequence_number();
+    }
+
+    //! These two functions can be generalized for any of the 14 output
+    //! definitions. cal/center are currently used. In general, more than
+    //! one output can be set in the sce, but this is not needed or tested.
+    // --------------------------------------------------------------------- //
+    BmSensorControlEnable sensor_control_cal(Digitizer & q,
+                                             Sensor const & s) {
+        // sensor_control_map, C1Rqsc , C1Sc
+        C1Rqsc cmd_rqsc;
+        C1Sc cmd_sc;
+        md.send_recv(q.port_config, cmd_rqsc, cmd_sc, false);
+
+        auto const sco = (s.config.input == Sensor::Input::a) ?
+                         BmSensorControlOutput::Line::sensor_a_calibration :
+                         BmSensorControlOutput::Line::sensor_b_calibration;
+
+        BmSensorControlEnable sce;
+
+        if (cmd_sc.sensor_output_1.line() == sco) sce.output_1(true); else
+        if (cmd_sc.sensor_output_2.line() == sco) sce.output_2(true); else
+        if (cmd_sc.sensor_output_3.line() == sco) sce.output_3(true); else
+        if (cmd_sc.sensor_output_4.line() == sco) sce.output_4(true); else
+        if (cmd_sc.sensor_output_5.line() == sco) sce.output_5(true); else
+        if (cmd_sc.sensor_output_6.line() == sco) sce.output_6(true); else
+        if (cmd_sc.sensor_output_7.line() == sco) sce.output_7(true); else
+        if (cmd_sc.sensor_output_8.line() == sco) sce.output_8(true); else
+        throw WarningException("Comm",
+                               "sensor_control_cal",
+                               "No sensor control configured for calibration");
+
+        return sce;
+    }
+
+    // --------------------------------------------------------------------- //
+    BmSensorControlEnable sensor_control_center(Digitizer & q,
+                                                Sensor const & s) {
+        // sensor_control_map, C1Rqsc , C1Sc
+        C1Rqsc cmd_rqsc;
+        C1Sc cmd_sc;
+        md.send_recv(q.port_config, cmd_rqsc, cmd_sc, false);
+
+        auto const sco = (s.config.input == Sensor::Input::a) ?
+                         BmSensorControlOutput::Line::sensor_a_centering :
+                         BmSensorControlOutput::Line::sensor_b_centering;
+
+        BmSensorControlEnable sce;
+
+        if (cmd_sc.sensor_output_1.line() == sco) sce.output_1(true); else
+        if (cmd_sc.sensor_output_2.line() == sco) sce.output_2(true); else
+        if (cmd_sc.sensor_output_3.line() == sco) sce.output_3(true); else
+        if (cmd_sc.sensor_output_4.line() == sco) sce.output_4(true); else
+        if (cmd_sc.sensor_output_5.line() == sco) sce.output_5(true); else
+        if (cmd_sc.sensor_output_6.line() == sco) sce.output_6(true); else
+        if (cmd_sc.sensor_output_7.line() == sco) sce.output_7(true); else
+        if (cmd_sc.sensor_output_8.line() == sco) sce.output_8(true); else
+        throw WarningException("Comm",
+                               "sensor_control_center",
+                               "No sensor control configured for centering");
+
+        return sce;
+    }
+
+    // ---------------------------------------------------------------------- //
+    template <typename Point>
+    Point boom_positions(Digitizer & q, Sensor const & s) {
+
+        // request status
+        C1Rqstat cmd_rqstat;
+        cmd_rqstat.request_bitmap.boom_positions(true);
+        // status
+        C1Stat cmd_stat;
+
+        // needs to be registered
+        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
+
+        // get global status
+        CxBoomPositions * bp =
+            dynamic_cast<CxBoomPositions *>( cmd_stat.inner_commands[0].get() );
+
+        if (bp == nullptr) throw FatalException("Comm",
+                                                "boom_positions",
+                                                "boom positions nullptr");
+
+        if (s.config.input == Sensor::Input::a) {
+
+            return Point { bp -> channel_1_boom(),
+                           bp -> channel_2_boom(),
+                           bp -> channel_3_boom() };
+        } else {
+
+            return Point { bp -> channel_4_boom(),
+                           bp -> channel_5_boom(),
+                           bp -> channel_6_boom() };
+        }
     }
 
     /*

@@ -61,7 +61,7 @@ void MceCli::user_input_loop() {
 
             //! stream raw json format
             if (user_input == "raw") {
-                auto const json = json_from_ta(sn, ta_);
+                auto const json = Utility::json_from_ta(sn, ta_);
                 std::cout << json.dump(4) << std::endl;
                 continue;
             }
@@ -141,7 +141,7 @@ void MceCli::save_to_config_file(SeismicNetwork const & sn) const {
                    std::ofstream::out | std::ofstream::trunc);
 
     std::cout << std::endl << "saving to file\n";
-    auto const json = json_from_ta(sn, TargetAddress{});
+    auto const json = Utility::json_from_ta(sn, TargetAddress{});
     config_fs << json.dump(4) << std::endl;
 }
 
@@ -149,7 +149,7 @@ void MceCli::save_to_config_file(SeismicNetwork const & sn) const {
 void MceCli::create_empty_config_file() {
 
     // use home as default
-    auto const home_path = get_environmental_variable("HOME");
+    auto const home_path = Utility::get_environmental_variable("HOME");
     config_home_path = home_path + std::string("/.config/manzano");
 
     std::cout << std::endl << "config path: " << config_home_path;
@@ -171,10 +171,10 @@ void MceCli::add_to_config(SeismicNetwork & sn,
 
     auto child_scope = UserInterpreter::match_scope(user_input, scope_pos);
     std::cout <<  "\nAdding a " << child_scope << " to " << ta << "\n";
-    auto child_json = json_add_child_from_ta(sn, ta, child_scope);
+    auto child_json = Utility::json_add_child_from_ta(sn, ta, child_scope);
     std::cout << std::endl << child_json.dump(4);
 
-    auto const confirm = ask_yes("Looks good");
+    auto const confirm = Utility::ask_yes("Looks good");
     if (not confirm) {std::cout << "OK, no changes"; return;}
 
     TargetAddress child_ta;
@@ -185,7 +185,7 @@ void MceCli::add_to_config(SeismicNetwork & sn,
 
         case Scope::data_processor: {
             auto & st = sn.st_ref(ta);
-            st.dp.push_back( dp_from_json(child_json) );
+            st.dp.push_back( Utility::dp_from_json(child_json) );
             auto const child_index = st.dp.size() - 1;
             auto const child_target = Target(child_scope, child_index);
             child_ta.st_child = child_target;
@@ -194,7 +194,7 @@ void MceCli::add_to_config(SeismicNetwork & sn,
 
         case Scope::sensor: {
             auto & q = sn.q_ref(ta);
-            q.s.push_back( s_from_json(child_json) );
+            q.s.push_back( Utility::s_from_json(child_json) );
             auto const child_index = q.s.size() - 1;
             auto const child_target = Target(child_scope, child_index);
             child_ta.q_child = child_target;
@@ -203,7 +203,7 @@ void MceCli::add_to_config(SeismicNetwork & sn,
 
         case Scope::digitizer: {
             auto & st = sn.st_ref(ta);
-            st.q.push_back( q_from_json(child_json) );
+            st.q.push_back( Utility::q_from_json(child_json) );
             auto const child_index = st.q.size() - 1;
             auto const child_target = Target(child_scope, child_index);
             child_ta.st_child = child_target;
@@ -211,7 +211,7 @@ void MceCli::add_to_config(SeismicNetwork & sn,
         }
 
         case Scope::station: {
-            sn.st.push_back( st_from_json(child_json) );
+            sn.st.push_back( Utility::st_from_json(child_json) );
             auto const child_index = sn.st.size() - 1;
             auto const child_target = Target(child_scope, child_index);
             child_ta.sn_child = child_target;
@@ -236,10 +236,10 @@ void MceCli::remove_from_config(SeismicNetwork & sn,
     // confirm first
     auto const target = ta.target();
     std::cout <<  "\nRemoving " << target << " from " << ta << "\n";
-    auto json = json_from_ta(sn, ta);
+    auto json = Utility::json_from_ta(sn, ta);
     std::cout << std::endl << json.dump(4);
 
-    auto const confirm = ask_yes("Remove");
+    auto const confirm = Utility::ask_yes("Remove");
     if (not confirm) {std::cout << "OK, no changes"; return;}
 
     // since digitizers (and then stations) can't have copy/move assignment
@@ -306,7 +306,7 @@ void MceCli::change_config(SeismicNetwork & sn,
     // confirm first
     auto const target = ta.target();
     std::cout << "\nChanging " << target << " from " << ta << "\n";
-    auto original_json = json_from_ta(sn, ta);
+    auto original_json = Utility::json_from_ta(sn, ta);
 
     std::cout << "\n == JSON original ==";
     std::cout << std::endl << original_json.dump(4);
@@ -334,7 +334,7 @@ void MceCli::change_config(SeismicNetwork & sn,
     auto cancel_change = [](auto & json) {
         std::cout << "\n == JSON modified ==";
         std::cout << std::endl << json.dump(4);
-        auto const confirm = ask_yes("Change");
+        auto const confirm = Utility::ask_yes("Change");
         if (not confirm) std::cout << "OK, no changes";
         return not confirm;
     };
@@ -345,35 +345,35 @@ void MceCli::change_config(SeismicNetwork & sn,
 
         case Scope::data_processor: {
             auto & st = sn.st_ref(ta);
-            auto json = json_change_dp(original_json);
+            auto json = Utility::json_change_dp(original_json);
             if ( cancel_change(json) ) return;
-            auto dp = dp_from_json(json);
+            auto dp = Utility::dp_from_json(json);
             replace_without_assignment(st.dp, target.index, dp);
             break;
         }
 
         case Scope::sensor: {
             auto & q = sn.q_ref(ta);
-            auto json = json_change_s(original_json);
+            auto json = Utility::json_change_s(original_json);
             if ( cancel_change(json) ) return;
-            auto s = s_from_json(json);
+            auto s = Utility::s_from_json(json);
             replace_without_assignment(q.s, target.index, s);
             break;
         }
 
         case Scope::digitizer: {
             auto & st = sn.st_ref(ta);
-            auto json = json_change_q(original_json);
+            auto json = Utility::json_change_q(original_json);
             if ( cancel_change(json) ) return;
-            auto q = q_from_json(json);
+            auto q = Utility::q_from_json(json);
             replace_without_assignment(st.q, target.index, q);
             break;
         }
 
         case Scope::station: {
-            auto json = json_change_st(original_json);
+            auto json = Utility::json_change_st(original_json);
             if ( cancel_change(json) ) return;
-            auto st = st_from_json(json);
+            auto st = Utility::st_from_json(json);
             replace_without_assignment(sn.st, target.index, st);
             break;
         }

@@ -4,6 +4,7 @@
 #include "system_calls.h"
 #include "json.h"
 #include "json_sn.h"
+#include <algorithm>
 
 namespace mzn {
 
@@ -12,13 +13,13 @@ SeismicNetwork::SeismicNetwork() : st{} {
 
     try {
 
-        auto const runtime_config_path = get_runtime_config_path();
+        auto const runtime_config_path = Utility::get_runtime_config_path();
         std::string const file_path = runtime_config_path + "/config.json";
 
-        auto sn_json = read_json(file_path);
+        auto sn_json = Utility::read_json(file_path);
 
         for (auto const & st_json : sn_json["station"]) {
-            st.push_back( st_from_json(st_json) );
+            st.push_back( Utility::st_from_json(st_json) );
         }
 
     } catch(std::out_of_range const & e) {
@@ -118,6 +119,72 @@ Sensor & SeismicNetwork::s_ref(TargetAddress const & ta) {
     auto q_index = ta.st_child.index;
     auto s_index = ta.q_child.index;
     return st[st_index].q[q_index].s[s_index];
+}
+
+// -------------------------------------------------------------------------- //
+void SeismicNetwork::stream_config(std::ostream & os) const {
+
+    // copy st parts, don't modify st
+    struct StConfig {
+        std::string name;
+        int index;
+    };
+
+    std::vector<StConfig> stcs( st.size() );
+
+    for (int i = 0; i < st.size(); i++) {
+        stcs[i].name  = st[i].config.station_name;
+        stcs[i].index = i;
+    }
+
+    auto alpha_order = [](auto const & lhs, auto const & rhs) {
+        return lhs.name < rhs.name;
+    };
+
+    std::sort(stcs.begin(), stcs.end(), alpha_order);
+
+    for (auto const & stc : stcs) {
+        os << "\n " ;
+        os << std::setw(5) << std::left << std::setfill('_') << stc.name;
+        os << ":" << stc.index;
+    }
+}
+
+// -------------------------------------------------------------------------- //
+void SeismicNetwork::stream_status(std::ostream & os) const {
+
+    os << "stations (digitizer) registration status:";
+
+    // copy st parts, don't modify st
+    struct StConfig {
+        std::string name;
+        int index;
+        bool with_q_reg = false;
+    };
+
+    std::vector<StConfig> stcs( st.size() );
+
+    for (int i = 0; i < st.size(); i++) {
+        stcs[i].name  = st[i].config.station_name;
+        stcs[i].index = i;
+        for (auto const & q : st[i].q) {
+            if (q.port_config.registered) stcs[i].with_q_reg = true;
+        }
+    }
+
+    auto alpha_order = [](auto const & lhs, auto const & rhs) {
+        return lhs.name < rhs.name;
+    };
+
+    std::sort(stcs.begin(), stcs.end(), alpha_order);
+
+    for (auto const & stc : stcs) {
+        os << "\n " ;
+        os << std::setw(5) << std::left << std::setfill('_') << stc.name;
+        os << ":";
+        os << std::setw(3) << std::left << std::setfill(' ') << stc.index;
+        os << " reg status: " << std::boolalpha << stc.with_q_reg;
+    }
 }
 
 } // << mzn

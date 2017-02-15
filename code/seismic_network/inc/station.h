@@ -59,13 +59,12 @@ public:
             config(rhs.config),
             status(rhs.status) {}
 
-    friend
-    std::ostream & operator<<(std::ostream & os, Config const & c);
-
-    friend
-    std::ostream & operator<<(std::ostream & os, Status const & c);
+    // ---------------------------------------------------------------------- //
+    void stream_config(std::ostream & os) const;
+    void stream_status(std::ostream & os) const;
 };
 
+// -------------------------------------------------------------------------- //
 inline
 std::ostream & operator<<(std::ostream & st_os,
                           Station const & st) {
@@ -73,21 +72,6 @@ std::ostream & operator<<(std::ostream & st_os,
     st_os <<  st.config.station_name;
     return st_os;
 };
-
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Station::Config const & c) {
-
-    os << "\n    " << "name : " << c.station_name;
-    return os;
-}
-
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Station::Status const & c) {
-
-    return os;
-}
 
 } // << mzn
 #endif // _MZN_STATION_H_

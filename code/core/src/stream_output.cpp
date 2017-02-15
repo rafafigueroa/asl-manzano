@@ -152,13 +152,14 @@ void StreamOutput::show<Kind::config>(TargetAddress const & ta) const {
 
     auto scope = ta.scope();
 
+    using S = Scope;
     os << "\nConfig:\n";
     switch (scope) {
-        case Scope::seismic_network: os << sn_.config;                  break;
-        case Scope::station:         os << sn_.st_const_ref(ta).config; break;
-        case Scope::digitizer:       os << sn_.q_const_ref(ta).config;  break;
-        case Scope::data_processor:  os << sn_.dp_const_ref(ta).config; break;
-        case Scope::sensor:          os << sn_.s_const_ref(ta).config;  break;
+        case S::seismic_network: sn_.stream_config(os);                  break;
+        case S::digitizer:       sn_.q_const_ref(ta).stream_config(os);  break;
+        case S::station:         sn_.st_const_ref(ta).stream_config(os); break;
+        case S::data_processor:  sn_.dp_const_ref(ta).stream_config(os); break;
+        case S::sensor:          sn_.s_const_ref(ta).stream_config(os);  break;
 
         default: throw std::logic_error{"@StreamOutput::show_config"};
     }
@@ -170,13 +171,15 @@ void StreamOutput::show<Kind::status>(TargetAddress const & ta) const {
 
     auto scope = ta.scope();
 
+    using S = Scope;
     os << "\nStatus:\n";
+
     switch (scope) {
-        case Scope::seismic_network: os << sn_.status;                  break;
-        case Scope::station:         os << sn_.st_const_ref(ta).status; break;
-        case Scope::digitizer:       os << sn_.q_const_ref(ta).status;  break;
-        case Scope::data_processor:  os << sn_.dp_const_ref(ta).status; break;
-        case Scope::sensor:          os << sn_.s_const_ref(ta).status;  break;
+        case S::seismic_network: sn_.stream_status(os);                  break;
+        case S::digitizer:       sn_.q_const_ref(ta).stream_status(os);  break;
+        case S::station:         sn_.st_const_ref(ta).stream_status(os); break;
+        case S::data_processor:  sn_.dp_const_ref(ta).stream_status(os); break;
+        case S::sensor:          sn_.s_const_ref(ta).stream_status(os);  break;
 
         default: throw std::logic_error{"@StreamOutput::show_status"};
     }
@@ -380,11 +383,11 @@ void StreamOutput::show_prompt(TargetAddress const & ta) const {
 
     if (ta.sn_child.scope == Scope::station) {
 
-        os << std::endl
+        os << std::endl << "\n"
             << sn_.st[ta.sn_child.index] << ":" << ta << " » ";
 
     } else {
-        os << std::endl << ta << " » ";
+        os << std::endl << "\n" << ta << " » ";
     }
 }
 

@@ -88,7 +88,6 @@ public:
     using data_type = T;
 
     //! TODO: remove n from here? document where it is being used
-    std::size_t const n = N;
 
     //! used only in operator<<
     //! TODO: units should be done with template meta-programming
@@ -173,10 +172,10 @@ std::ostream & operator<<(std::ostream & cf_os,
 
 // C1_stat -> pll_running has 2 bytes, resulting in a 2 byte boolean cf
 // -------------------------------------------------------------------------- //
-template <>
+template <std::size_t osN>
 inline
 std::ostream & operator<<(std::ostream & cf_os,
-                          CmdField<bool> const & cf) {
+                          CmdField<bool, osN> const & cf) {
 
     cf_os << std::boolalpha << cf() << std::noboolalpha;
     return cf_os;

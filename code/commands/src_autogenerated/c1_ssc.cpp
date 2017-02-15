@@ -1,8 +1,8 @@
-#include "c1_sc.h"
+#include "c1_ssc.h"
 
 namespace mzn {
-C1Sc::C1Sc():
-    Command(0xAF, 32),
+C1Ssc::C1Ssc():
+    Command(0x2E, 32),
     sensor_output_1_ignore(),
     sensor_output_1_active_high(),
     sensor_output_1(),
@@ -28,12 +28,12 @@ C1Sc::C1Sc():
     sensor_output_8_active_high(),
     sensor_output_8() { }
 
-uint16_t C1Sc::msg_to_data(std::vector<uint8_t> const & msg,
-                           uint16_t mf_begin) {
+uint16_t C1Ssc::msg_to_data(std::vector<uint8_t> const & msg,
+                            uint16_t mf_begin) {
 
     if ( msg.size()  < cmd_data_size_ + mf_begin) {
         throw FatalException(
-            "C1Sc",
+            "C1Ssc",
             "msg_to_data",
             "msg size " + std::to_string( msg.size() )
             + ", mf_begin " + std::to_string(mf_begin)
@@ -69,12 +69,12 @@ uint16_t C1Sc::msg_to_data(std::vector<uint8_t> const & msg,
     return mf_begin;
 }
 
-uint16_t C1Sc::data_to_msg(std::vector<uint8_t> & msg,
-                           uint16_t mf_begin) const {
+uint16_t C1Ssc::data_to_msg(std::vector<uint8_t> & msg,
+                            uint16_t mf_begin) const {
 
     if ( msg.size()  < cmd_data_size_ + mf_begin) {
         throw FatalException(
-            "C1Sc",
+            "C1Ssc",
             "msg_to_data",
             "msg size: " + std::to_string( msg.size() )
             + ", mf_begin " + std::to_string(mf_begin)
@@ -110,8 +110,8 @@ uint16_t C1Sc::data_to_msg(std::vector<uint8_t> & msg,
     return mf_begin;
 }
 
-std::ostream & C1Sc::os_print(std::ostream & cmd_os) const {
-    cmd_os << "\n --- C1_SC ---  \n";
+std::ostream & C1Ssc::os_print(std::ostream & cmd_os) const {
+    cmd_os << "\n --- C1_SSC ---  \n";
 
     cmd_os << "\nsensor_output_1_active_high: "; cmd_os << sensor_output_1_active_high;
 

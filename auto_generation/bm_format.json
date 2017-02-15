@@ -363,15 +363,12 @@
 ,   "mf_size": 2, "bm_originator": "dp"
 },
 
-
- "bm_sensor_control_bitmap":{
+ "bm_sensor_control_output":{
     "bm_fields":[
 
-      {"bmf_name": "active_high", "bmf_bit": 8},
-      {"bmf_name": "sensor_control_mapping", "bmf_code_full_range": false,
-          "bmf_code_begin": 0, "bmf_code_mask": "0x7F",
+      {"bmf_name": "line", "bmf_code_full_range": true,
           "bmf_codes": [
-              {"bmf_code_name": "not_doing_calibration_or_recentering", "bmf_code": 0},
+              {"bmf_code_name": "idle", "bmf_code": 0},
               {"bmf_code_name": "sensor_a_calibration", "bmf_code": 1},
               {"bmf_code_name": "sensor_a_centering", "bmf_code": 2},
               {"bmf_code_name": "sensor_a_capacitive_coupling", "bmf_code": 3},
@@ -390,39 +387,23 @@
       }
 
     ]
-,    "mf_size": 4, "bm_originator": "q"
+,    "mf_size": 1, "bm_originator": "both"
 },
 
-
- "bm_stat_sensor_control_bitmap":{
+ "bm_sensor_control_enable":{
     "bm_fields":[
 
-      {"bmf_name": "active_high", "bmf_bit": 8},
-      {"bmf_name": "sensor_control_mapping", "bmf_code_full_range": false,
-          "bmf_code_begin": 0, "bmf_code_mask": "0x7F",
-          "bmf_codes": [
-              {"bmf_code_name": "not_doing_calibration_or_recentering", "bmf_code": 0},
-              {"bmf_code_name": "sensor_a_calibration", "bmf_code": 1},
-              {"bmf_code_name": "sensor_a_centering", "bmf_code": 2},
-              {"bmf_code_name": "sensor_a_capacitive_coupling", "bmf_code": 3},
-              {"bmf_code_name": "sensor_b_calibration", "bmf_code": 4},
-              {"bmf_code_name": "sensor_b_centering", "bmf_code": 5},
-              {"bmf_code_name": "sensor_b_capacitive_coupling", "bmf_code": 6},
-              {"bmf_code_name": "sensor_a_lock", "bmf_code": 7},
-              {"bmf_code_name": "sensor_a_unlock", "bmf_code": 8},
-              {"bmf_code_name": "sensor_a_aux_1", "bmf_code": 9},
-              {"bmf_code_name": "sensor_a_aux_2", "bmf_code": 10},
-              {"bmf_code_name": "sensor_b_lock", "bmf_code": 11},
-              {"bmf_code_name": "sensor_b_unlock", "bmf_code": 12},
-              {"bmf_code_name": "sensor_b_aux_1", "bmf_code": 13},
-              {"bmf_code_name": "sensor_b_aux_2", "bmf_code": 14}
-          ]
-      }
-
+      {"bmf_name": "output_1", "bmf_bit": 0},
+      {"bmf_name": "output_2", "bmf_bit": 1},
+      {"bmf_name": "output_3", "bmf_bit": 2},
+      {"bmf_name": "output_4", "bmf_bit": 3},
+      {"bmf_name": "output_5", "bmf_bit": 4},
+      {"bmf_name": "output_6", "bmf_bit": 5},
+      {"bmf_name": "output_7", "bmf_bit": 6},
+      {"bmf_name": "output_8", "bmf_bit": 7}
     ]
 ,    "mf_size": 2, "bm_originator": "both"
 },
-
 
  "bm_cal_sensor_control_bitmap":{
     "bm_fields":[

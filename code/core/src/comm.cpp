@@ -48,6 +48,7 @@ Comm::Comm() : sn{},
                output_store{},
                input_store{sn},
                stream_output{sn},
+               ip_address_number{0},
                msg_task_manager_{sn, md},
                cmd_file_reader_{sn} {}
 
@@ -92,9 +93,9 @@ void Comm::run<Action::get, Kind::center>(TA const & ta, OI const & oi) {
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::ctrl>(TA const & ta, OI const & oi) {
-    // sensor_control_mapping, C1Rqsc , C1Sc
-    q_send_recv<Action::get, Kind::ctrl>(ta, oi);
+void Comm::run<Action::get, Kind::output>(TA const & ta, OI const & oi) {
+    // sensor_control_map, C1Rqsc , C1Sc
+    q_send_recv<Action::get, Kind::output>(ta, oi);
 }
 
 // -------------------------------------------------------------------------- //
@@ -104,11 +105,45 @@ void Comm::run<Action::get, Kind::dev>(TA const & ta, OI const & oi) {
     q_send_recv<Action::get, Kind::dev>(ta, oi);
 }
 
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::stop, Kind::cal>(TA const & ta, OI const & oi) {
+
+    // C1Stop, C1Cack
+    q_send_recv<Action::stop, Kind::cal>(ta, oi);
+}
+
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::get, Kind::reg>(TA const & ta, OI const & oi) {
+
+    // get current reg status from q, C2Regchk, C2Regresp
+    auto & q = sn.q_ref(ta);
+
+    C2Regresp cmd_regresp;
+
+    q_is_reg(q, cmd_regresp);
+
+    std::cout << cmd_regresp;
+
+    // create task_id
+    auto constexpr ui_id = UserInstruction::hash(Action::get, Kind::reg);
+    auto const task_id = ta.hash() + ui_id;
+
+    // move to cmd store
+    output_store.cmd_map[task_id] =
+        std::make_unique<C2Regresp>( std::move(cmd_regresp) );
+}
+
 // *** CALIBRATIONS *** //
 // -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::start, Kind::cal>(TA const & ta, OI const & oi) {
 
+    auto constexpr action = Action::start;
+    auto constexpr kind = Kind::cal;
+
+    auto & q = sn.q_ref(ta);
     auto & s = sn.s_ref(ta);
 
     // --------- E300 registration ----------- //
@@ -118,28 +153,24 @@ void Comm::run<Action::start, Kind::cal>(TA const & ta, OI const & oi) {
         s.port_e300_ref().cal_connect();
     }
 
-    // qcal, C1Qcal, C1Cack, no default option
-    q_send_recv<Action::start, Kind::cal>(ta, oi);
-}
-// -------------------------------------------------------------------------- //
-template<>
-void Comm::run<Action::stop, Kind::cal>(TA const & ta, OI const & oi) {
+    // send and receive commands
+    auto cmd_input = input_store.get_input_cmd<action, kind>(ta, oi);
 
-    auto & q = sn.q_ref(ta);
+    auto const sce = sensor_control_cal(q, s);
+    cmd_input.sensor_control_enable = sce;
 
-    C1Rqglob cmd_send;
-    C1Glob cmd_recv;
-    md.send_recv(q.port_config, cmd_send, cmd_recv);
+    // empty (default constructed) cmd for receiving
+    using Co = typename Co<action, kind>::type;
+    Co cmd_output{};
 
-    /*
+    md.send_recv(q.port_config, cmd_input, cmd_output, true);
 
-    //TODO: does it receive ack?
-    auto & q = sn.q_ref(ta);
+    auto constexpr ui_id = UserInstruction::hash(action, kind);
+    auto const task_id = ta.hash() + ui_id;
 
-    C1Stop cmd_stop; // Calibration Stop
-    C1Cack cack;
-    md.send_recv(q.port_config, cmd_stop, cack);
-    */
+    // Co needs to be move_constructible
+    output_store.cmd_map[task_id] =
+        std::make_unique<Co>( std::move(cmd_output) );
 }
 
 // -------------------------------------------------------------------------- //
@@ -153,6 +184,48 @@ template<>
 void Comm::run<Action::show, Kind::plan>(TA const & ta, OI const & oi) {
 
     std::cout << std::endl << "show plan";
+}
+
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::show, Kind::wait>(TA const & ta, OI const & oi) {
+
+    // using sleep_until to discard the time streaming to cout
+    auto const start_time = std::chrono::system_clock::now();
+
+    std::chrono::seconds wait_seconds;
+
+    if (oi.option.find('&') != std::string::npos) {
+        wait_seconds = Utility::match_duration(oi.option);
+    } else {
+        wait_seconds = std::chrono::minutes(1);
+    }
+
+    std::cout << std::endl << wait_seconds << std::flush;
+
+    int const cols = Utility::get_terminal_cols() - 4;
+    auto const limit = static_cast<float>( wait_seconds.count() );
+
+    std::cout << std::endl << "[";
+
+    int pos = 0;
+    int new_pos;
+
+    for (std::chrono::seconds d(1); d <= wait_seconds; d++) {
+
+        // std::this_thread::sleep_until(now + d);
+        if ( Utility::cin_cancel(start_time + d) ) break;
+
+        float const progress = d.count() / limit;
+        new_pos = static_cast<int>(progress * cols);
+
+        if (new_pos > pos) {
+            std::cout << std::string(new_pos - pos, '=') << std::flush;
+            pos = new_pos;
+        }
+    }
+
+    std::cout << "]";
 }
 
 // -------------------------------------------------------------------------- //
@@ -203,6 +276,9 @@ void Comm::run<Action::set, Kind::reg>(TA const & ta, OI const & oi) {
 
         // dance
         md.send_recv(q.port_config, cmd_rqsrv, cmd_srvch, false);
+
+        // Store this computer ip_address_number, for future get reg checking
+        ip_address_number = cmd_srvch.server_ip_address();
 
         // DP Response to Q challenge
         C1Srvrsp cmd_srvrsp;
@@ -255,7 +331,6 @@ void Comm::run<Action::set, Kind::reg>(TA const & ta, OI const & oi) {
         // move to cmd store
         output_store.cmd_map[task_id] =
             std::make_unique<C1Cack>( std::move(cmd_cack) );
-
 
     } catch (Exception const & e) {
 
@@ -323,10 +398,13 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
     // with start cal as individual action for when printing individual msg_task
     // since auto cal is a series of start cal
     auto const start_cal_ui = UserInstruction(Action::start, Kind::cal);
+
     auto msg_tasks =
         cmd_file_reader_.construct_msg_tasks<Action::start, Kind::cal>(
             start_cal_ui,
             ta);
+
+    auto const sce = sensor_control_cal(q, s);
 
     // the cal times depend on the digitizer time (seconds since epoch)
     // ---------------------------------------------------------------------- //
@@ -338,6 +416,7 @@ void Comm::run<Action::auto_, Kind::cal>(TA const & ta, OI const & oi) {
 
         // settling_time is a duration, named following manual
         cal->starting_time( msg_task.exec_time() + cal->settling_time() );
+        cal->sensor_control_enable = sce;
     }
 
     // stream full sequence
@@ -525,83 +604,38 @@ template<>
 void Comm::run<Action::auto_, Kind::stat>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
-    auto & s = sn.s_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
 
-    // e300 keep alive setup
-    // ---------------------------------------------------------------------- //
-    if (s.config.has_e300) { std::cout << "\nTODO test if needed"; return;}
-
-    // make sure cals are coordinated (not send a cal when there is one)
-    // ---------------------------------------------------------------------- //
-    auto boom_positions = [&]() -> std::array<int, 6> const {
-
-        // request status
-        C1Rqstat cmd_rqstat;
-        cmd_rqstat.request_bitmap.boom_positions(true);
-        // status
-        C1Stat cmd_stat;
-
-        // needs to be registered
-        md.send_recv(q.port_config, cmd_rqstat, cmd_stat, false);
-
-        // get global status
-        CxBoomPositions * bp =
-            dynamic_cast<CxBoomPositions  *>( cmd_stat.inner_commands[0].get() );
-
-        if (bp == nullptr) throw FatalException("Comm",
-                                                "run",
-                                                "boom positions nullptr");
-
-        std::array<int, 6> const boom_positions {bp -> channel_1_boom(),
-                                                 bp -> channel_2_boom(),
-                                                 bp -> channel_3_boom(),
-                                                 bp -> channel_4_boom(),
-                                                 bp -> channel_5_boom(),
-                                                 bp -> channel_6_boom()};
-        return boom_positions;
-    };
+    if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
 
     // ---------------------------------------------------------------------- //
-    try {
+    if (s.config.has_e300) { std::cout << "\nTODO E300 auto stat"; return;}
 
-        auto constexpr loop_limit = 10;
-        auto constexpr period = std::chrono::seconds(1); 
-        Comm::run<Action::set, Kind::reg>(ta);
+    // ---------------------------------------------------------------------- //
+    using Point = std::array<int16_t, 3>;
 
-        std::cout << std::endl << " ### now: " << Time::sys_time_of_day() << " ###\n";
+    // ---------------------------------------------------------------------- //
+    auto constexpr number_of_axis = 3;
+    auto constexpr period = std::chrono::milliseconds(500);
+    auto constexpr pps = 2; // points per second (changes with period)
+    auto constexpr ppl = 2;  // points per line, changes plot looks
 
-        // can't use delay since delay is meant for independently sent cals
-        for (int i = 0; i < loop_limit; i++) {
+    StreamPlotter<int16_t, number_of_axis, pps, int8_t> sp(ppl);
 
-            auto const bp = boom_positions();
+    // changes the plot looks, adding a > when value at 127
+    sp.min_limit = -126; sp.max_limit = 126;
 
-            std::cout << "<" << bp[0] << ">";
+    std::chrono::seconds loop_limit = std::chrono::minutes(2);
 
-            std::this_thread::sleep_for(period);
-        }
+    for (std::chrono::milliseconds i(0); i < loop_limit; i += period) {
 
-        Comm::run<Action::set, Kind::dereg>(ta);
+        Point const bp = boom_positions<Point>(q, s);
 
-        std::cout << std::endl << " ### now: "
-                  << Time::sys_time_of_day() << " ###\n";
-
-    } catch (Exception const & e) {
-
-        //std::cout.rdbuf(cout_buffer);
-
-        // cancel keep alive thread and rethrow exception
-        std::cerr << std::endl << "caught @Comm::run<auto, stat:boom>";
-        std::cerr << std::endl << "cancelling auto stat:boom"
-                  << "\n deregistering: \n";
-        Comm::run<Action::set, Kind::dereg>(ta);
-        std::cerr << "\n cancelling keep alive for e300: \n";
-        // ok to set even if keep_alive(...)  was not called here
-        if (s.config.has_e300) s.port_e300_ref().cancel_keep_alive();
-        std::cerr << std::endl << "rethrow";
-        throw e;
+        sp.add(bp);
+        sp.plot_lines();
+        std::cout << std::flush;
+        if ( Utility::cin_cancel(period) ) break;
     }
-
-    //std::cout.rdbuf(cout_buffer);
 }
 
 // -------------------------------------------------------------------------- //
@@ -609,35 +643,52 @@ template<>
 void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
-    auto const & s = sn.s_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
 
-    // TODO experiment with these values
-
+    // --------- E300 registration ----------- //
+    if (s.config.has_e300) throw InfoException("Comm",
+                                               "run<set, center>",
+                                               "TODO: set center for e300");
     using Minutes = std::chrono::minutes;
 
     // mass centering set
-    C2Samass cmd_samass;
-    cmd_samass.tolerance_1a(1);
-    cmd_samass.tolerance_1b(1);
-    cmd_samass.tolerance_1c(1);
-    cmd_samass.maximum_tries_1(3);
-    cmd_samass.normal_interval_1( Minutes(2) );
-    cmd_samass.squelch_interval_1( Minutes(2) );
+    auto constexpr maximum_tries = 5;
+    auto constexpr normal_interval = Minutes(2);
+    auto constexpr squelch_interval = Minutes(3);
+
+    // how does this work with invalid sensors (boom at 20)?
+    // legitimate sensors can also take the value 20
+    auto constexpr tolerance = 0;
+
     // the pulse needs to be in CentiSeconds.
     // (q330 manual "Duration 10 ms intervals")
     // using centi directly assures there is no truncation, using milliseconds
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
-    auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(95);
+    auto constexpr pulse_duration = std::chrono::seconds(2);
 
-    cmd_samass.pulse_duration_1(pulse_duration);
+    C2Samass cmd_samass;
+
+    auto const sce = sensor_control_center(q, s);
 
     if (s.config.input == Sensor::Input::a) {
-        cmd_samass.sensor_control_bitmap_1.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_centering);
+        cmd_samass.pulse_duration_1(pulse_duration);
+        cmd_samass.tolerance_1a(tolerance);
+        cmd_samass.tolerance_1b(tolerance);
+        cmd_samass.tolerance_1c(tolerance);
+        cmd_samass.maximum_tries_1(maximum_tries);
+        cmd_samass.normal_interval_1(normal_interval);
+        cmd_samass.squelch_interval_1(squelch_interval);
+        cmd_samass.sensor_control_enable_1 = sce;
     } else {
-        cmd_samass.sensor_control_bitmap_1.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_b_centering);
+        cmd_samass.pulse_duration_2(pulse_duration);
+        cmd_samass.tolerance_2a(tolerance);
+        cmd_samass.tolerance_2b(tolerance);
+        cmd_samass.tolerance_2c(tolerance);
+        cmd_samass.maximum_tries_2(maximum_tries);
+        cmd_samass.normal_interval_2(normal_interval);
+        cmd_samass.squelch_interval_2(squelch_interval);
+        cmd_samass.sensor_control_enable_2 = sce;
     }
 
 
@@ -654,10 +705,10 @@ void Comm::run<Action::set, Kind::center>(TA const & ta, OI const & oi) {
 
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
+void Comm::run<Action::start, Kind::center>(TA const & ta, OI const & oi) {
 
     auto & q = sn.q_ref(ta);
-    auto const & s = sn.s_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
 
     // ---------------------------------------------------------------------- //
     auto centering_is_running = [&]() {
@@ -679,23 +730,20 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
                                                 "autocal",
                                                 "global stat nullptr");
 
-        auto const & scm = gs -> sensor_control_bitmap.sensor_control_mapping();
+        auto const & scm = gs -> sensor_control_enable();
 
-        using SCM = BmStatSensorControlBitmap::SensorControlMapping;
-
-        return (scm == SCM::sensor_a_centering or
-                scm == SCM::sensor_b_centering or
-                scm == SCM::sensor_a_calibration or
-                scm == SCM::sensor_b_calibration);
+        return ( static_cast<bool>( scm.to_ulong() ) );
     };
 
     // make sure another centering is not running
+    // ---------------------------------------------------------------------- //
     if ( centering_is_running() ) {
         throw FatalException("Comm",
                              "run<auto, cal>",
                              "Calibrations are not coordinated");
     }
 
+    // ---------------------------------------------------------------------- //
     // pulse setup for mass centering
     C1Pulse cmd_pulse;
 
@@ -704,44 +752,252 @@ void Comm::run<Action::start, Kind::pulse>(TA const & ta, OI const & oi) {
     // using centi directly assures there is no truncation, using milliseconds
     // will be interpreted as possible truncation and will not compile unless
     // using floor to the expected type
-    auto constexpr pulse_duration = std::chrono::duration<int, std::centi>(90);
+    std::chrono::duration<uint16_t, std::centi> pulse_duration;
+
+    if (oi.option.find('&') != std::string::npos) {
+        pulse_duration = Utility::match_duration(oi.option);
+    } else {
+        pulse_duration = std::chrono::seconds(2);
+    }
+
+    auto constexpr consensus_max_pulse_duration = std::chrono::seconds(10);
+    if (pulse_duration > consensus_max_pulse_duration) {
+        throw WarningException("Comm",
+                               "run <start, center>",
+                               "pulse duration > 10 seconds");
+    }
 
     cmd_pulse.pulse_duration(pulse_duration);
 
-    if (s.config.input == Sensor::Input::a) {
-        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_a_centering);
-    } else {
-        cmd_pulse.sensor_control_bitmap.sensor_control_mapping(
-            BmStatSensorControlBitmap::SensorControlMapping::sensor_b_centering);
-    }
+    auto const sce = sensor_control_center(q, s);
+    cmd_pulse.sensor_control_enable = sce;
 
     C1Cack cmd_cack;
     md.send_recv(q.port_config, cmd_pulse, cmd_cack);
 
     // create task_id
-    auto constexpr ui_id = UserInstruction::hash(Action::set, Kind::center);
+    auto constexpr ui_id = UserInstruction::hash(Action::start, Kind::center);
     auto const task_id = ta.hash() + ui_id;
 
     output_store.cmd_map[task_id] =
         std::make_unique<C1Cack>( std::move(cmd_cack) );
 }
 
+// -------------------------------------------------------------------------- //
+template<>
+void Comm::run<Action::auto_, Kind::center>(TA const & ta, OI const & oi) {
+
+
+    auto & q = sn.q_ref(ta);
+    auto const & s = sn.s_const_ref(ta);
+
+    if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
+
+    // ---------------------------------------------------------------------- //
+    if (s.config.has_e300) { std::cout << "\nTODO E300 auto center"; return;}
+
+    // ---------------------------------------------------------------------- //
+    using Point = std::array<int16_t, 3>;
+
+    auto constexpr tolerance = 10;
+    // ---------------------------------------------------------------------- //
+    auto centered = [](Point const & bp, auto const & tolerance) {
+        for (auto const & bp_axis : bp) {
+            if (std::abs(bp_axis) > tolerance) return false;
+        }
+        return true;
+    };
+
+    // ---------------------------------------------------------------------- //
+    auto stream_bp = [](auto const & bp) {
+        std::cout << "[";
+        for (auto const & bp_axis : bp) {
+            std::cout << std::setw(5) << bp_axis << " ";
+        }
+        std::cout << "]";
+    };
+
+    std::vector<Point> bps;
+    auto constexpr max_attempts = 5;
+    bool success = false;
+
+    OptionInput const oi_show_wait("&2m");
+    OptionInput const oi_auto_stat("boom");
+    // should match show wait (2m) and auto stat (2m)
+    auto constexpr sleep_duration = std::chrono::minutes(4);
+    auto attempt = 0;
+
+    // ---------------------------------------------------------------------- //
+    for (attempt = 0; attempt < max_attempts; attempt++) {
+
+        Point const bp = boom_positions<Point>(q, s);
+        bps.push_back(bp);
+        success = centered(bp, tolerance);
+        if (success) break;
+
+        auto const start_time = std::chrono::system_clock::now();
+
+        std::cout << "\ntolerance      : " << tolerance;
+        std::cout << "\nmass positions : "; stream_bp(bp);
+
+        // lets try to center this
+        run<Action::start, Kind::center>(ta, oi);
+        std::cout << std::endl << "mass center updates:";
+        run<Action::auto_, Kind::stat>(ta, oi_auto_stat);
+        std::cout << std::endl << "wait before checking centers again";
+        run<Action::show,  Kind::wait>(ta, oi_show_wait);
+        // force the wait even without stream output, if both previous
+        // instructions are not interrupted, this should sleep almost nothing
+        std::this_thread::sleep_until(start_time + sleep_duration);
+        std::cout << std::flush;
+    }
+
+    // ---------------------------------------------------------------------- //
+    auto const & st = sn.st[ta.st_child.index];
+
+     std::cout << "\n---------------------------------------"
+               << "\n      *** auto center summary ***      "
+               << "\n---------------------------------------";
+
+    std::cout << "\nstation   : " << st.config.station_name
+              << "\ndigitizer : " << q
+              << "\nsensor    : " << s;
+
+
+    std::cout << "\n\nresult    : " << (success ? "centered" : "!! failure")
+              <<   "\nattempts  : " << attempt
+              <<   "\ntolerance : " << tolerance;
+
+    std::cout << "\n\nmass positions :";
+
+    for (auto const bp : bps) {
+        std::cout << "\n";
+        stream_bp(bp);
+    }
+
+    std::cout << std::endl << "\n### "
+              << Time::sys_year_month_day() << " "
+              << "julian(" << Time::julian_day() << ") "
+              << Time::sys_time_of_day() << " ###";
+}
+
 // *** QUICK VIEW *** //
 // -------------------------------------------------------------------------- //
 template<>
-void Comm::run<Action::get, Kind::qview>(TA const & ta, OI const & oi) {
-    // no option yet in green_manzano
-    // handled completely by red_manzano, no common library worked
-    /*
-    // create task_id
-    auto constexpr ui_id = UserInstruction::hash(Action::get, Kind::qview);
-    auto const task_id = ta.hash() + ui_id;
+void Comm::run<Action::auto_, Kind::qview>(TA const & ta, OI const & oi) {
 
-    // move to cmd store
-     output_store.cmd_map[task_id] =
-        std::make_unique<C2Qv>( std::move(cmd_qv) );
-        */
+    auto & q = sn.q_ref(ta);
+
+    if ( not q_is_reg(q) ) Comm::run<Action::set, Kind::reg>(ta);
+
+    C2Rqqv cmd_rqqv;
+    C2Qv cmd_qv;
+
+    auto const & s = sn.s_const_ref(ta);
+
+    if (s.config.input == Sensor::Input::a) {
+        cmd_rqqv.channel_map.channel_1(true);
+        cmd_rqqv.channel_map.channel_2(true);
+        cmd_rqqv.channel_map.channel_3(true);
+    } else {
+        cmd_rqqv.channel_map.channel_4(true);
+        cmd_rqqv.channel_map.channel_5(true);
+        cmd_rqqv.channel_map.channel_6(true);
+
+    }
+
+    using Point = std::array<int32_t, 3>;
+
+    // initialized with current, updated with the received ones
+    int qv_seq_number = q_current_seq_number(q);
+
+    // ---------------------------------------------------------------------- //
+    auto qview_values = [&]() {
+
+        // "39 byte differences from starting value (40 bytes actually used)"
+        // the last point in the bit difference vector is always zero.
+        // it provides 40 points but only 39 are usable.
+        // the first point (absolute value) of the 40 is actually given by
+        // starting value, the other 39 are calculated using the differences
+        auto constexpr N = 40;
+        std::vector<Point> qview_values(N);
+
+        // you can get data from before seq_number_
+        // then you get several qv values
+        // now we would have to deal either with overlap or a small gap
+        cmd_rqqv.lowest_sequence_number(qv_seq_number);
+
+        md.send_recv(q.port_config, cmd_rqqv, cmd_qv, false);
+
+        // update values for next qv, assuming one
+        qv_seq_number = cmd_qv.starting_sequence_number() +
+                        cmd_qv.seconds_count().count();
+
+        // get the values
+        for (int axis = 0; axis < cmd_qv.inner_commands.size(); axis++) {
+
+            auto & cmd_cx_qv = cmd_qv.inner_commands[axis];
+            CxQv * qv = dynamic_cast<CxQv *>( cmd_cx_qv.get() );
+
+            if (qv == nullptr) throw std::logic_error{"@Comm::qview"};
+
+            // "Each [byte] difference must be multiplied by (1 << shift count)"
+            // CmdField<uint16_t, 2> shift_count;
+            auto const shift_count = qv -> shift_count();
+            auto const multiplier = 1 << shift_count;
+
+            auto const starting_value = qv -> starting_value();
+
+            qview_values[0][axis] = starting_value;
+
+            // takes data differences, which are signed bytes
+            // CmdField<std::array<int8_t, 40>, 40> byte_difference;
+            int8_t data_point;
+
+            // first point already taken
+            for (int i = 1; i < N; i++) {
+                data_point = qv -> byte_difference()[i];
+                auto const starting_diff = data_point * multiplier;
+                qview_values[i][axis] = starting_value + starting_diff;
+            }
+        }
+
+        return qview_values;
+    };
+
+    // number is 26 bit signed integer, T and Tc both int32_t
+    // ---------------------------------------------------------------------- //
+    auto constexpr number_of_axis = 3;
+    auto constexpr ppl = 20;  // points per line, changes plot looks
+    auto constexpr pps = 40; // points per second (property of qview)
+    StreamPlotter<int32_t, number_of_axis, pps> sp(ppl);
+
+    // just changes the plot looks
+    sp.min_limit = -33'000'000; sp.max_limit = 33'000'000;
+
+    // 16 minutes, less than 999 seconds
+    auto constexpr max_loop_limit = std::chrono::minutes(15);
+
+    std::chrono::seconds loop_limit;
+    if (oi.option.find('&') == std::string::npos) loop_limit = max_loop_limit;
+    else loop_limit = Utility::match_duration(oi.option);
+
+    // do not change the period
+    auto constexpr period = std::chrono::seconds(1);
+
+    for (std::chrono::seconds i(0); i < loop_limit; i += period) {
+
+        auto const qvv = qview_values();
+
+        sp.add(qvv);
+        sp.plot_lines();
+        if ( Utility::cin_cancel(period) ) break;
+    }
+
+    sp.set_ppl(4);
+    std::cout << std::endl;
+    sp.plot_all();
+
 }
 
 // -------------------------------------------------------------------------- //
@@ -798,27 +1054,47 @@ void Comm::run<Action::show, Kind::config>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::config>(ta);
 }
 
+// -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::show, Kind::status>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::status>(ta);
 }
 
+// -------------------------------------------------------------------------- //
 template<>
 void Comm::run<Action::show, Kind::command>(TA const & ta, OI const & oi) {
     stream_output.show<Kind::command>(ta);
 }
 
-/*
+// -------------------------------------------------------------------------- //
 template<>
-void Comm::data_recv(Digitizer & q) {
+void Comm::run<Action::start, Kind::link>(TA const & ta, OI const & oi) {
 
-    auto & q = sn.q_ref(ta);
+    auto & s = sn.s_ref(ta);
 
-    DtOpen cmd_data_open; // start data stream
+    // --------- E300 registration ----------- //
+    if (not s.config.has_e300) {
+        throw WarningException("Comm",
+                               "run<start, link>",
+                               "this sensor does not have E300 setup");
+    }
 
-    md.data_recv(q, cmd_data_open, data_msg);
+    auto & e300 = s.port_e300_ref();
+
+    e300.connect();
+
+    std::cout << std::endl << "input commands for E300, type quit to quit";
+    std::string input{};
+
+    while (true) {
+        std::cout << "\n_______________________________________";
+        std::cout << std::endl << "E300> ";
+        std::getline(std::cin, input);
+        if (input == "quit") break;
+        auto const response = e300.send_recv(input);
+        std::cout << response;
+    }
 }
 
-*/
 } // << mzn
 

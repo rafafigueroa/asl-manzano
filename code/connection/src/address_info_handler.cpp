@@ -16,9 +16,9 @@ AddressInfoHandler::AddressInfoHandler(int const port,
     // holds ai_hints
     struct addrinfo ai_hints;
 
-    // agnostic to ip4 or ip6
+    // ipv4
     ai_hints = {}; //set struct values to 0
-    ai_hints.ai_family = AF_UNSPEC;
+    ai_hints.ai_family = AF_INET;
 
     if (tcp) {
         // TCP

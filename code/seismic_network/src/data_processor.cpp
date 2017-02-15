@@ -26,4 +26,17 @@ std::string DataProcessor::uptime() {
     return uptime_value;
 }
 
+// -------------------------------------------------------------------------- //
+void DataProcessor::stream_config(std::ostream & os) const {
+
+    os << "\n    " << "user    : " << config.user
+       << "\n    " << "ip      : " << config.ip
+       << "\n    " << "auth    : " << config.pw;
+}
+
+// -------------------------------------------------------------------------- //
+void DataProcessor::stream_status(std::ostream & os) const {
+
+}
+
 } // << mzn

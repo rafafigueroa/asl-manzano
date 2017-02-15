@@ -114,6 +114,10 @@ public:
         return *this;
     }
 
+    // ---------------------------------------------------------------------- //
+    void stream_config(std::ostream & os) const;
+    void stream_status(std::ostream & os) const;
+
 private:
 
     Input string_to_input (std::string const & _input) {
@@ -145,29 +149,6 @@ std::ostream & operator<<(std::ostream & sn_os,
           << ", " << s.config.model
           <<  ")";
     return sn_os;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Sensor::Config const & config) {
-
-    os << "\n    " << "input    : " << config.input
-       << "\n    " << "model    : " << config.model
-       << std::boolalpha
-       << "\n    " << "has_e300 : " << config.has_e300
-       << std::noboolalpha;
-
-    return os;
-}
-
-// -------------------------------------------------------------------------- //
-inline
-std::ostream & operator<<(std::ostream & os,
-                          Sensor::Status const & status) {
-
-    os << "\n    " << "last_cal : " << status.last_cal;
-    return os;
 }
 
 

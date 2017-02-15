@@ -44,10 +44,12 @@ void InstructionInterpreter::match(UserInstruction const & ui,
         case Kind::dereg:   cm.run<action, Kind::dereg>(ta, oi);   break;
         case Kind::cal:     cm.run<action, Kind::cal>(ta, oi);     break;
         case Kind::center:  cm.run<action, Kind::center>(ta, oi);  break;
-        case Kind::pulse:   cm.run<action, Kind::pulse>(ta, oi);   break;
         case Kind::uptime:  cm.run<action, Kind::uptime>(ta, oi);  break;
         case Kind::mzn:     cm.run<action, Kind::mzn>(ta, oi);     break;
         case Kind::plan:    cm.run<action, Kind::plan>(ta, oi);    break;
+        case Kind::link:    cm.run<action, Kind::link>(ta, oi);    break;
+        case Kind::wait:    cm.run<action, Kind::wait>(ta, oi);    break;
+        case Kind::output:  cm.run<action, Kind::output>(ta, oi);  break;
         default:
             throw std::logic_error{"at InstructionInterpreter::run_instruction"};
     }
@@ -64,7 +66,7 @@ void InstructionInterpreter::run_instruction(UserInstruction const & ui,
         case Action::stop:  match<Action::stop>(ui, ta);  break;
         case Action::start: match<Action::start>(ui, ta); break;
         case Action::plan:  match<Action::plan>(ui, ta);  break;
-        case Action::auto_: match<Action::auto_>(ui, ta);  break;
+        case Action::auto_: match<Action::auto_>(ui, ta); break;
         case Action::quit:  match<Action::quit>(ui, ta);  break;
 
         // a special case here due that "edit target" changes this object only

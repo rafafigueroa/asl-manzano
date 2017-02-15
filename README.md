@@ -19,31 +19,30 @@
  + Udp, Tcp and Serial connections. Serial connections uses William Woodall [C++ serial library](https://github.com/wjwwood/serial)
  + Common addressing mechanism for a network of different devices (inclucing multiple stations).
  + Common instruction set for easy use of devices. For example, for the Q330 digitizer:
- 
- ```
- DEV:st[0]q[0] » show command
 
+ ```
+DEV:st[0]q[0] » show command
+### 22:39:41 ###
 
  show
  ├── target
  ├── command
  ├── config
- ├── plan
+ ├── wait [] [:&wait_duration]
  └── status
 
  edit
- ├── target
- └── plan
+ └── target
 
  get
  ├── poll
- ├── qview
- ├── ctrl
+ ├── output
  ├── center
  ├── global
  ├── ping
+ ├── reg
  ├── dev
- └── stat [] [:boom] [:gps] [:gpssat] [:power] [:dataport] [:pll]
+ └── stat [] [:boom] [:gps] [:gpssat] [:power] [:dataport] [:pll] [:thread]
 
  set
  ├── ctrl [:save] [:reboot] [:resync] [:gps_on] [:gps_off] [:gps_cold_start]
@@ -57,10 +56,10 @@
 ----------------------------------------------------------------------------
 ## Manzano Applications
 
-### Green Manzano 
+### Green Manzano
 Command line tool to use Manzano either interactively or with a script.
 
-### Yellow Manzano 
+### Yellow Manzano
 Interacts with an [E300](http://www.metrozet.com/legacy/STS1-E300_Manual_V1_20.pdf). Intended to run on a station's data_processor or another linux device connected serially with the E300, links the E300 with an udp server for remote interaction.
 
 ### Red Manzano (under development)

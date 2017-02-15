@@ -43,13 +43,12 @@ enum class Action {
 // -------------------------------------------------------------------------- //
 enum class Kind {
 
-    // ta show/edit *
     target,
     command,
     config,
     status,
+    wait,
 
-    // quit
     mzn,
 
     // q get *
@@ -60,25 +59,16 @@ enum class Kind {
     dev,
     stat,
 
-    // dp get *
     uptime,
-
-    // q set *
     ctrl,
+    output,
     reg,
     dereg,
-
-    // s get *
     center,
-
-    // s start *
     pulse,
-
-    // s start/plan *
     cal,
-
-    // * edit/show *
     plan,
+    link,
 };
 
 // operator<<
@@ -93,7 +83,7 @@ std::ostream & operator<<(std::ostream & os, Action const & action) {
         case Action::get   : os << "get"; break;
         case Action::set   : os << "set"; break;
         case Action::plan  : os << "plan"; break;
-        case Action::auto_  : os << "auto"; break;
+        case Action::auto_ : os << "auto"; break;
         case Action::stop  : os << "stop"; break;
         case Action::start : os << "start"; break;
 
@@ -112,6 +102,7 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
         case Kind::command       : os << "command"; break;
         case Kind::config        : os << "config"; break;
         case Kind::status        : os << "status"; break;
+        case Kind::wait          : os << "wait"; break;
 
         case Kind::poll          : os << "poll"; break;
         case Kind::ping          : os << "ping"; break;
@@ -123,6 +114,7 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
         case Kind::uptime        : os << "uptime"; break;
 
         case Kind::ctrl          : os << "ctrl"; break;
+        case Kind::output        : os << "output"; break;
         case Kind::cal           : os << "cal"; break;
         case Kind::pulse         : os << "pulse"; break;
         case Kind::reg           : os << "reg"; break;
@@ -130,6 +122,7 @@ std::ostream & operator<<(std::ostream & os, Kind const & kind) {
         case Kind::mzn           : os << "manzano"; break;
 
         case Kind::plan           : os << "plan"; break;
+        case Kind::link           : os << "link"; break;
 
         default : throw std::logic_error{"@UserInstruction::operator<< kind"};
     }
@@ -147,7 +140,7 @@ struct OptionInput {
     OptionInput() = default;
     ~OptionInput() = default;
 
-    OptionInput(std::string const & option, bool const live) :
+    OptionInput(std::string const & option, bool const live = false) :
             option{option},
             live{live} {}
 };

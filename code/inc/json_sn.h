@@ -14,6 +14,8 @@
 
 namespace mzn {
 
+namespace Utility {
+
 // -------------------------------------------------------------------------- //
 inline
 void ip_format_check(std::string const & ip) {
@@ -125,6 +127,7 @@ void ask(Json & json,
     else if (std::is_same<T, int>::value) json[key] = std::stoi(input);
     else throw std::logic_error("@JsonSn, ask, wrong type");
 }
+
 
 
 // -------------------------------------------------------------------------- //
@@ -665,6 +668,7 @@ Json json_add_child_from_ta(SeismicNetwork const & sn,
     }
 }
 
+} // <- Utility
 } // <- mzn
 
 #endif

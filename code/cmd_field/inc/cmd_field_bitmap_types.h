@@ -1865,15 +1865,62 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmSeedHeaderIoAndClockFla
 }
 
 // -------------------------------------------------------------------------- //
-class BmSensorControlBitmap : public CmdFieldBitmap<4> {
+class BmSensorControlEnable : public CmdFieldBitmap<2> {
 
-friend std::ostream & operator<<(std::ostream & bm_os, BmSensorControlBitmap const & bm);
+friend std::ostream & operator<<(std::ostream & bm_os, BmSensorControlEnable const & bm);
 
 public:
-    explicit BmSensorControlBitmap() : CmdFieldBitmap<4>{} {};
+    explicit BmSensorControlEnable() : CmdFieldBitmap<2>{} {};
+    bool const output_1() const {return this -> data_.test(0);}
+    bool const output_2() const {return this -> data_.test(1);}
+    bool const output_3() const {return this -> data_.test(2);}
+    bool const output_4() const {return this -> data_.test(3);}
+    bool const output_5() const {return this -> data_.test(4);}
+    bool const output_6() const {return this -> data_.test(5);}
+    bool const output_7() const {return this -> data_.test(6);}
+    bool const output_8() const {return this -> data_.test(7);}
+    void output_1(const bool b) {this -> data_.set(0, b);}
+    void output_2(const bool b) {this -> data_.set(1, b);}
+    void output_3(const bool b) {this -> data_.set(2, b);}
+    void output_4(const bool b) {this -> data_.set(3, b);}
+    void output_5(const bool b) {this -> data_.set(4, b);}
+    void output_6(const bool b) {this -> data_.set(5, b);}
+    void output_7(const bool b) {this -> data_.set(6, b);}
+    void output_8(const bool b) {this -> data_.set(7, b);}
+};
 
-    enum class SensorControlMapping {
-        not_doing_calibration_or_recentering = 0,
+inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlEnable const & bm) {
+    bm_os << "\n";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_1() ) << "] " <<
+        "output_1";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_2() ) << "] " <<
+        "output_2";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_3() ) << "] " <<
+        "output_3";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_4() ) << "] " <<
+        "output_4";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_5() ) << "] " <<
+        "output_5";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_6() ) << "] " <<
+        "output_6";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_7() ) << "] " <<
+        "output_7";
+    bm_os << "\n   [" << bm.bool_indicator( bm.output_8() ) << "] " <<
+        "output_8";
+    bm_os << "\n";
+    return bm_os;
+}
+
+// -------------------------------------------------------------------------- //
+class BmSensorControlOutput : public CmdFieldBitmap<1> {
+
+friend std::ostream & operator<<(std::ostream & bm_os, BmSensorControlOutput const & bm);
+
+public:
+    explicit BmSensorControlOutput() : CmdFieldBitmap<1>{} {};
+
+    enum class Line {
+        idle = 0,
         sensor_a_calibration = 1,
         sensor_a_centering = 2,
         sensor_a_capacitive_coupling = 3,
@@ -1890,83 +1937,81 @@ public:
         sensor_b_aux_2 = 14,
     };
 
-    bool const active_high() const {return this -> data_.test(8);}
-    SensorControlMapping const sensor_control_mapping() const {return static_cast<SensorControlMapping>( CmdFieldBitmap<4>::raw_value_from_range(0, 0x7F) );}
+    Line const line() const {return static_cast<Line>( CmdFieldBitmap<1>::raw_value() );}
+    void line(Line const c) {this -> data_ = std::bitset<8>( static_cast<unsigned long>(c) );}
 };
 
 //! special operator<< for enum class (codes) in bm
-inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlBitmap::SensorControlMapping const & bmc) {
-    using SensorControlMapping = BmSensorControlBitmap::SensorControlMapping;
-    bm_os << "\n   sensor_control_mapping : ";
+inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlOutput::Line const & bmc) {
+    using Line = BmSensorControlOutput::Line;
+    bm_os << "\n   line : ";
     switch(bmc) {
 
-    case SensorControlMapping::not_doing_calibration_or_recentering : {
-         bm_os << "not_doing_calibration_or_recentering";
+    case Line::idle : {
+         bm_os << "idle";
          break;}
 
-    case SensorControlMapping::sensor_a_calibration : {
+    case Line::sensor_a_calibration : {
          bm_os << "sensor_a_calibration";
          break;}
 
-    case SensorControlMapping::sensor_a_centering : {
+    case Line::sensor_a_centering : {
          bm_os << "sensor_a_centering";
          break;}
 
-    case SensorControlMapping::sensor_a_capacitive_coupling : {
+    case Line::sensor_a_capacitive_coupling : {
          bm_os << "sensor_a_capacitive_coupling";
          break;}
 
-    case SensorControlMapping::sensor_b_calibration : {
+    case Line::sensor_b_calibration : {
          bm_os << "sensor_b_calibration";
          break;}
 
-    case SensorControlMapping::sensor_b_centering : {
+    case Line::sensor_b_centering : {
          bm_os << "sensor_b_centering";
          break;}
 
-    case SensorControlMapping::sensor_b_capacitive_coupling : {
+    case Line::sensor_b_capacitive_coupling : {
          bm_os << "sensor_b_capacitive_coupling";
          break;}
 
-    case SensorControlMapping::sensor_a_lock : {
+    case Line::sensor_a_lock : {
          bm_os << "sensor_a_lock";
          break;}
 
-    case SensorControlMapping::sensor_a_unlock : {
+    case Line::sensor_a_unlock : {
          bm_os << "sensor_a_unlock";
          break;}
 
-    case SensorControlMapping::sensor_a_aux_1 : {
+    case Line::sensor_a_aux_1 : {
          bm_os << "sensor_a_aux_1";
          break;}
 
-    case SensorControlMapping::sensor_a_aux_2 : {
+    case Line::sensor_a_aux_2 : {
          bm_os << "sensor_a_aux_2";
          break;}
 
-    case SensorControlMapping::sensor_b_lock : {
+    case Line::sensor_b_lock : {
          bm_os << "sensor_b_lock";
          break;}
 
-    case SensorControlMapping::sensor_b_unlock : {
+    case Line::sensor_b_unlock : {
          bm_os << "sensor_b_unlock";
          break;}
 
-    case SensorControlMapping::sensor_b_aux_1 : {
+    case Line::sensor_b_aux_1 : {
          bm_os << "sensor_b_aux_1";
          break;}
 
-    case SensorControlMapping::sensor_b_aux_2 : {
+    case Line::sensor_b_aux_2 : {
          bm_os << "sensor_b_aux_2";
          break;}
     } // end switch
     return bm_os;
 }
-inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlBitmap const & bm) {
+inline std::ostream & operator<<(std::ostream & bm_os, BmSensorControlOutput const & bm) {
     bm_os << "\n";
-    bm_os << "\n   [" << bm.bool_indicator( bm.active_high() ) << "] " <<
-        "active_high";
-    bm_os << bm.sensor_control_mapping();
+    bm_os << bm.line();
     bm_os << "\n";
     return bm_os;
 }
@@ -2159,115 +2204,6 @@ inline std::ostream & operator<<(std::ostream & bm_os, BmStatClockQuality const 
     bm_os << "\n   [" << bm.bool_indicator( bm.speculative_lock_based_on_internal_clock() ) << "] " <<
         "speculative_lock_based_on_internal_clock";
     bm_os << bm.pll_status();
-    bm_os << "\n";
-    return bm_os;
-}
-
-// -------------------------------------------------------------------------- //
-class BmStatSensorControlBitmap : public CmdFieldBitmap<2> {
-
-friend std::ostream & operator<<(std::ostream & bm_os, BmStatSensorControlBitmap const & bm);
-
-public:
-    explicit BmStatSensorControlBitmap() : CmdFieldBitmap<2>{} {};
-
-    enum class SensorControlMapping {
-        not_doing_calibration_or_recentering = 0,
-        sensor_a_calibration = 1,
-        sensor_a_centering = 2,
-        sensor_a_capacitive_coupling = 3,
-        sensor_b_calibration = 4,
-        sensor_b_centering = 5,
-        sensor_b_capacitive_coupling = 6,
-        sensor_a_lock = 7,
-        sensor_a_unlock = 8,
-        sensor_a_aux_1 = 9,
-        sensor_a_aux_2 = 10,
-        sensor_b_lock = 11,
-        sensor_b_unlock = 12,
-        sensor_b_aux_1 = 13,
-        sensor_b_aux_2 = 14,
-    };
-
-    bool const active_high() const {return this -> data_.test(8);}
-    SensorControlMapping const sensor_control_mapping() const {return static_cast<SensorControlMapping>( CmdFieldBitmap<2>::raw_value_from_range(0, 0x7F) );}
-    void active_high(const bool b) {this -> data_.set(8, b);}
-    void sensor_control_mapping(SensorControlMapping const c) {CmdFieldBitmap<2>::set_raw_value_in_range(0, 0x7F, static_cast<unsigned long>(c) );}
-};
-
-//! special operator<< for enum class (codes) in bm
-inline std::ostream & operator<<(std::ostream & bm_os, BmStatSensorControlBitmap::SensorControlMapping const & bmc) {
-    using SensorControlMapping = BmStatSensorControlBitmap::SensorControlMapping;
-    bm_os << "\n   sensor_control_mapping : ";
-    switch(bmc) {
-
-    case SensorControlMapping::not_doing_calibration_or_recentering : {
-         bm_os << "not_doing_calibration_or_recentering";
-         break;}
-
-    case SensorControlMapping::sensor_a_calibration : {
-         bm_os << "sensor_a_calibration";
-         break;}
-
-    case SensorControlMapping::sensor_a_centering : {
-         bm_os << "sensor_a_centering";
-         break;}
-
-    case SensorControlMapping::sensor_a_capacitive_coupling : {
-         bm_os << "sensor_a_capacitive_coupling";
-         break;}
-
-    case SensorControlMapping::sensor_b_calibration : {
-         bm_os << "sensor_b_calibration";
-         break;}
-
-    case SensorControlMapping::sensor_b_centering : {
-         bm_os << "sensor_b_centering";
-         break;}
-
-    case SensorControlMapping::sensor_b_capacitive_coupling : {
-         bm_os << "sensor_b_capacitive_coupling";
-         break;}
-
-    case SensorControlMapping::sensor_a_lock : {
-         bm_os << "sensor_a_lock";
-         break;}
-
-    case SensorControlMapping::sensor_a_unlock : {
-         bm_os << "sensor_a_unlock";
-         break;}
-
-    case SensorControlMapping::sensor_a_aux_1 : {
-         bm_os << "sensor_a_aux_1";
-         break;}
-
-    case SensorControlMapping::sensor_a_aux_2 : {
-         bm_os << "sensor_a_aux_2";
-         break;}
-
-    case SensorControlMapping::sensor_b_lock : {
-         bm_os << "sensor_b_lock";
-         break;}
-
-    case SensorControlMapping::sensor_b_unlock : {
-         bm_os << "sensor_b_unlock";
-         break;}
-
-    case SensorControlMapping::sensor_b_aux_1 : {
-         bm_os << "sensor_b_aux_1";
-         break;}
-
-    case SensorControlMapping::sensor_b_aux_2 : {
-         bm_os << "sensor_b_aux_2";
-         break;}
-    } // end switch
-    return bm_os;
-}
-inline std::ostream & operator<<(std::ostream & bm_os, BmStatSensorControlBitmap const & bm) {
-    bm_os << "\n";
-    bm_os << "\n   [" << bm.bool_indicator( bm.active_high() ) << "] " <<
-        "active_high";
-    bm_os << bm.sensor_control_mapping();
     bm_os << "\n";
     return bm_os;
 }

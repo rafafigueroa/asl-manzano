@@ -38,7 +38,7 @@ public:
     CmdField<uint16_t> jump_filter;
     CmdFieldDuration<uint16_t, std::micro> jump_threshold;
     CmdField<uint16_t> calibrator_offset;
-    BmStatSensorControlBitmap sensor_control_bitmap;
+    BmSensorControlEnable sensor_control_enable;
     CmdFieldDuration<int16_t> sampling_phase;
     CmdFieldDuration<uint16_t> gps_cold_start_seconds;
     CmdField<uint32_t> kmi_user_tag;
